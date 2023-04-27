@@ -139,7 +139,7 @@ page 50102 "New Test Page"
                 }
                 action(Approvals)
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = All;
                     Caption = 'Approvals History';
                     Image = Approvals;
                     ToolTip = 'View approval requests.';
