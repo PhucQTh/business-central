@@ -6,6 +6,7 @@ page 50102 "New Test Page"
     SourceTable = Test;
     PromotedActionCategories = 'Approval';
     UsageCategory = Documents;
+    // InsertAllowed = false;
     layout
     {
         area(content)
