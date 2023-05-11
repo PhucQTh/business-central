@@ -1,11 +1,9 @@
 page 50103 MaterialList
 {
     ApplicationArea = All;
-    Caption = 'MaterialList';
+    Caption = 'Material List';
     SourceTable = Material;
     UsageCategory = Documents;
-    // CardPageId = "MaterialPage";
-    // AutoSplitKey = true;
     DelayedInsert = true;
     LinksAllowed = false;
     MultipleNewLines = true;
@@ -17,7 +15,17 @@ page 50103 MaterialList
             repeater(General)
             {
 
-                field(Item; Rec.Item)
+                field(ItemNo; Rec.ItemNo)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Material field.';
+                }
+                field(Description; Rec.Description)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Material field.';
+                }
+                field(Unit; Rec.Unit)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Material field.';

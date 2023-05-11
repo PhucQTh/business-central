@@ -62,8 +62,9 @@ table 50110 "Price Approval"
         }
         field(10; "User ID"; Text[200])
         {
-            Caption = 'General explanation';
+            Caption = 'User';
             DataClassification = ToBeClassified;
+
         }
 
 
@@ -83,6 +84,7 @@ table 50110 "Price Approval"
             NoSeriesSetup.TestField("Price Approval No.");
             NoSeriesMgt.InitSeries(NoSeriesSetup."Price Approval No.", xRec."No. Series", 0D, "No_", "No. Series");
         end;
+        "User ID" := Database.UserId();
     end;
 
     var

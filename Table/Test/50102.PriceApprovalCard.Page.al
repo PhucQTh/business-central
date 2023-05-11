@@ -6,7 +6,8 @@ page 50102 "Price Approval"
     SourceTable = "Price Approval";
     PromotedActionCategories = 'Approval';
     UsageCategory = Documents;
-    // InsertAllowed = false;
+    // InsertAllowed = DynamicEditable;
+
     layout
     {
         area(content)
@@ -22,6 +23,12 @@ page 50102 "Price Approval"
                         ToolTip = 'Specifies the value of the comment field.';
                     }
 
+                    field("User ID"; Rec."User ID")
+                    {
+                        Editable = false;
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies the value of the comment field.';
+                    }
 
                     field(Purpose; Rec.Purpose)
                     {
@@ -50,7 +57,6 @@ page 50102 "Price Approval"
             part(Material; "MaterialList")
             {
                 ApplicationArea = Basic, Suite;
-                Editable = DynamicEditable;
                 SubPageLink = "Code" = FIELD("No_");
                 UpdatePropagation = Both;
             }
@@ -203,12 +209,17 @@ page 50102 "Price Approval"
 
     trigger OnAfterGetCurrRecord()
     begin
-        DynamicEditable := CurrPage.Editable;
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
     end;
+
+    // trigger OnOpenPage()
+    // begin
+    //     if Rec."User ID" <> Database.UserId then
+    //         DynamicEditable := false;
+    // end;
 
     var
         OpenApprovalEntriesExistCurrUser, OpenApprovalEntriesExist, CanCancelApprovalForRecord

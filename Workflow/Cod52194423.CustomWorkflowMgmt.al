@@ -119,7 +119,7 @@ codeunit 50123 "Custom Workflow Mgmt"
         NoWorkflowEnabledErr: Label 'No approval workflow for this record type is enabled.';
         WorkflowSendForApprovalEventDescTxt: Label 'Approval of %1 is requested.';
         WorkflowCancelForApprovalEventDescTxt: Label 'Approval of %1 is canceled.';
-        DatabaseName: Label 'Test';
+    // DatabaseName: Label 'Test';
 
 }
 

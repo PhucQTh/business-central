@@ -5,11 +5,20 @@ table 50101 Material
 
     fields
     {
-        field(11; "Item"; code[20])
+        field(11; "ItemNo"; code[20])
         {
             TableRelation = Item;
             Caption = 'Material';
             DataClassification = ToBeClassified;
+            trigger OnValidate()
+            var
+                ItemRec: Record Item;
+            begin
+                if ItemRec.Get(ItemNo) then
+                    Description := ItemRec.Description;
+                Unit := ItemRec."Base Unit of Measure";
+            end;
+
         }
         field(2; "Product code of Manufacturer"; Text[100])
         {
@@ -38,6 +47,18 @@ table 50101 Material
             DataClassification = ToBeClassified;
         }
 
+        field(6; Description; Text[100])
+        {
+            Caption = 'Description';
+            DataClassification = ToBeClassified;
+            Editable = false;
+        }
+        field(7; Unit; code[10])
+        {
+            Caption = 'Unit';
+            DataClassification = ToBeClassified;
+            Editable = false;
+        }
     }
     keys
     {
