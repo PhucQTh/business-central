@@ -19,6 +19,7 @@ page 50102 "Price Approval"
                 {
                     field("Title"; Rec.Title)
                     {
+                        ShowMandatory = true;
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the comment field.';
                     }
@@ -32,6 +33,7 @@ page 50102 "Price Approval"
 
                     field(Purpose; Rec.Purpose)
                     {
+                        ShowMandatory = true;
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the Purpose field.';
                     }
@@ -46,6 +48,7 @@ page 50102 "Price Approval"
                     }
                     field("Due Date"; Rec."Due Date")
                     {
+                        ShowMandatory = true;
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the Due Date field.';
                     }
@@ -66,6 +69,7 @@ page 50102 "Price Approval"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the comment field.';
+                    MultiLine = true;
                 }
             }
             group(Attachment) { }
@@ -84,7 +88,7 @@ page 50102 "Price Approval"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Visible = NOT OpenApprovalEntriesExist;//! Could be use Enabled
+                    Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status");//! Could be use Enabled
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
                     Promoted = true;
@@ -203,9 +207,12 @@ page 50102 "Price Approval"
                 }
             }
         }
-
-
     }
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Rec."User ID" := Database.UserId();
+    end;
 
     trigger OnAfterGetCurrRecord()
     begin
@@ -213,17 +220,29 @@ page 50102 "Price Approval"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
+
     end;
 
-    // trigger OnOpenPage()
-    // begin
-    //     if Rec."User ID" <> Database.UserId then
-    //         DynamicEditable := false;
-    // end;
+
+    trigger OnClosePage()
+    begin
+        Rec.TestField(Title);
+        Rec.TestField("Due Date");
+        Rec.TestField(Purpose);
+    end;
+
+    trigger OnOpenPage()
+    begin
+        if (Rec."User ID" <> UserId) and (p::Open <> Rec."Status") then
+            CurrPage.Editable(false);
+    end;
+
 
     var
+        p: enum "Custom Approval Enum";
         OpenApprovalEntriesExistCurrUser, OpenApprovalEntriesExist, CanCancelApprovalForRecord
         , HasApprovalEntries : Boolean;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DynamicEditable: Boolean;
+        StatusStyleTxt: Text;
 }

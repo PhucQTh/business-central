@@ -90,29 +90,69 @@ codeunit 50123 "Custom Workflow Mgmt"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSetStatusToPendingApproval', '', false, false)]
     local procedure OnSetStatusToPendingApproval(RecRef: RecordRef; var Variant: Variant; var IsHandled: Boolean)
     var
-        CustomWorkflowHdr: Record "Price Approval";
+        PriceApproval: Record "Price Approval";
     begin
         case RecRef.Number of
             Database::"Price Approval":
                 begin
-                    RecRef.SetTable(CustomWorkflowHdr);
-                    CustomWorkflowHdr.Validate(Status, CustomWorkflowHdr.Status::Pending);
-                    CustomWorkflowHdr.Modify(true);
-                    Variant := CustomWorkflowHdr;
+                    RecRef.SetTable(PriceApproval);
+                    PriceApproval.Validate(Status, PriceApproval.Status::Pending);
+                    PriceApproval.Modify(true);
+                    Variant := PriceApproval;
                     IsHandled := true;
                 end;
         end;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnPopulateApprovalEntryArgument', '', false, false)]
+    local procedure OnPopulateApprovalEntryArgument(var RecRef: RecordRef; var ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance")
+    var
+        PriceApproval: Record "Price Approval";
+    begin
+        case RecRef.Number of
+            DataBase::"Price Approval":
+                begin
+                    RecRef.SetTable(PriceApproval);
+                    ApprovalEntryArgument."Document No." := PriceApproval."No_";
+                end;
+        end;
+    end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnRejectApprovalRequest', '', false, false)]
+    local procedure OnRejectApprovalRequest(var ApprovalEntry: Record "Approval Entry")
+    var
+        RecRef: RecordRef;
+        PriceApproval: Record "Price Approval";
+        v: Codeunit "Record Restriction Mgt.";
+    begin
+        case ApprovalEntry."Table ID" of
+            DataBase::"Price Approval":
+                begin
+                    if PriceApproval.Get(ApprovalEntry."Document No.") then begin
+                        PriceApproval.Validate(Status, PriceApproval.Status::Rejected);
+                        PriceApproval.Modify(true);
+                    end;
+                end;
+        end;
+    end;
 
-
-
-
-
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnReleaseDocument', '', false, false)]
+    local procedure OnReleaseDocument(RecRef: RecordRef; var Handled: Boolean)
+    var
+        PriceApproval: Record "Price Approval";
+    begin
+        case RecRef.Number of
+            DataBase::"Price Approval":
+                begin
+                    RecRef.SetTable(PriceApproval);
+                    PriceApproval.Validate(Status, PriceApproval.Status::Approved);
+                    PriceApproval.Modify(true);
+                    Handled := true;
+                end;
+        end;
+    end;
 
     var
-
         WorkflowMgt: Codeunit "Workflow Management";
         RUNWORKFLOWONSENDFORAPPROVALCODE: Label 'RUNWORKFLOWONSEND%1FORAPPROVAL';
         RUNWORKFLOWONCANCELFORAPPROVALCODE: Label 'RUNWORKFLOWONCANCEL%1FORAPPROVAL';
@@ -122,133 +162,3 @@ codeunit 50123 "Custom Workflow Mgmt"
     // DatabaseName: Label 'Test';
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// handle the document;
-
-// [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnOpenDocument', '', false, false)]
-// local procedure OnOpenDocument(RecRef: RecordRef; var Handled: Boolean)
-// var
-//     CustomWorkflowHdr: Record "Custom Workflow Header";
-// begin
-//     case RecRef.Number of
-//         Database::"Custom Workflow Header":
-//             begin
-//                 RecRef.SetTable(CustomWorkflowHdr);
-//                 CustomWorkflowHdr.Validate(Status, CustomWorkflowHdr.Status::Open);
-//                 CustomWorkflowHdr.Modify(true);
-//                 Handled := true;
-//             end;
-//     end;
-// end;
-
-// [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSetStatusToPendingApproval', '', false, false)]
-// local procedure OnSetStatusToPendingApproval(RecRef: RecordRef; var Variant: Variant; var IsHandled: Boolean)
-// var
-//     CustomWorkflowHdr: Record "Price Approval";
-// begin
-//     case RecRef.Number of
-//         Database::"Price Approval":
-//             begin
-//                 RecRef.SetTable(CustomWorkflowHdr);
-//                 CustomWorkflowHdr.Validate(Status, CustomWorkflowHdr.Status::Pending);
-//                 CustomWorkflowHdr.Modify(true);
-//                 Variant := CustomWorkflowHdr;
-//                 IsHandled := true;
-//             end;
-//     end;
-// end;
-
-// [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnPopulateApprovalEntryArgument', '', false, false)]
-// local procedure OnPopulateApprovalEntryArgument(var RecRef: RecordRef; var ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance")
-// var
-//     CustomWorkflowHdr: Record "Custom Workflow Header";
-// begin
-//     case RecRef.Number of
-//         DataBase::"Custom Workflow Header":
-//             begin
-//                 RecRef.SetTable(CustomWorkflowHdr);
-//                 ApprovalEntryArgument."Document No." := CustomWorkflowHdr."No.";
-//             end;
-//     end;
-// end;
-
-// [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnReleaseDocument', '', false, false)]
-// local procedure OnReleaseDocument(RecRef: RecordRef; var Handled: Boolean)
-// var
-//     CustomWorkflowHdr: Record "Custom Workflow Header";
-// begin
-//     case RecRef.Number of
-//         DataBase::"Custom Workflow Header":
-//             begin
-//                 RecRef.SetTable(CustomWorkflowHdr);
-//                 CustomWorkflowHdr.Validate(Status, CustomWorkflowHdr.Status::Approved);
-//                 CustomWorkflowHdr.Modify(true);
-//                 Handled := true;
-//             end;
-//     end;
-// end;
-
-// [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnRejectApprovalRequest', '', false, false)]
-// local procedure OnRejectApprovalRequest(var ApprovalEntry: Record "Approval Entry")
-// var
-//     RecRef: RecordRef;
-//     CustomWorkflowHdr: Record "Custom Workflow Header";
-//     v: Codeunit "Record Restriction Mgt.";
-// begin
-//     case ApprovalEntry."Table ID" of
-//         DataBase::"Custom Workflow Header":
-//             begin
-//                 if CustomWorkflowHdr.Get(ApprovalEntry."Document No.") then begin
-//                     CustomWorkflowHdr.Validate(Status, CustomWorkflowHdr.Status::Rejected);
-//                     CustomWorkflowHdr.Modify(true);
-//                 end;
-//             end;
-//     end;
-// end;

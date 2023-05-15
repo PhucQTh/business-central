@@ -44,6 +44,7 @@ table 50110 "Price Approval"
         {
             Caption = 'Title';
             DataClassification = ToBeClassified;
+            NotBlank = true;
         }
         field(7; "PR No."; Code[10])
         {
@@ -54,11 +55,15 @@ table 50110 "Price Approval"
         {
             Caption = 'Purpose';
             DataClassification = ToBeClassified;
+            NotBlank = true;
+
         }
         field(9; "Due Date"; Date)
         {
             Caption = 'Due Date';
             DataClassification = ToBeClassified;
+            NotBlank = true;
+
         }
         field(10; "User ID"; Text[200])
         {
@@ -84,8 +89,9 @@ table 50110 "Price Approval"
             NoSeriesSetup.TestField("Price Approval No.");
             NoSeriesMgt.InitSeries(NoSeriesSetup."Price Approval No.", xRec."No. Series", 0D, "No_", "No. Series");
         end;
-        "User ID" := Database.UserId();
+
     end;
+
 
     var
         NoSeriesSetup: Record "No. Series Setup";

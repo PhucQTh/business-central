@@ -24,6 +24,8 @@ table 50101 Material
         {
             Caption = 'Product code of Manufacturer';
             DataClassification = ToBeClassified;
+            NotBlank = true;
+
         }
         field(1; "Code"; Code[20])
         {
@@ -40,11 +42,15 @@ table 50101 Material
         {
             Caption = 'Supplier';
             DataClassification = ToBeClassified;
+            NotBlank = true;
+
         }
         field(4; Price; Text[200])
         {
             Caption = 'Price';
             DataClassification = ToBeClassified;
+            NotBlank = true;
+
         }
 
         field(6; Description; Text[100])
@@ -52,12 +58,16 @@ table 50101 Material
             Caption = 'Description';
             DataClassification = ToBeClassified;
             Editable = false;
+            NotBlank = true;
+
         }
         field(7; Unit; code[10])
         {
             Caption = 'Unit';
             DataClassification = ToBeClassified;
             Editable = false;
+            NotBlank = true;
+
         }
     }
     keys
