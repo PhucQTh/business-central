@@ -88,13 +88,12 @@ page 50102 "Price Approval"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status");//! Could be use Enabled
+                    Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") OR (p::Rejected = Rec."Status");//! Could be use Enabled
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
                     Promoted = true;
                     PromotedCategory = Process;
                     trigger OnAction()
-
                     var
                         CustomWorkflowMgmt: Codeunit "Custom Workflow Mgmt";
                         RecRef: RecordRef;
@@ -135,14 +134,23 @@ page 50102 "Price Approval"
                     ApplicationArea = All;
                     Caption = 'Approve';
                     Image = Approve;
-                    ToolTip = 'Approve the requested changes.';
+                    ToolTip = 'Approve the requested.';
                     Promoted = true;
                     PromotedCategory = New;
                     Visible = OpenApprovalEntriesExistCurrUser;
                     trigger OnAction()
+                    var
+                        Question: Text;
+                        Answer: Boolean;
+                        Text000: Label 'Do you agree with this request?';
                     begin
-                        ApprovalsMgmt.ApproveRecordApprovalRequest(Rec.RecordId);
+                        Question := Text000;
+                        Answer := Dialog.Confirm(Question, true, false);
+                        if Answer = true then begin
+                            ApprovalsMgmt.ApproveRecordApprovalRequest(Rec.RecordId);
+                        end;
                     end;
+
                 }
                 action(Reject)
                 {
@@ -154,9 +162,18 @@ page 50102 "Price Approval"
                     Promoted = true;
                     PromotedCategory = New;
                     trigger OnAction()
+                    var
+                        Question: Text;
+                        Answer: Boolean;
+                        Text000: Label 'Reject request?';
                     begin
-                        ApprovalsMgmt.RejectRecordApprovalRequest(Rec.RecordId);
+                        Question := Text000;
+                        Answer := Dialog.Confirm(Question, true, false);
+                        if Answer = true then begin
+                            ApprovalsMgmt.RejectRecordApprovalRequest(Rec.RecordId);
+                        end;
                     end;
+
                 }
                 action(Delegate)
                 {
@@ -233,7 +250,7 @@ page 50102 "Price Approval"
 
     trigger OnOpenPage()
     begin
-        if (Rec."User ID" <> UserId) and (p::Open <> Rec."Status") then
+        if (Rec."User ID" <> UserId) and (p::Open <> Rec."Status") and (p::Rejected <> Rec."Status") then
             CurrPage.Editable(false);
     end;
 
