@@ -20,7 +20,7 @@ table 50110 "Price Approval"
                 end;
             end;
         }
-        field(2; "General explanation"; Text[200])
+        field(2; "General explanation"; Blob)
         {
             Caption = 'General explanation';
             DataClassification = ToBeClassified;
@@ -91,8 +91,28 @@ table 50110 "Price Approval"
         end;
 
     end;
+    //!=============================================
+    procedure SetContent(Data: Text)
+    var
+        OutStreamVar: OutStream;
+    begin
+        Clear("General explanation");
+        "General explanation".CreateOutStream(OutStreamVar);
+        OutStreamVar.Write(Data);
+        if not Rec.Modify(true) then;
+    end;
 
-
+    procedure GetContent() Data: Text
+    var
+        InStreamVar: InStream;
+    begin
+        CalcFields("General explanation");
+        if not "General explanation".HasValue() then
+            exit;
+        "General explanation".CreateInStream(InStreamVar);
+        InStreamVar.Read(Data);
+    end;
+    //!=============================================
     var
         NoSeriesSetup: Record "No. Series Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;

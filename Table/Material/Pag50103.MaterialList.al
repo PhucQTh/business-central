@@ -6,7 +6,7 @@ page 50103 MaterialList
     UsageCategory = Documents;
     DelayedInsert = true;
     LinksAllowed = false;
-    MultipleNewLines = true;
+    MultipleNewLines = false;
     PageType = ListPart;
     layout
     {
@@ -14,28 +14,30 @@ page 50103 MaterialList
         {
             repeater(General)
             {
+                ShowAsTree = true;
+                // IndentationColumn = Rec."Line No.";
+                // field(ItemNo; Rec.ItemNo)
+                // {
+                //     ApplicationArea = All;
+                //     ToolTip = 'Specifies the value of the Material field.';
+                //     ShowMandatory = true;
 
-                field(ItemNo; Rec.ItemNo)
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the Material field.';
-                    ShowMandatory = true;
+                // }
+                // field(Description; Rec.Description)
+                // {
+                //     ApplicationArea = All;
+                //     ToolTip = 'Specifies the value of the Material field.';
 
-                }
-                field(Description; Rec.Description)
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the Material field.';
+                // }
+                // field(Unit; Rec.Unit)
+                // {
+                //     ApplicationArea = All;
+                //     ToolTip = 'Specifies the value of the Material field.';
+                //     NotBlank = true;
+                //     ShowMandatory = true;
 
-                }
-                field(Unit; Rec.Unit)
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the Material field.';
-                    NotBlank = true;
-                    ShowMandatory = true;
+                // }
 
-                }
                 field(Price; Rec.Price)
                 {
                     ApplicationArea = All;
@@ -44,10 +46,10 @@ page 50103 MaterialList
                     ShowMandatory = true;
 
                 }
-                field("Product code of Manufacturer"; Rec."Product code of Manufacturer")
+                field("Product code of Manufacturer"; Rec."Manufacturer's code:")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the Product code of Manufacturer field.';
+                    ToolTip = 'Specifies the value of the Manufacturer''s code: field.';
                     NotBlank = true;
                     ShowMandatory = true;
 
@@ -59,6 +61,32 @@ page 50103 MaterialList
                     ShowMandatory = true;
                 }
             }
+        }
+
+    }
+    actions
+    {
+
+        area(Processing)
+        {
+            // action(NewMaterial)
+            // {
+            //     Image = New;
+            //     Caption = 'Add New Material';
+            //     ApplicationArea = All;
+
+            //     trigger OnAction()
+            //     var
+            //         AddNew: Page "MaterialCardPage";
+            //         NewRec: Record "Material";
+            //     begin
+            //         NewRec.Init();
+            //         NewRec.Code := Rec.Code;
+            //         AddNew.SetRecord(NewRec);
+            //         AddNew.Run();
+            //     end;
+
+            // }
         }
     }
 }

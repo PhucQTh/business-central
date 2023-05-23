@@ -6,13 +6,11 @@ page 50102 "Price Approval"
     SourceTable = "Price Approval";
     PromotedActionCategories = 'Approval';
     UsageCategory = Documents;
-    // InsertAllowed = DynamicEditable;
 
     layout
     {
         area(content)
         {
-
             group(Generals)
             {
                 group(Informations)
@@ -38,7 +36,6 @@ page 50102 "Price Approval"
                         ToolTip = 'Specifies the value of the Purpose field.';
                     }
                 }
-
                 group("Ticket Status")
                 {
                     field(Status; Rec.Status)
@@ -56,20 +53,33 @@ page 50102 "Price Approval"
                 }
 
             }
-
-            part(Material; "MaterialList")
+            // part(Material; "MaterialList")
+            // {
+            //     ApplicationArea = Basic, Suite;
+            //     SubPageLink = "Code" = FIELD("No_");
+            //     UpdatePropagation = Both;
+            // }
+            part(Material; "MaterialTreeList")
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = All;
                 SubPageLink = "Code" = FIELD("No_");
-                UpdatePropagation = Both;
+                // UpdatePropagation = Both;
             }
-            group(Comments)
+            group("General explanation")
             {
-                field("General explanation"; Rec."General explanation")
+                usercontrol(SMTEditor; "SMT Editor")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the comment field.';
-                    MultiLine = true;
+                    trigger ControlAddinReady()
+                    begin
+                        NewData := Rec.GetContent();
+                        CurrPage.SMTEditor.InitializeSummerNote(NewData);
+                    end;
+
+                    trigger onBlur(Data: Text)
+                    begin
+                        NewData := Data;
+                    end;
                 }
             }
             group(Attachment) { }
@@ -80,6 +90,136 @@ page 50102 "Price Approval"
 
         area(Processing)
         {
+            action(Update)
+            {
+                ApplicationArea = all;
+                Image = WorkCenterLoad;
+                Caption = 'Refresh Page';
+
+                trigger OnAction()
+                var
+                    UpdatedLbl: Label 'Page Refreshed';
+                begin
+                    CurrPage.Material.Page.LoadOrders();
+                    Message(UpdatedLbl);
+                end;
+            }
+            action(NewMaterial)
+            {
+                Image = New;
+                Caption = 'Add New Material';
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    AddNew: Page "MaterialCardPage";
+                    NewRec: Record "Material";
+                begin
+
+                    NewRec.Init();
+                    NewRec.Code := Rec.No_;
+                    NewRec.Insert();
+                    AddNew.SetRecord(NewRec);
+                    AddNew.Run();
+                end;
+
+            }
+            group(Approval)
+            {
+                // Caption = 'Approval';
+                Image = Approvals;
+                action(Approve)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Approve';
+                    Image = Approve;
+                    ToolTip = 'Approve the requested.';
+                    Promoted = true;
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    trigger OnAction()
+                    var
+                        Question: Text;
+                        Answer: Boolean;
+                        Text000: Label 'Do you agree with this request?';
+                    begin
+                        Question := Text000;
+                        Answer := Dialog.Confirm(Question, true, false);
+                        if Answer = true then begin
+                            ApprovalsMgmt.ApproveRecordApprovalRequest(Rec.RecordId);
+                        end;
+                    end;
+
+                }
+                action(Reject)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Reject';
+                    Image = Reject;
+                    ToolTip = 'Reject the approval request.';
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    Promoted = true;
+                    trigger OnAction()
+                    var
+                        Question: Text;
+                        Answer: Boolean;
+                        Text000: Label 'Reject request?';
+                    begin
+                        Question := Text000;
+                        Answer := Dialog.Confirm(Question, true, false);
+                        if Answer = true then begin
+                            ApprovalsMgmt.RejectRecordApprovalRequest(Rec.RecordId);
+                        end;
+                    end;
+
+                }
+                action(Delegate)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Delegate';
+                    Image = Delegate;
+                    ToolTip = 'Delegate the approval to a substitute approver.';
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    Promoted = true;
+                    trigger OnAction()
+
+                    begin
+                        ApprovalsMgmt.DelegateRecordApprovalRequest(Rec.RecordId);
+                    end;
+                }
+                action(Comment)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Comments';
+                    Image = ViewComments;
+                    ToolTip = 'View or add comments for the record.';
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    Promoted = true;
+
+                    PromotedCategory = New;
+
+
+                    trigger OnAction()
+                    begin
+                        ApprovalsMgmt.GetApprovalComment(Rec);
+                    end;
+                }
+                action(Approvals)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Approvals History';
+                    Image = Approvals;
+                    ToolTip = 'View approval requests.';
+                    Promoted = true;
+                    PromotedCategory = Process; //!Show in toolbar
+                    Visible = HasApprovalEntries;
+
+                    trigger OnAction()
+                    begin
+                        ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
+                    end;
+                }
+            }
+
             group("Request Approval")
             {
                 Caption = 'Request Approval';
@@ -125,110 +265,14 @@ page 50102 "Price Approval"
         }
         area(Creation)
         {
-            group(Approval)
-            {
-                Caption = 'Approval';
-                Image = Approvals;
-                action(Approve)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Approve';
-                    Image = Approve;
-                    ToolTip = 'Approve the requested.';
-                    Promoted = true;
-                    PromotedCategory = New;
-                    Visible = OpenApprovalEntriesExistCurrUser;
-                    trigger OnAction()
-                    var
-                        Question: Text;
-                        Answer: Boolean;
-                        Text000: Label 'Do you agree with this request?';
-                    begin
-                        Question := Text000;
-                        Answer := Dialog.Confirm(Question, true, false);
-                        if Answer = true then begin
-                            ApprovalsMgmt.ApproveRecordApprovalRequest(Rec.RecordId);
-                        end;
-                    end;
 
-                }
-                action(Reject)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Reject';
-                    Image = Reject;
-                    ToolTip = 'Reject the approval request.';
-                    Visible = OpenApprovalEntriesExistCurrUser;
-                    Promoted = true;
-                    PromotedCategory = New;
-                    trigger OnAction()
-                    var
-                        Question: Text;
-                        Answer: Boolean;
-                        Text000: Label 'Reject request?';
-                    begin
-                        Question := Text000;
-                        Answer := Dialog.Confirm(Question, true, false);
-                        if Answer = true then begin
-                            ApprovalsMgmt.RejectRecordApprovalRequest(Rec.RecordId);
-                        end;
-                    end;
-
-                }
-                action(Delegate)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Delegate';
-                    Image = Delegate;
-                    ToolTip = 'Delegate the approval to a substitute approver.';
-                    Visible = OpenApprovalEntriesExistCurrUser;
-                    Promoted = true;
-                    PromotedCategory = New;
-                    trigger OnAction()
-
-                    begin
-                        ApprovalsMgmt.DelegateRecordApprovalRequest(Rec.RecordId);
-                    end;
-                }
-                action(Comment)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Comments';
-                    Image = ViewComments;
-                    ToolTip = 'View or add comments for the record.';
-                    Visible = OpenApprovalEntriesExistCurrUser;
-                    Promoted = true;
-
-                    PromotedCategory = New;
-
-
-                    trigger OnAction()
-                    begin
-                        ApprovalsMgmt.GetApprovalComment(Rec);
-                    end;
-                }
-                action(Approvals)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Approvals History';
-                    Image = Approvals;
-                    ToolTip = 'View approval requests.';
-                    Promoted = true;
-                    PromotedCategory = Process; //!Show in toolbar
-                    Visible = HasApprovalEntries;
-
-                    trigger OnAction()
-                    begin
-                        ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
-                    end;
-                }
-            }
         }
     }
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec."User ID" := Database.UserId();
+
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -246,6 +290,7 @@ page 50102 "Price Approval"
         Rec.TestField(Title);
         Rec.TestField("Due Date");
         Rec.TestField(Purpose);
+        Rec.SetContent(NewData);
     end;
 
     trigger OnOpenPage()
@@ -254,7 +299,6 @@ page 50102 "Price Approval"
             CurrPage.Editable(false);
     end;
 
-
     var
         p: enum "Custom Approval Enum";
         OpenApprovalEntriesExistCurrUser, OpenApprovalEntriesExist, CanCancelApprovalForRecord
@@ -262,4 +306,6 @@ page 50102 "Price Approval"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DynamicEditable: Boolean;
         StatusStyleTxt: Text;
+        EditorReady: Boolean;
+        NewData: Text;
 }
