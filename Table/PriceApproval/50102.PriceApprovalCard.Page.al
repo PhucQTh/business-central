@@ -49,21 +49,28 @@ page 50102 "Price Approval"
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the Due Date field.';
                     }
-
                 }
-
             }
-            // part(Material; "MaterialList")
-            // {
-            //     ApplicationArea = Basic, Suite;
-            //     SubPageLink = "Code" = FIELD("No_");
-            //     UpdatePropagation = Both;
-            // }
+            field(addNewBtn; AddNewBtnLbl)
+            {
+                ApplicationArea = All;
+                ShowCaption = false;
+                trigger OnDrillDown()
+                var
+                    AddNew: Page "MaterialCardPage";
+                    NewRec: Record "Material";
+                begin
+                    NewRec.Init();
+                    NewRec.Code := Rec.No_;
+                    NewRec.Insert();
+                    AddNew.SetRecord(NewRec);
+                    AddNew.Run();
+                end;
+            }
             part(Material; "MaterialTreeList")
             {
                 ApplicationArea = All;
                 SubPageLink = "Code" = FIELD("No_");
-                // UpdatePropagation = Both;
             }
             group("General explanation")
             {
@@ -272,7 +279,6 @@ page 50102 "Price Approval"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec."User ID" := Database.UserId();
-
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -281,7 +287,6 @@ page 50102 "Price Approval"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
-
     end;
 
 
@@ -308,4 +313,5 @@ page 50102 "Price Approval"
         StatusStyleTxt: Text;
         EditorReady: Boolean;
         NewData: Text;
+        AddNewBtnLbl: Label 'Add New Material';
 }

@@ -5,6 +5,7 @@ page 50106 MaterialCardPage
     PageType = Card;
     SourceTable = Material;
     UsageCategory = Documents;
+
     layout
     {
         area(content)
@@ -75,6 +76,6 @@ page 50106 MaterialCardPage
             }
 
         }
-
     }
+
 }

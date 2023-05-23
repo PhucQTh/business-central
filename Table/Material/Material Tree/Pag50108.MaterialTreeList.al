@@ -1,9 +1,10 @@
 page 50108 MaterialTreeList
 {
-    Caption = 'MaterialTreeList';
+    Caption = 'Materials';
     PageType = ListPart;
     SourceTable = "Material Tree";
     Editable = false;
+
     layout
     {
         area(content)
