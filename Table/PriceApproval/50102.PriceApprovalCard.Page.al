@@ -5,7 +5,7 @@ page 50102 "Price Approval"
     PageType = Card;
     SourceTable = "Price Approval";
     PromotedActionCategories = 'Approval';
-    UsageCategory = Documents;
+    UsageCategory = Lists;
 
     layout
     {
@@ -238,6 +238,10 @@ page 50102 "Price Approval"
         }
     }
 
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        Message('Function is diabled');
+    end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin

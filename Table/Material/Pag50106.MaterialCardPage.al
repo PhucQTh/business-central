@@ -1,13 +1,11 @@
 page 50106 MaterialCardPage
 {
-    // ApplicationArea = All;
     Caption = 'MaterialCardPage';
     PageType = Card;
     SourceTable = Material;
     UsageCategory = Lists;
     InsertAllowed = false;
     DeleteAllowed = false;
-
 
     layout
     {
@@ -76,9 +74,10 @@ page 50106 MaterialCardPage
                 SubPageLink = "Material No." = FIELD("Line No."), Code = field("Code");
                 UpdatePropagation = Both;
             }
-
         }
+
     }
+
 
     trigger OnOpenPage()
     var
@@ -90,6 +89,11 @@ page 50106 MaterialCardPage
             CurrPage.SetRecord(newRec);
             CurrPage.SaveRecord();
         end
+    end;
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        Message('Function is diabled');
     end;
 
     procedure SetData(data: Code[10]; iisNew: Boolean)

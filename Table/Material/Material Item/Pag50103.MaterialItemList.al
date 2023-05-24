@@ -6,7 +6,7 @@ page 50107 MaterialItemList
     UsageCategory = Documents;
     DelayedInsert = true;
     LinksAllowed = false;
-    MultipleNewLines = false;
+
     PageType = ListPart;
     layout
     {
