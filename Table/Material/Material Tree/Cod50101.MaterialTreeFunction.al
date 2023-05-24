@@ -6,7 +6,7 @@ codeunit 50101 MaterialTreeFunction
     begin
         rlMaterialTree.DeleteAll();
         MSupplier.SetRange("Code", PAid);
-        if MSupplier.FindSet() then begin
+        if MSupplier.FindFirst() then begin
             repeat
                 CreateLevel0(MSupplier, rlMaterialTree);
                 CreateLevel1(MSupplier, rlMaterialTree);

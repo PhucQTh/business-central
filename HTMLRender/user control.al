@@ -4,10 +4,15 @@ controladdin HTML
     StartupScript = 'HTMLRender/startup.js';
     Scripts = 'HTMLRender/scripts.js';
     HorizontalStretch = true;
+    HorizontalShrink = true;
+
     VerticalStretch = true;
-    RequestedHeight = 700;
+    VerticalShrink = true;
+    RequestedHeight = 100;
+
     event ControlReady();
-    procedure Render(HTML: Text);
-    event ButtonPressed(LineNo: Integer);
+    procedure Render(HTML: Text; reload: Boolean);
+    event handleEditBtn(LineNo: Integer);
+    event handleDelBtn(LineNo: Integer);
     procedure addButton(LineNo: Integer);
 }

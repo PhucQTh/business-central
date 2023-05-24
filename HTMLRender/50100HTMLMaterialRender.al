@@ -5,21 +5,37 @@ page 50100 "Material Html Rendering"
     ApplicationArea = all;
     SourceTable = "Material Tree";
     PageType = ListPart;
-
+    InsertAllowed = false;
+    ModifyAllowed = false;
+    DeleteAllowed = false;
     layout
     {
         area(Content)
         {
+            field(addNewBtn; AddNewBtnLbl)
+            {
+                ApplicationArea = All;
+                ShowCaption = false;
+                StyleExpr = 'Strong';
+                trigger OnDrillDown()
+                var
+                    AddNew: Page "MaterialCardPage";
+                begin
+                    AddNew.SetData(PRID, true);
+                    if AddNew.RunModal() = Action::OK then
+                        Render(true);
+                end;
+            }
             usercontrol(html; HTML)
             {
+
                 ApplicationArea = all;
                 trigger ControlReady()
                 begin
-                    CurrPage.html.Render(CreateTable());
-                    CreateButton();
+                    Render(false);
                 end;
 
-                trigger ButtonPressed(LineNo: Integer)
+                trigger handleEditBtn(LineNo: Integer)
                 var
                     AddNew: Page "MaterialCardPage";
                     materialRec: Record "Material";
@@ -30,8 +46,30 @@ page 50100 "Material Html Rendering"
                         AddNew.SetRecord(materialRec);
                         AddNew.RunModal();
                         LoadOrders();
+                        Render(true);
                     end;
 
+                end;
+
+                trigger handleDelBtn(LineNo: Integer)
+                var
+                    materialRec: Record "Material";
+                    Text000: Label 'Are you want to delete %1?';
+                    Answer: Boolean;
+                    Question: Text;
+                begin
+                    materialRec.SetRange("Line No.", LineNo);
+                    materialRec.SetRange("Code", PRID);
+                    if materialRec.FindFirst() then begin
+
+                        Question := Text000;
+                        Answer := Dialog.Confirm(Question, true, materialRec."Manufacturer's code:");
+                        if Answer = true then begin
+                            if materialRec.Delete() then begin
+                                Render(true);
+                            end;
+                        end
+                    end;
                 end;
             }
         }
@@ -43,6 +81,7 @@ page 50100 "Material Html Rendering"
         out: Text;
         stt: Integer;
     begin
+        Rec.FindFirst();
         if Rec.Count() > 0 then begin
             stt := 1;
             out := '<table class="table table-sm table-bordered fs-6">';
@@ -55,20 +94,20 @@ page 50100 "Material Html Rendering"
                 end;
                 if Rec.Indentation = 0 then begin
                     #region TBinfo
-                    out += '<tr class="table-primary text text-center"><td colspan="7">Material ' + Format(stt) + '</td><td id="btn-placerholder-' + Format(Rec."Line No.") + '"></tr><tr>';
+                    out += '<tr class="table-primary text text-center" ><td colspan="7">Material ' + Format(stt) + '</td><td><div id="btn-placerholder-' + Format(Rec."Line No.") + '" class ="btn-group"></div></td><tr style="line-height: 25px;">';
                     out += '<td class="table-secondary"><label class="control-label">Product code of Manufacturer:</label></td>';
-                    out += '<td width="100" class="special">' + Rec."Manufacturer's code:" + '</td>';
+                    out += '<td class="special">' + Rec."Manufacturer's code:" + '</td>';
                     out += '<td class="table-secondary"><label class="control-label">Price:</label></td>';
-                    out += '<td class="special" width="160">' + Rec.Price + '</td>';
-                    out += '<td class="table-secondary" width="105"><label class="control-label">Delivery:</label></td>';
-                    out += '<td width="143">' + Rec.Delivery + '</td>';
-                    out += '<td class="table-secondary" width="100"><label class="control-label">Roll length:</label></td>';
-                    out += '<td width="126">' + Rec."Roll length" + '</td>';
+                    out += '<td class="special" ">' + Rec.Price + '</td>';
+                    out += '<td class="table-secondary"><label class="control-label">Delivery:</label></td>';
+                    out += '<td >' + Rec.Delivery + '</td>';
+                    out += '<td class="table-secondary" ><label class="control-label">Roll length:</label></td>';
+                    out += '<td >' + Rec."Roll length" + '</td>';
                     out += '</tr>';
                     out += '<tr>';
                     out += '<td class="table-secondary"><label class="control-label">Supplier:</label></td>';
                     out += '<td>' + Rec.Supplier + '</td>';
-                    out += '<td class="table-secondary" width="60"><label class="control-label">Payment term:</label></td>';
+                    out += '<td class="table-secondary"><label class="control-label">Payment term:</label></td>';
                     out += '<td>' + Rec."Payment term" + '</td>';
                     out += '<td class="table-secondary"><label class="control-label">Pallet/No pallet:</label></td>';
                     out += '<td>' + Rec."Pallet/No pallet" + '</td>';
@@ -85,12 +124,11 @@ page 50100 "Material Html Rendering"
         end;
         out += '</table>';
         exit(out);
-
     end;
 
     procedure CreateButton()
     begin
-        Rec.FindFirst(); //! RESET REC INTO THE FIRST POSITION
+        Rec.FindFirst();
         if Rec.Count() > 0 then begin
             repeat
                 if Rec.Indentation = 0 then begin
@@ -104,8 +142,17 @@ page 50100 "Material Html Rendering"
     trigger OnOpenPage()
     begin
         LoadOrders();
-        Rec.FindFirst();
-        Rec.Find('=');
+    end;
+
+    procedure Render(reload: Boolean)
+    begin
+        LoadOrders();
+        if Rec.Count > 0 then begin
+            CurrPage.html.Render(CreateTable(), reload);
+            CreateButton();
+        end;
+        if Rec.Count <= 0 then
+            CurrPage.html.Render('<p name="lable-for-null">PLEASE ADD MATERIAL</p>', reload);
     end;
 
     procedure LoadOrders()
@@ -122,8 +169,7 @@ page 50100 "Material Html Rendering"
     end;
 
     var
-        HideValues: Boolean;
-        StyleExpr: Text;
+        AddNewBtnLbl: Label 'ADD NEW MATERIAL';
         PRID: Code[10];
 
 }

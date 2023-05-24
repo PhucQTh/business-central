@@ -77,4 +77,25 @@ page 50106 MaterialCardPage
         }
     }
 
+    trigger OnOpenPage()
+    var
+        newRec: Record Material;
+    begin
+        if isNew = true then begin
+            newRec.init;
+            newRec.Code := PRID;
+            CurrPage.SetRecord(newRec);
+            CurrPage.SaveRecord();
+        end
+    end;
+
+    procedure SetData(data: Code[10]; iisNew: Boolean)
+    begin
+        PRID := data;
+        isNew := iisNew;
+    end;
+
+    var
+        isNew: Boolean;
+        PRID: Code[10];
 }
