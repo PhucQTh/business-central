@@ -1,10 +1,13 @@
 page 50106 MaterialCardPage
 {
-    ApplicationArea = All;
+    // ApplicationArea = All;
     Caption = 'MaterialCardPage';
     PageType = Card;
     SourceTable = Material;
-    UsageCategory = Documents;
+    UsageCategory = Lists;
+    InsertAllowed = false;
+    DeleteAllowed = false;
+
 
     layout
     {

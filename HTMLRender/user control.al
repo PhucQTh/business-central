@@ -8,7 +8,7 @@ controladdin HTML
 
     VerticalStretch = true;
     VerticalShrink = true;
-    RequestedHeight = 100;
+    // RequestedHeight = 100;
 
     event ControlReady();
     procedure Render(HTML: Text; reload: Boolean);
