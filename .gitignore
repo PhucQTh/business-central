@@ -1,11 +1,11 @@
-# .alpackages
+.alpackages
 # *.app
-# launch.json
+launch.json
 .alcache/
-# .alpackages/
+.alpackages/
 .altemplates/
 *.g.xlf
 out/
 launch.json.local
-# *.json
+*.json
 *.xlf
