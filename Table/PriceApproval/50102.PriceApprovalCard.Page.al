@@ -51,20 +51,6 @@ page 50102 "Price Approval"
                     }
                 }
             }
-            // field(addNewBtn; AddNewBtnLbl)
-            // {
-            //     ApplicationArea = All;
-            //     ShowCaption = false;
-            //     StyleExpr = 'Strong';
-            //     trigger OnDrillDown()
-            //     var
-            //         AddNew: Page "MaterialCardPage";
-            //     begin
-            //         AddNew.SetData(Rec.No_, true);
-            //         if AddNew.RunModal() = Action::OK then
-            //             CurrPage.HTMLRender.Page.Render(true);
-            //     end;
-            // }
 
             part(HTMLRender; "Material Html Rendering")
             {
@@ -87,8 +73,38 @@ page 50102 "Price Approval"
                     end;
                 }
             }
-            group(Attachment) { }
+            group("Attachment")
+            {
+                field(Attachments; 'Attachments')
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                    StyleExpr = 'Strong';
+
+                    trigger OnDrillDown()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
+            }
         }
+        area(FactBoxes)
+        {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(50110),
+                              "No." = field(No_),
+                "Document Type" = FIELD("Document Type");
+            }
+        }
+
     }
     actions
     {
@@ -230,12 +246,27 @@ page 50102 "Price Approval"
                         CustomWorkflowMgmt.OnCancelWorkflowForApproval(RecRef);
                     end;
                 }
+                action(Attachmentss)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    Promoted = true;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
             }
         }
-        area(Creation)
-        {
 
-        }
     }
 
     trigger OnNextRecord(Steps: Integer): Integer

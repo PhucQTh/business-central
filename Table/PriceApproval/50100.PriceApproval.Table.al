@@ -72,7 +72,10 @@ table 50110 "Price Approval"
 
         }
 
-
+        field(11; "Document Type"; Enum "Sales Document Type")
+        {
+            Caption = 'Document Type';
+        }
 
     }
     keys
