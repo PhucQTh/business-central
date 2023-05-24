@@ -55,6 +55,7 @@ page 50102 "Price Approval"
             {
                 ApplicationArea = All;
                 ShowCaption = false;
+                StyleExpr = 'Strong';
                 trigger OnDrillDown()
                 var
                     AddNew: Page "MaterialCardPage";
@@ -64,13 +65,18 @@ page 50102 "Price Approval"
                     NewRec.Code := Rec.No_;
                     NewRec.Insert();
                     AddNew.SetRecord(NewRec);
-                    AddNew.Run();
+                    AddNew.RunModal();
+                    CurrPage.Material.Page.LoadOrders();
                 end;
             }
             part(Material; "MaterialTreeList")
             {
+                // ApplicationArea = All;
+                // SubPageLink = "Code" = FIELD("No_");
+            }
+            part(HTMLRender; "Material Html Rendering")
+            {
                 ApplicationArea = All;
-                SubPageLink = "Code" = FIELD("No_");
             }
             group("General explanation")
             {
@@ -102,12 +108,11 @@ page 50102 "Price Approval"
                 ApplicationArea = all;
                 Image = WorkCenterLoad;
                 Caption = 'Refresh Page';
-
                 trigger OnAction()
                 var
                     UpdatedLbl: Label 'Page Refreshed';
                 begin
-                    CurrPage.Material.Page.LoadOrders();
+                    CurrPage.Material.Page.CodeFillter(Rec.No_);
                     Message(UpdatedLbl);
                 end;
             }
@@ -122,12 +127,12 @@ page 50102 "Price Approval"
                     AddNew: Page "MaterialCardPage";
                     NewRec: Record "Material";
                 begin
-
                     NewRec.Init();
                     NewRec.Code := Rec.No_;
-                    NewRec.Insert();
+                    // NewRec.Insert();
                     AddNew.SetRecord(NewRec);
-                    AddNew.Run();
+                    AddNew.RunModal;
+                    CurrPage.Material.Page.LoadOrders();
                 end;
 
             }
@@ -226,7 +231,6 @@ page 50102 "Price Approval"
                     end;
                 }
             }
-
             group("Request Approval")
             {
                 Caption = 'Request Approval';
@@ -276,6 +280,7 @@ page 50102 "Price Approval"
         }
     }
 
+
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec."User ID" := Database.UserId();
@@ -289,7 +294,6 @@ page 50102 "Price Approval"
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
     end;
 
-
     trigger OnClosePage()
     begin
         Rec.TestField(Title);
@@ -302,6 +306,8 @@ page 50102 "Price Approval"
     begin
         if (Rec."User ID" <> UserId) and (p::Open <> Rec."Status") and (p::Rejected <> Rec."Status") then
             CurrPage.Editable(false);
+        CurrPage.Material.Page.SetData(Rec.No_);
+        CurrPage.HTMLRender.Page.SetData(Rec.No_);
     end;
 
     var
@@ -313,5 +319,5 @@ page 50102 "Price Approval"
         StatusStyleTxt: Text;
         EditorReady: Boolean;
         NewData: Text;
-        AddNewBtnLbl: Label 'Add New Material';
+        AddNewBtnLbl: Label 'ADD NEW MATERIAL';
 }

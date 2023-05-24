@@ -59,7 +59,6 @@ page 50106 MaterialCardPage
                         {
                             ApplicationArea = All;
                         }
-
                     }
 
                 }

@@ -4,6 +4,7 @@ page 50108 MaterialTreeList
     PageType = ListPart;
     SourceTable = "Material Tree";
     Editable = false;
+    SourceTableTemporary = true;
 
     layout
     {
@@ -116,12 +117,33 @@ page 50108 MaterialTreeList
                     Material.SetRange("Line No.", Rec."Line No.");
                     if Material.FindFirst() then begin
                         MaterialPage.SetRecord(Material);
-                        MaterialPage.Run();
+                        MaterialPage.RunModal();
+                        LoadOrders();
                     end;
                 end;
 
             }
+            action(NewMaterial)
+            {
+                Image = New;
+                Caption = 'Add New Material';
+                ApplicationArea = All;
 
+                trigger OnAction()
+                var
+                    AddNew: Page "MaterialCardPage";
+                    NewRec: Record "Material";
+                begin
+
+                    NewRec.Init();
+                    NewRec.Code := PRID;
+                    NewRec.Insert();
+                    AddNew.SetRecord(NewRec);
+                    AddNew.Run();
+                    Rec.Find('=')
+                end;
+
+            }
 
         }
     }
@@ -140,21 +162,38 @@ page 50108 MaterialTreeList
         end;
     end;
 
-    trigger OnInit()
+    procedure CodeFillter(PACode: Code[10])
     begin
-        Rec.DeleteAll();
+        Rec.SetRange("Code", PACode);
+        CurrPage.SetTableView(Rec);
+        CurrPage.Update();
+    end;
+
+    // trigger OnInit()
+    // begin
+    //     LoadOrders();
+    //     Rec.FindFirst();
+    //     Rec.Find('=');
+    // end;
+
+    trigger OnOpenPage()
+    begin
         LoadOrders();
-        Rec.FindFirst();
     end;
 
     procedure LoadOrders()
     var
         MaterialTreeFunction: Codeunit MaterialTreeFunction;
     begin
-        Rec.DeleteAll();
-        MaterialTreeFunction.CreateMaterialEntries(Rec);
+        MaterialTreeFunction.CreateMaterialEntries(Rec,
+        PRID);
     end;
 
+
+    procedure SetData(data: Code[10])
+    begin
+        PRID := data;
+    end;
 
     var
         HideValues: Boolean;

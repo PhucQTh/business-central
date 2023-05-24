@@ -1,11 +1,11 @@
 codeunit 50101 MaterialTreeFunction
 {
-    procedure CreateMaterialEntries(var rlMaterialTree: Record "Material Tree")
+    procedure CreateMaterialEntries(var rlMaterialTree: Record "Material Tree"; var PAid: Code[10])
     var
         MSupplier: Record "Material";
     begin
         rlMaterialTree.DeleteAll();
-        EntryNo := 1;
+        MSupplier.SetRange("Code", PAid);
         if MSupplier.FindSet() then begin
             repeat
                 CreateLevel0(MSupplier, rlMaterialTree);

@@ -4,8 +4,7 @@ codeunit 50100 "SalesTreePanelFunctions"
     var
         SalesHeader: Record "Sales Header";
     begin
-        // rlSalesTree.DeleteAll();
-
+        rlSalesTree.DeleteAll();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         if SalesHeader.FindSet() then begin
             repeat

@@ -59,7 +59,6 @@ page 50101 "Price Approvals"
     var
     begin
         Rec.SetView(StrSubstNo('sorting (Title) order(descending) where ("User ID" = filter (%1))', UserId));
-
     end;
 }
 

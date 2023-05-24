@@ -97,6 +97,7 @@ table 50104 "Material Tree"
             Caption = 'Line No.';
             DataClassification = SystemMetadata;
         }
+
     }
     keys
     {
@@ -104,6 +105,7 @@ table 50104 "Material Tree"
         {
             Clustered = true;
         }
+
     }
 
 }
