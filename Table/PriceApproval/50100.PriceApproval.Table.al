@@ -40,7 +40,7 @@ table 50110 "Price Approval"
         {
             DataClassification = ToBeClassified;
         }
-        field(6; "Title"; Text[100])
+        field(6; "Title"; Text[2048])
         {
             Caption = 'Title';
             DataClassification = ToBeClassified;
@@ -51,7 +51,7 @@ table 50110 "Price Approval"
             Caption = 'PR No.';
             DataClassification = ToBeClassified;
         }
-        field(8; "Purpose"; Code[10])
+        field(8; "Purpose"; Text[2048])
         {
             Caption = 'Purpose';
             DataClassification = ToBeClassified;

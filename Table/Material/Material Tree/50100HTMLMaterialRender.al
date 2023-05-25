@@ -89,13 +89,17 @@ page 50100 "Material Html Rendering"
                 if (Rec.Indentation = 1) then begin
                     #region TbItem
                     out += '<tr><td>' + Rec.ItemNo + '</td><td colspan="4">' + Rec.Description + '</td><td colspan="2">' + Rec.Quantity + '</td> <td>' + Rec.Unit + '</td></tr>';
-                    out += '</tbody>';
                     #endregion TbItem
                 end;
                 if Rec.Indentation = 0 then begin
                     #region TBinfo
-                    out += '<tr><td colspan="8"></td><tr>';
-                    out += '<tr class="table-primary text text-center" ><td colspan="7">Material ' + Format(stt) + '</td><td><div id="btn-placerholder-' + Format(Rec."Line No.") + '" class ="btn-group"></div></td><tr style="line-height: 25px;">';
+                    if stt > 1 then out += '</tbody>';
+                    out += '<tr><td colspan="8"></td><tr>';//! spacing bettwen 2 suplier 
+                    out += '<tr class="table-primary text text-center table-borderless" >';//! Header row
+                    out += '<td colspan="7">Material ' + Format(stt) + '</td>';
+                    out += '<td><div id="btn-placerholder-' + Format(Rec."Line No.") + '" class ="btn-group"></div></td>'; //! Button group placeHolder
+                    out += '</tr>';
+                    out += '<tr>';
                     out += '<td class="table-secondary"><label class="control-label">Product code of Manufacturer:</label></td>';
                     out += '<td class="special">' + Rec."Manufacturer's code:" + '</td>';
                     out += '<td class="table-secondary"><label class="control-label">Price:</label></td>';
