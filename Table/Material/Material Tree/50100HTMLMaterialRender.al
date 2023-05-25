@@ -112,8 +112,8 @@ page 50100 "Material Html Rendering"
                     out += '<tr>';
                     out += '<td class="table-secondary"><label class="control-label">Supplier:</label></td>';
                     out += '<td>' + Rec.Supplier + '</td>';
-                    out += '<td class="table-secondary"><label class="control-label">Payment term:</label></td>';
-                    out += '<td>' + Rec."Payment term" + '</td>';
+                    out += '<td class="table-secondary"><label class="control-label">Price term:</label></td>';
+                    out += '<td>' + Rec."Price Term" + '</td>';
                     out += '<td class="table-secondary"><label class="control-label">Pallet/No pallet:</label></td>';
                     out += '<td>' + Rec."Pallet/No pallet" + '</td>';
                     out += '<td class="table-secondary"><label class="control-label">Payment term:</label></td>';
