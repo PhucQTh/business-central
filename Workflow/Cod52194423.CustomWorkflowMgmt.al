@@ -41,8 +41,6 @@ codeunit 50123 "Custom Workflow Mgmt"
           GetWorkflowEventDesc(WorkflowCancelForApprovalEventDescTxt, RecRef), 0, false);
     end;
     //! -------------------------------------------------------------------------- */
-
-
     //! -------------------------------- Subscribe ------------------------------- */
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Workflow Mgmt", 'OnSendWorkflowForApproval', '', false, false)]
@@ -61,15 +59,6 @@ codeunit 50123 "Custom Workflow Mgmt"
     begin
         exit(StrSubstNo(WorkflowEventDesc, RecRef.Name));
     end;
-    //! Add relation
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Event Handling", 'OnAddWorkflowTableRelationsToLibrary', '', false, false)]
-    local procedure AddWorkflowTableRelationsToLibrary()
-    var
-        WorkflowSetup: Codeunit "Workflow Setup";
-    begin
-        WorkflowSetup.InsertTableRelation(Database::"Price Approval", 1, Database::"Approval Entry", 2);
-    end;
-
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnOpenDocument', '', false, false)]
     local procedure OnOpenDocument(RecRef: RecordRef; var Handled: Boolean)
