@@ -64,7 +64,7 @@ page 50102 "Price Approval"
                     trigger ControlAddinReady()
                     begin
                         NewData := Rec.GetContent();
-                        CurrPage.SMTEditor.InitializeSummerNote(NewData);
+                        CurrPage.SMTEditor.InitializeSummerNote(NewData, 'full');
                     end;
 
                     trigger onBlur(Data: Text)
@@ -299,7 +299,6 @@ page 50102 "Price Approval"
     begin
         if (Rec."User ID" <> UserId) and (p::Open <> Rec."Status") and (p::Rejected <> Rec."Status") then
             CurrPage.Editable(false);
-        // CurrPage.Material.Page.SetData(Rec.No_);
         CurrPage.HTMLRender.Page.SetData(Rec.No_);
     end;
 

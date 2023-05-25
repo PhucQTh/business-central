@@ -94,6 +94,7 @@ page 50100 "Material Html Rendering"
                 end;
                 if Rec.Indentation = 0 then begin
                     #region TBinfo
+                    out += '<tr><td colspan="8"></td><tr>';
                     out += '<tr class="table-primary text text-center" ><td colspan="7">Material ' + Format(stt) + '</td><td><div id="btn-placerholder-' + Format(Rec."Line No.") + '" class ="btn-group"></div></td><tr style="line-height: 25px;">';
                     out += '<td class="table-secondary"><label class="control-label">Product code of Manufacturer:</label></td>';
                     out += '<td class="special">' + Rec."Manufacturer's code:" + '</td>';
@@ -116,7 +117,7 @@ page 50100 "Material Html Rendering"
                     out += '</tr>';
                     out += '<tr> <td class="table-secondary">Price note</td> <td colspan="7">' + Rec."Price Note" + '</td></tr>';
                     out += '<tbody class="table-group-divider">';
-                    out += '<tr class="table-secondary"><td>Mtl code</td><td colspan="4">Material name</td><td colspan="2">Quantity</td> <td>Unit</td> </tr>';
+                    out += '<tr class="table-info"><td>Mtl code</td><td colspan="4">Material name</td><td colspan="2">Quantity</td> <td>Unit</td> </tr>';
                     #endregion TBinfo
                     stt += 1;
                 end;

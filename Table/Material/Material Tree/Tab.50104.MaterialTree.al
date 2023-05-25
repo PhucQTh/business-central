@@ -19,49 +19,56 @@ table 50104 "Material Tree"
         field(3; "Manufacturer's code:"; Text[100])
         {
             Caption = 'Manufacturer''s code:';
-            DataClassification = SystemMetadata;
+            DataClassification = ToBeClassified;
+            NotBlank = true;
+
         }
         field(4; Supplier; Text[200])
         {
             Caption = 'Supplier';
-            DataClassification = SystemMetadata;
+            DataClassification = ToBeClassified;
+            NotBlank = true;
+
         }
-        field(5; "Price Term"; code[10])
+        field(5; "Price Term"; Text[200])
         {
             Caption = 'Price Term';
-            DataClassification = SystemMetadata;
+            DataClassification = ToBeClassified;
         }
 
         field(6; Price; Text[200])
         {
             Caption = 'Price';
-            DataClassification = SystemMetadata;
+            DataClassification = ToBeClassified;
+            NotBlank = true;
+
         }
-        field(7; "Delivery"; code[10])
+        field(7; "Delivery"; Text[100])
         {
             Caption = 'Delivery';
-            DataClassification = SystemMetadata;
+            DataClassification = ToBeClassified;
         }
-        field(8; "Pallet/No pallet"; code[10])
+        field(8; "Pallet/No pallet"; Text[100])
         {
             Caption = 'Pallet/No pallet';
-            DataClassification = SystemMetadata;
+            DataClassification = ToBeClassified;
         }
-        field(9; "Roll length"; code[10])
+        field(9; "Roll length"; Text[50])
         {
             Caption = 'Price Term';
-            DataClassification = SystemMetadata;
+            DataClassification = ToBeClassified;
         }
-        field(10; "Payment term"; code[10])
+        field(10; "Payment term"; Text[200])
         {
             Caption = 'Payment term';
-            DataClassification = SystemMetadata;
+            DataClassification = ToBeClassified;
         }
         field(11; "Price Note"; Text[2048])
         {
             Caption = 'Payment term';
-            DataClassification = SystemMetadata;
+            DataClassification = ToBeClassified;
         }
+
         //!===================================================
         field(12; "ItemNo"; code[20])
         {

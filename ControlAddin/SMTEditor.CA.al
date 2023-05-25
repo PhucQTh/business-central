@@ -17,7 +17,7 @@ controladdin "SMT Editor"
     event onBlur(Data: Text)
     procedure GetData(Data: Text)
     procedure SetData(Data: Text)
-    procedure InitializeSummerNote(Data: Text)
+    procedure InitializeSummerNote(Data: Text; FormType: Text)
 }
 // document in https://github.com/summernote/summernote/
 // https://vld-nav.com/summernote-wysiwyg-bc 

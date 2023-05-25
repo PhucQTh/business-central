@@ -64,9 +64,19 @@ page 50106 MaterialCardPage
 
                 }
             }
-            field("Price Note"; Rec."Price Note")
+            usercontrol(SMTEditor; "SMT Editor")
             {
                 ApplicationArea = All;
+                trigger ControlAddinReady()
+                begin
+
+                    CurrPage.SMTEditor.InitializeSummerNote(Rec."Price Note", 'compact');
+                end;
+
+                trigger onBlur(Data: Text)
+                begin
+                    Rec."Price Note" := Data;
+                end;
             }
             part(Material; "MaterialItemList")
             {
@@ -104,5 +114,6 @@ page 50106 MaterialCardPage
 
     var
         isNew: Boolean;
+        NewData: Text;
         PRID: Code[10];
 }

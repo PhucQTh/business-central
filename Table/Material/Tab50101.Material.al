@@ -31,7 +31,7 @@ table 50101 Material
             NotBlank = true;
 
         }
-        field(5; "Price Term"; code[10])
+        field(5; "Price Term"; Text[200])
         {
             Caption = 'Price Term';
             DataClassification = ToBeClassified;
@@ -44,22 +44,22 @@ table 50101 Material
             NotBlank = true;
 
         }
-        field(7; "Delivery"; code[10])
+        field(7; "Delivery"; Text[100])
         {
             Caption = 'Delivery';
             DataClassification = ToBeClassified;
         }
-        field(8; "Pallet/No pallet"; code[10])
+        field(8; "Pallet/No pallet"; Text[100])
         {
             Caption = 'Pallet/No pallet';
             DataClassification = ToBeClassified;
         }
-        field(9; "Roll length"; code[10])
+        field(9; "Roll length"; Text[50])
         {
             Caption = 'Price Term';
             DataClassification = ToBeClassified;
         }
-        field(10; "Payment term"; code[10])
+        field(10; "Payment term"; Text[200])
         {
             Caption = 'Payment term';
             DataClassification = ToBeClassified;
@@ -69,44 +69,7 @@ table 50101 Material
             Caption = 'Payment term';
             DataClassification = ToBeClassified;
         }
-        //!------------------------------------ITEM
-        // field(12; Description; Text[100])
-        // {
-        //     Caption = 'Description';
-        //     DataClassification = ToBeClassified;
-        //     Editable = false;
-        //     NotBlank = true;
 
-        // }
-        // field(13; Unit; code[10])
-        // {
-        //     Caption = 'Unit';
-        //     DataClassification = ToBeClassified;
-        //     Editable = false;
-        //     NotBlank = true;
-
-        // }
-        // field(14; "Quantity"; Text[100])
-        // {
-        //     Caption = 'Quantity';
-        //     DataClassification = ToBeClassified;
-        // }
-
-        // field(15; "ItemNo"; code[20])
-        // {
-        //     TableRelation = Item;
-        //     Caption = 'Material';
-        //     DataClassification = ToBeClassified;
-        //     trigger OnValidate()
-        //     var
-        //         ItemRec: Record Item;
-        //     begin
-        //         if ItemRec.Get(ItemNo) then
-        //             Description := ItemRec.Description;
-        //         Unit := ItemRec."Base Unit of Measure";
-        //     end;
-
-        // }
 
 
 
