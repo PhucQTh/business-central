@@ -1,4 +1,4 @@
-enum 50123 "Custom Approval Enum"
+enum 50100 "Custom Approval Enum"
 {
     Extensible = false;
 

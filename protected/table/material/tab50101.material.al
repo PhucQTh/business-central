@@ -64,7 +64,7 @@ table 50101 Material
             Caption = 'Payment term';
             DataClassification = ToBeClassified;
         }
-        field(11; "Price Note"; Text[2048])
+        field(11; "Price Note"; Blob)
         {
             Caption = 'Payment term';
             DataClassification = ToBeClassified;
@@ -81,5 +81,26 @@ table 50101 Material
             Clustered = true;
         }
     }
+    //!=============================================
+    procedure SetContent(Data: Text)
+    var
+        OutStreamVar: OutStream;
+    begin
+        Clear("Price Note");
+        "Price Note".CreateOutStream(OutStreamVar);
+        OutStreamVar.Write(Data);
+        if not Rec.Modify(true) then;
+    end;
 
+    procedure GetContent() Data: Text
+    var
+        InStreamVar: InStream;
+    begin
+        CalcFields("Price Note");
+        if not "Price Note".HasValue() then
+            exit;
+        "Price Note".CreateInStream(InStreamVar);
+        InStreamVar.Read(Data);
+    end;
+    //!=============================================
 }

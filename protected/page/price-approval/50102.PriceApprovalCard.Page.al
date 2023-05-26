@@ -287,6 +287,13 @@ page 50102 "Price Approval"
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
     end;
 
+    trigger OnDeleteRecord(): Boolean
+    var
+        MaterialTreeFunctions: Codeunit "MaterialTreeFunction";
+    begin
+        MaterialTreeFunctions.DeleteMaterialEntries(-1, Rec.No_);
+    end;
+
     trigger OnClosePage()
     begin
         Rec.TestField(Title);

@@ -1,8 +1,8 @@
 controladdin HTML
 {
     StyleSheets = 'https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css';
-    StartupScript = 'HTMLRender/startup.js';
-    Scripts = 'HTMLRender/scripts.js';
+    StartupScript = 'protected/control-addin/html_render/startup.js'; //Get directory address from root folder
+    Scripts = 'protected/control-addin/html_render/scripts.js';//Get directory address from root folder
     HorizontalStretch = true;
     HorizontalShrink = true;
 

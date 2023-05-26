@@ -1,4 +1,4 @@
-page 50106 MaterialCardPage
+page 50105 MaterialCardPage
 {
     Caption = 'MaterialCardPage';
     PageType = Card;
@@ -20,22 +20,26 @@ page 50106 MaterialCardPage
                         ShowCaption = false;
                         field("Product code of Manufacturer"; Rec."Manufacturer's code:")
                         {
+                            Caption = 'Product code of Manufacturer';
                             ApplicationArea = All;
                             NotBlank = true;
                             ShowMandatory = true;
                         }
                         field("Supplier"; Rec.Supplier)
                         {
+                            Caption = 'Supplier';
                             ApplicationArea = All;
                         }
                         field("Price Term"; Rec."Price Term")
                         {
+                            Caption = 'Price Term';
                             ApplicationArea = All;
                             NotBlank = true;
                             ShowMandatory = true;
                         }
                         field(Price; Rec.Price)
                         {
+                            Caption = 'Price';
                             ApplicationArea = All;
                             NotBlank = true;
                             ShowMandatory = true;
@@ -46,37 +50,46 @@ page 50106 MaterialCardPage
                         ShowCaption = false;
                         field("Delivery"; Rec.Delivery)
                         {
+                            Caption = 'Delivery';
                             ApplicationArea = All;
                         }
                         field("Pallet/No pallet"; Rec."Pallet/No pallet")
                         {
+                            Caption = 'Pallet/No pallet';
                             ApplicationArea = All;
                         }
                         field("Roll length"; Rec."Roll length")
                         {
+                            Caption = 'Roll length';
                             ApplicationArea = All;
                         }
                         field("Payment term"; Rec."Payment term")
                         {
+                            Caption = 'Payment term';
                             ApplicationArea = All;
                         }
                     }
 
                 }
             }
-            usercontrol(SMTEditor; "SMT Editor")
+            group("Price note")
             {
-                ApplicationArea = All;
-                trigger ControlAddinReady()
-                begin
+                usercontrol(SMTEditor; "SMT Editor")
+                {
 
-                    CurrPage.SMTEditor.InitializeSummerNote(Rec."Price Note", 'compact');
-                end;
+                    ApplicationArea = All;
+                    trigger ControlAddinReady()
+                    begin
+                        NewData := Rec.GetContent();
+                        CurrPage.SMTEditor.InitializeSummerNote(NewData, 'compact');
+                    end;
 
-                trigger onBlur(Data: Text)
-                begin
-                    Rec."Price Note" := Data;
-                end;
+                    trigger onBlur(Data: Text)
+                    begin
+                        NewData := Data;
+                    end;
+                }
+
             }
             part(Material; "MaterialItemList")
             {
@@ -99,6 +112,11 @@ page 50106 MaterialCardPage
             CurrPage.SetRecord(newRec);
             CurrPage.SaveRecord();
         end
+    end;
+
+    trigger OnClosePage()
+    begin
+        Rec.SetContent(NewData);
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer

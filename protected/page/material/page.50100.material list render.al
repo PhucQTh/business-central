@@ -28,7 +28,6 @@ page 50100 "Material Html Rendering"
             }
             usercontrol(html; HTML)
             {
-
                 ApplicationArea = all;
                 trigger ControlReady()
                 begin
@@ -53,23 +52,15 @@ page 50100 "Material Html Rendering"
 
                 trigger handleDelBtn(LineNo: Integer)
                 var
-                    materialRec: Record "Material";
-                    Text000: Label 'Are you want to delete %1?';
+                    Text000: Label 'Are you want to delete this record?';
                     Answer: Boolean;
                     Question: Text;
+                    MaterialTreeFunction: Codeunit MaterialTreeFunction;
                 begin
-                    materialRec.SetRange("Line No.", LineNo);
-                    materialRec.SetRange("Code", PRID);
-                    if materialRec.FindFirst() then begin
-
-                        Question := Text000;
-                        Answer := Dialog.Confirm(Question, true, materialRec."Manufacturer's code:");
-                        if Answer = true then begin
-                            if materialRec.Delete() then begin
-                                Render(true);
-                            end;
-                        end
-                    end;
+                    Question := Text000;
+                    Answer := Dialog.Confirm(Question, true);
+                    if Answer = true then
+                        if (MaterialTreeFunction.DeleteMaterialEntries(LineNo, PRID) = true) then Render(true);
                 end;
             }
         }
@@ -83,6 +74,7 @@ page 50100 "Material Html Rendering"
     begin
         Rec.FindFirst();
         if Rec.Count() > 0 then begin
+
             stt := 1;
             out := '<table class="table table-sm table-bordered fs-6">';
             repeat
@@ -119,7 +111,7 @@ page 50100 "Material Html Rendering"
                     out += '<td class="table-secondary"><label class="control-label">Payment term:</label></td>';
                     out += '<td>' + Rec."Payment term" + '</td>';
                     out += '</tr>';
-                    out += '<tr> <td class="table-secondary">Price note</td> <td colspan="7">' + Rec."Price Note" + '</td></tr>';
+                    out += '<tr> <td class="table-secondary">Price note</td> <td colspan="7">' + Rec.GetContent() + '</td></tr>';
                     out += '<tbody class="table-group-divider">';
                     out += '<tr class="table-info"><td>Mtl code</td><td colspan="4">Material name</td><td colspan="2">Quantity</td> <td>Unit</td> </tr>';
                     #endregion TBinfo

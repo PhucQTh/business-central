@@ -1,4 +1,4 @@
-table 50110 "Price Approval"
+table 50105 "Price Approval"
 {
     Caption = 'Price Approval';
     DataClassification = ToBeClassified;

@@ -1,5 +1,26 @@
 codeunit 50101 MaterialTreeFunction
 {
+    procedure DeleteMaterialEntries(lineNo: Integer; PRID: Code[10]) Data: Boolean
+    var
+        materialItemList: Record "MaterialItem";
+        materialRec: Record "Material";
+    begin
+        materialRec.SetRange("Code", PRID);
+        if (lineNo > 0) then
+            materialRec.SetRange("Line No.", LineNo);
+        if materialRec.FindSet() then begin
+            materialItemList.SetRange("Code", materialRec.Code);
+            materialItemList.SetRange("Material No.", materialRec."Line No.");
+            if (materialItemList.FindSet()) then
+                materialItemList.DeleteAll();
+            if (lineNo > 0) then materialRec.DeleteAll();
+            materialRec.Delete();
+            Data := true;
+            exit;
+        end;
+        Data := false;
+    end;
+
     procedure CreateMaterialEntries(var rlMaterialTree: Record "Material Tree"; var PAid: Code[10])
     var
         MSupplier: Record "Material";
@@ -27,7 +48,8 @@ codeunit 50101 MaterialTreeFunction
         rlMaterialTree."Roll length" := MSupplier."Roll length";
         rlMaterialTree."Payment term" := MSupplier."Payment term";
         rlMaterialTree.Price := MSupplier.Price;
-        rlMaterialTree."Price Note" := MSupplier."Price Note";
+        rlMaterialTree.SetContent(MSupplier.GetContent());
+        // Message(MSupplier.GetContent());
         rlMaterialTree."Price Term" := MSupplier."Price Term";
         rlMaterialTree.Code := MSupplier.Code;
         rlMaterialTree."Line No." := MSupplier."Line No.";

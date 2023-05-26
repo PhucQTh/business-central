@@ -1,4 +1,4 @@
-codeunit 50123 "Custom Workflow Mgmt"
+codeunit 50100 "Custom Workflow Mgmt"
 {
     //! ------------------- Check Approvals Workflow Enabled ? ------------------- */
     procedure CheckApprovalsWorkflowEnabled(var RecRef: RecordRef): Boolean

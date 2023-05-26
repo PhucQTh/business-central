@@ -46,7 +46,6 @@ function InitializeSummerNote(Data, FormType) {
         },
       },
       //List of features to include them to toolbar
-
       toolbar: bar,
     });
     //Set init data
