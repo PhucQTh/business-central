@@ -80,7 +80,7 @@ page 50100 "Material Html Rendering"
             repeat
                 if (Rec.Indentation = 1) then begin
                     #region TbItem
-                    out += '<tr><td>' + Rec.ItemNo + '</td><td colspan="4">' + Rec.Description + '</td><td colspan="2">' + Rec.Quantity + '</td> <td>' + Rec.Unit + '</td></tr>';
+                    out += '<tr><td>' + Rec.ItemNo + '</td><td colspan="4">' + Rec.Description + '</td><td colspan="2">' + Rec.Quantity + '</td> <td>' + Format(Rec.Unit) + '</td></tr>';
                     #endregion TbItem
                 end;
                 if Rec.Indentation = 0 then begin

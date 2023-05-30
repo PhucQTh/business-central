@@ -80,7 +80,7 @@ table 50104 "Material Tree"
             Caption = 'Description';
             DataClassification = SystemMetadata;
         }
-        field(14; Unit; code[10])
+        field(14; Unit;enum "Item Unit")
         {
             Caption = 'Unit';
             DataClassification = SystemMetadata;

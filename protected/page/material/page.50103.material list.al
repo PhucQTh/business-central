@@ -15,28 +15,6 @@ page 50103 MaterialList
             repeater(General)
             {
                 ShowAsTree = true;
-                // IndentationColumn = Rec."Line No.";
-                // field(ItemNo; Rec.ItemNo)
-                // {
-                //     ApplicationArea = All;
-                //     ToolTip = 'Specifies the value of the Material field.';
-                //     ShowMandatory = true;
-
-                // }
-                // field(Description; Rec.Description)
-                // {
-                //     ApplicationArea = All;
-                //     ToolTip = 'Specifies the value of the Material field.';
-
-                // }
-                // field(Unit; Rec.Unit)
-                // {
-                //     ApplicationArea = All;
-                //     ToolTip = 'Specifies the value of the Material field.';
-                //     NotBlank = true;
-                //     ShowMandatory = true;
-
-                // }
 
                 field(Price; Rec.Price)
                 {

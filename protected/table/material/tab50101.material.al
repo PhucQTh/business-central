@@ -70,9 +70,6 @@ table 50101 Material
             DataClassification = ToBeClassified;
         }
 
-
-
-
     }
     keys
     {

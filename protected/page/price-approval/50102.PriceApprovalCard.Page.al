@@ -58,6 +58,9 @@ page 50102 "Price Approval"
             }
             group("General explanation")
             {
+                ShowCaption = false;
+                Caption = ' ';
+                Visible = true;
                 usercontrol(SMTEditor; "SMT Editor")
                 {
                     ApplicationArea = All;
@@ -72,6 +75,7 @@ page 50102 "Price Approval"
                         NewData := Data;
                     end;
                 }
+
             }
             group("Attachment")
             {
@@ -204,6 +208,9 @@ page 50102 "Price Approval"
                         ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
                     end;
                 }
+
+
+
             }
             group("Request Approval")
             {
@@ -319,4 +326,6 @@ page 50102 "Price Approval"
         EditorReady: Boolean;
         NewData: Text;
         AddNewBtnLbl: Label 'ADD NEW MATERIAL';
+        Comment: Text;
+        IsHTMLFormatted: Boolean;
 }

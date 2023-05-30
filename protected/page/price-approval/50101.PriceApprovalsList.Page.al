@@ -7,6 +7,7 @@ page 50101 "Price Approvals"
     CardPageId = "Price Approval";
     UsageCategory = Lists;
     ShowFilter = false;
+    ModifyAllowed = false;
     layout
     {
         area(content)
@@ -58,7 +59,7 @@ page 50101 "Price Approvals"
     trigger OnOpenPage()
     var
     begin
-        Rec.SetView(StrSubstNo('sorting (Title) order(descending) where ("User ID" = filter (%1))', UserId));
+        // Rec.SetView(StrSubstNo('sorting (Title) order(descending) where ("User ID" = filter (%1))', UserId));
     end;
 }
 

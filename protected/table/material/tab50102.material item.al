@@ -27,7 +27,6 @@ table 50102 MaterialItem
             begin
                 if ItemRec.Get(ItemNo) then
                     Description := ItemRec.Description;
-                Unit := ItemRec."Base Unit of Measure";
             end;
 
         }
@@ -39,11 +38,11 @@ table 50102 MaterialItem
             NotBlank = true;
 
         }
-        field(5; Unit; code[10])
+        field(5; Unit; Enum "Item Unit")
         {
             Caption = 'Unit';
             DataClassification = ToBeClassified;
-            Editable = false;
+            // Editable = false;
             NotBlank = true;
 
         }

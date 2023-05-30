@@ -9,7 +9,7 @@
             "server": "http://localhost:8080/BC200/",
             "serverInstance": "BC200",
             "authentication": "UserPassword",
-            "startupObjectId": 50101,
+            // "startupObjectId": 0,
             "startupObjectType": "Page",
             "breakOnError": "All",
             "launchBrowser": true,

@@ -100,7 +100,7 @@ table 50105 "Price Approval"
         OutStreamVar: OutStream;
     begin
         Clear("General explanation");
-        "General explanation".CreateOutStream(OutStreamVar);
+        "General explanation".CreateOutStream(OutStreamVar, TextEncoding::UTF8);
         OutStreamVar.Write(Data);
         if not Rec.Modify(true) then;
     end;
@@ -112,10 +112,12 @@ table 50105 "Price Approval"
         CalcFields("General explanation");
         if not "General explanation".HasValue() then
             exit;
-        "General explanation".CreateInStream(InStreamVar);
+        "General explanation".CreateInStream(InStreamVar, TextEncoding::UTF8);
         InStreamVar.Read(Data);
     end;
     //!=============================================
+
+
     var
         NoSeriesSetup: Record "No. Series Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
