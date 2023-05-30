@@ -4,11 +4,15 @@ report 50100 "Price Approval Report"
     Caption = 'Price Approval Report';
     UsageCategory = ReportsAndAnalysis;
     DefaultLayout = Excel;
-    ExcelLayout = './price-approval-report.xlsx';
+    ExcelLayout = 'protected/report/price-approval-report.xlsx';
+    // UseRequestPage = false;
+    PreviewMode = PrintLayout;
+
     dataset
     {
         dataitem(PriceApproval; "Price Approval")
         {
+            RequestFilterFields = "No_", "Title", "Due Date", "User ID", Status;
             column(No_; No_)
             {
             }
@@ -27,26 +31,7 @@ report 50100 "Price Approval Report"
             column(SystemCreatedAt; SystemCreatedAt)
             {
             }
-            trigger OnPreDataItem()
-            begin
-                // SetRange(Number, 1, TopN);
-                // TopNcar.TopNumberOfRows(TopN);
-                // TopNcar.Open();
-            end;
 
-            trigger OnAfterGetRecord()
-            begin
-                // if (TopNcar.Read())
-                // then begin
-                //     Car_Code := TopNcar.Car_Code;
-                //     Car_Name := TopNcar.Car_Name;
-                //     Quantity := TopNcar.Quantity;
-                //     Price := TopNcar.Price;
-                // end
-                // else begin
-                //     CurrReport.Skip();
-                // end;
-            end;
         }
     }
     requestpage
@@ -58,24 +43,5 @@ report 50100 "Price Approval Report"
             { }
         }
 
-        actions
-        {
-            area(Processing)
-            {
-                action(Execute)
-                {
-
-                    Caption = 'Execute';
-                    trigger OnAction()
-                    begin
-                        Message('1');
-                    end;
-                }
-            }
-        }
-
-
     }
-    var
-        ApprovalStatus: enum "Custom Approval Enum";
 }

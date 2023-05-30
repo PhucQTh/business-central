@@ -56,6 +56,24 @@ page 50101 "Price Approvals"
             }
         }
     }
+    actions
+    {
+        area(reporting)
+        {
+            action("Export Report")
+            {
+                Promoted = true;
+                ApplicationArea = All;
+                Caption = 'Export Report';
+                trigger OnAction()
+                var
+                    exportReport: Report "Price Approval Report";
+                begin
+                    exportReport.Run();
+                end;
+            }
+        }
+    }
     trigger OnOpenPage()
     var
     begin
