@@ -49,11 +49,26 @@ page 50102 "Price Approval"
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the Due Date field.';
                     }
+                    field(ApprovalType; Rec.ApprovalType)
+                    {
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies the value of the Approval Type field.';
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Update();
+                        end;
+                    }
                 }
             }
 
             part(HTMLRender; "Material Html Rendering")
             {
+                Visible = NOT Rec.ApprovalType;
+                ApplicationArea = All;
+            }
+            part("General Material"; "General Material")
+            {
+                Visible = Rec.ApprovalType;
                 ApplicationArea = All;
             }
             group("General explanation")
@@ -97,17 +112,7 @@ page 50102 "Price Approval"
                 }
             }
         }
-        area(FactBoxes)
-        {
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ApplicationArea = All;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(50110),
-                              "No." = field(No_),
-                "Document Type" = FIELD("Document Type");
-            }
-        }
+
 
     }
     actions
@@ -116,7 +121,6 @@ page 50102 "Price Approval"
         {
             group(Approval)
             {
-                // Caption = 'Approval';
                 Image = Approvals;
                 action(Approve)
                 {
@@ -287,11 +291,21 @@ page 50102 "Price Approval"
     end;
 
     trigger OnAfterGetCurrRecord()
+    var
+        Question: Text;
+        Selected: Integer;
+        Text000: Label 'Choose one of the price approval type:';
+        Text001: Label 'Stadard,General';
     begin
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
+        if (Rec.No_ = '') then begin
+            Selected := Dialog.StrMenu(Text001, 1, Text000);
+            if Selected = 1 then rec.ApprovalType := false else Rec.ApprovalType := true;
+            CurrPage.Update();
+        end;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -310,10 +324,12 @@ page 50102 "Price Approval"
     end;
 
     trigger OnOpenPage()
+
     begin
         if (Rec."User ID" <> UserId) and (p::Open <> Rec."Status") and (p::Rejected <> Rec."Status") then
             CurrPage.Editable(false);
         CurrPage.HTMLRender.Page.SetData(Rec.No_);
+
     end;
 
     var
@@ -328,4 +344,5 @@ page 50102 "Price Approval"
         AddNewBtnLbl: Label 'ADD NEW MATERIAL';
         Comment: Text;
         IsHTMLFormatted: Boolean;
+
 }

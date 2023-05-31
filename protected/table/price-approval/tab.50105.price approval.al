@@ -72,11 +72,12 @@ table 50105 "Price Approval"
 
         }
 
-        field(11; "Document Type"; Enum "Sales Document Type")
+        field(11; ApprovalType; Boolean)
         {
-            Caption = 'Document Type';
-        }
+            Caption = 'General Price Approval';
+            DataClassification = ToBeClassified;
 
+        }
     }
     keys
     {
