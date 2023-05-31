@@ -4,11 +4,15 @@ report 50100 "Price Approval Report"
     Caption = 'Price Approval Report';
     UsageCategory = ReportsAndAnalysis;
     DefaultLayout = Excel;
-    ExcelLayout = './price-approval-report.xlsx';
+    ExcelLayout = 'protected/report/price-approval-report.xlsx';
+    // UseRequestPage = false;
+    PreviewMode = PrintLayout;
+
     dataset
     {
         dataitem(PriceApproval; "Price Approval")
         {
+            RequestFilterFields = "No_", "Title", "Due Date", "User ID", Status;
             column(No_; No_)
             {
             }
@@ -55,6 +59,4 @@ report 50100 "Price Approval Report"
 
 
     }
-    var
-        ApprovalStatus: enum "Custom Approval Enum";
 }
