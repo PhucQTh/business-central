@@ -52,7 +52,6 @@ page 50101 "Price Approvals"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the SystemModifiedAt field.';
                 }
-
             }
         }
     }

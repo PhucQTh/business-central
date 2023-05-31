@@ -74,7 +74,6 @@ page 50100 "Material Html Rendering"
     begin
         Rec.FindFirst();
         if Rec.Count() > 0 then begin
-
             stt := 1;
             out := '<table class="table table-sm table-bordered fs-6">';
             repeat

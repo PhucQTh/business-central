@@ -297,6 +297,7 @@ page 50102 "Price Approval"
             if Selected = 1 then rec.ApprovalType := false else Rec.ApprovalType := true;
             CurrPage.Update();
         end;
+        CurrPage.HTMLRender.Page.SetData(Rec.No_);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -319,7 +320,6 @@ page 50102 "Price Approval"
     begin
         if (Rec."User ID" <> UserId) and (p::Open <> Rec."Status") and (p::Rejected <> Rec."Status") then
             CurrPage.Editable(false);
-        CurrPage.HTMLRender.Page.SetData(Rec.No_);
 
     end;
 
