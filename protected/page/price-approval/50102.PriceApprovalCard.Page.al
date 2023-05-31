@@ -49,15 +49,6 @@ page 50102 "Price Approval"
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the Due Date field.';
                     }
-                    field(ApprovalType; Rec.ApprovalType)
-                    {
-                        ApplicationArea = All;
-                        ToolTip = 'Specifies the value of the Approval Type field.';
-                        trigger OnValidate()
-                        begin
-                            CurrPage.Update();
-                        end;
-                    }
                 }
             }
 
