@@ -100,44 +100,43 @@ codeunit 50103 MyWorkflowResponses
         MTRec.FindFirst();
         if MTRec.Count() > 0 then begin
             stt := 1;
-            out := '<table class="table table-sm table-bordered fs-6">';
+            out := '<table style="border: 1px solid black;">';
             repeat
                 if (MTRec.Indentation = 1) then begin
                     #region TbItem
-                    out += '<tr><td>' + MTRec.ItemNo + '</td><td colspan="4">' + MTRec.Description + '</td><td colspan="2">' + MTRec.Quantity + '</td> <td>' + Format(MTRec.Unit) + '</td></tr>';
+                    out += '<tr style="border: 1px solid black;"><td style="border: 1px solid black;">' + MTRec.ItemNo + '</td><td colspan="4" style="border: 1px solid black;">' + MTRec.Description + '</td><td colspan="2" style="border: 1px solid black;">' + MTRec.Quantity + '</td> <td style="border: 1px solid black;">' + Format(MTRec.Unit) + '</td></tr>';
                     #endregion TbItem
                 end;
                 if MTRec.Indentation = 0 then begin
                     #region TBinfo
                     if stt > 1 then out += '</tbody>';
                     out += '<tr><td colspan="8"></td><tr>';//! spacing bettwen 2 suplier 
-                    out += '<tr class="table-primary text text-center table-borderless" >';//! Header row
-                    out += '<td colspan="7">Material ' + Format(stt) + '</td>';
-                    out += '<td><div id="btn-placerholder-' + Format(MTRec."Line No.") + '" class ="btn-group"></div></td>'; //! Button group placeHolder
+                    out += '<tr>';//! Header row
+                    out += ' <td colspan="8" style="border: 1px solid black; background-color: lightblue; text-align: center;"bgcolor="lightblue" align="center">Material ' + Format(stt) + '</td>';
                     out += '</tr>';
-                    out += '<tr>';
-                    out += '<td class="table-secondary"><label class="control-label">Product code of Manufacturer:</label></td>';
-                    out += '<td class="special">' + MTRec."Manufacturer's code:" + '</td>';
-                    out += '<td class="table-secondary"><label class="control-label">Price:</label></td>';
-                    out += '<td class="special" ">' + MTRec.Price + '</td>';
-                    out += '<td class="table-secondary"><label class="control-label">Delivery:</label></td>';
-                    out += '<td >' + MTRec.Delivery + '</td>';
-                    out += '<td class="table-secondary" ><label class="control-label">Roll length:</label></td>';
-                    out += '<td >' + MTRec."Roll length" + '</td>';
+                    out += '<tr style="border: 1px solid black;">';
+                    out += '<td style="border: 1px solid black;"><label class="control-label">Product code of Manufacturer:</label></td>';
+                    out += '<td style="border: 1px solid black;">' + MTRec."Manufacturer's code:" + '</td>';
+                    out += '<td style="border: 1px solid black;"><label class="control-label">Price:</label></td>';
+                    out += '<td style="border: 1px solid black;">' + MTRec.Price + '</td>';
+                    out += '<td style="border: 1px solid black;"><label class="control-label">Delivery:</label></td>';
+                    out += '<td style="border: 1px solid black;">' + MTRec.Delivery + '</td>';
+                    out += '<td style="border: 1px solid black;"><label class="control-label">Roll length:</label></td>';
+                    out += '<td style="border: 1px solid black;">' + MTRec."Roll length" + '</td>';
                     out += '</tr>';
-                    out += '<tr>';
-                    out += '<td class="table-secondary"><label class="control-label">Supplier:</label></td>';
-                    out += '<td>' + MTRec.Supplier + '</td>';
-                    out += '<td class="table-secondary"><label class="control-label">Price term:</label></td>';
-                    out += '<td>' + MTRec."Price Term" + '</td>';
-                    out += '<td class="table-secondary"><label class="control-label">Pallet/No pallet:</label></td>';
-                    out += '<td>' + MTRec."Pallet/No pallet" + '</td>';
+                    out += '<tr style="border: 1px solid black;">';
+                    out += '<td style="border: 1px solid black;"><label class="control-label">Supplier:</label></td>';
+                    out += '<td style="border: 1px solid black;">' + MTRec.Supplier + '</td>';
+                    out += '<td style="border: 1px solid black;"><label class="control-label">Price term:</label></td>';
+                    out += '<td style="border: 1px solid black;">' + MTRec."Price Term" + '</td>';
+                    out += '<td style="border: 1px solid black;"><label class="control-label">Pallet/No pallet:</label></td>';
+                    out += '<td style="border: 1px solid black;">' + MTRec."Pallet/No pallet" + '</td>';
                     out += '<td class="table-secondary"><label class="control-label">Payment term:</label></td>';
-                    out += '<td>' + MTRec."Payment term" + '</td>';
+                    out += '<td style="border: 1px solid black;">' + MTRec."Payment term" + '</td>';
                     out += '</tr>';
-                    out += '<tr> <td class="table-secondary">Price note</td> <td colspan="7">' + MTRec.GetContent() + '</td></tr>';
+                    out += '<tr style="border: 1px solid black;"> <td style="border: 1px solid black;">Price note</td> <td colspan="7" style="border: 1px solid black;">' + MTRec.GetContent() + '</td></tr>';
                     out += '<tbody class="table-group-divider">';
-                    out += '<tr class="table-info"><td>Mtl code</td><td colspan="4">Material name</td><td colspan="2">Quantity</td> <td>Unit</td> </tr>';
+                    out += '<tr style="border: 1px solid black;"><td style="border: 1px solid black;">Mtl code</td><td colspan="4" style="border: 1px solid black;">Material name</td><td colspan="2" style="border: 1px solid black;">Quantity</td> <td style="border: 1px solid black;">Unit</td> </tr>';
                     #endregion TBinfo
                     stt += 1;
                 end;

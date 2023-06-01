@@ -22,7 +22,7 @@ page 50102 "Price Approval"
                         ToolTip = 'Specifies the value of the comment field.';
                     }
 
-                    field("User ID"; Rec."User ID")
+                    field("User ID"; Rec.UserName)
                     {
                         Editable = false;
                         ApplicationArea = All;
@@ -278,7 +278,7 @@ page 50102 "Price Approval"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Rec."User ID" := Database.UserId();
+        Rec.UserName := Database.UserId();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -286,7 +286,7 @@ page 50102 "Price Approval"
         Question: Text;
         Selected: Integer;
         Text000: Label 'Choose one of the price approval type:';
-        Text001: Label 'Stadard,General';
+        Text001: Label 'Standard,General';
     begin
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
@@ -318,7 +318,7 @@ page 50102 "Price Approval"
     trigger OnOpenPage()
 
     begin
-        if (Rec."User ID" <> UserId) and (p::Open <> Rec."Status") and (p::Rejected <> Rec."Status") then
+        if (Rec.UserName <> UserId) and (p::Open <> Rec."Status") and (p::Rejected <> Rec."Status") then
             CurrPage.Editable(false);
 
     end;

@@ -24,7 +24,7 @@ page 50101 "Price Approvals"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Title field.';
                 }
-                field("User ID"; Rec."User ID")
+                field("User ID"; Rec.UserName)
                 {
                     Caption = 'Request by';
                     ApplicationArea = All;
@@ -75,8 +75,14 @@ page 50101 "Price Approvals"
     }
     trigger OnOpenPage()
     var
+        UserSetup: Record "User Setup";
     begin
-        // Rec.SetView(StrSubstNo('sorting (Title) order(descending) where ("User ID" = filter (%1))', UserId));
+        if UserSetup.Get(UserId) then
+            if UserSetup."Allow view price approval" then
+                exit;
+        Rec.FilterGroup(100);
+        Rec.SetRange(UserName, UserId);
+        Rec.FilterGroup(0);
     end;
 }
 

@@ -21,6 +21,10 @@ table 50106 "Email Template"
             Caption = 'Body';
             DataClassification = ToBeClassified;
         }
+        field(4; Title; Text[2048])
+        {
+            DataClassification = ToBeClassified;
+        }
     }
     keys
     {

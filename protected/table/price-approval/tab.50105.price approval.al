@@ -65,13 +65,14 @@ table 50105 "Price Approval"
             NotBlank = true;
 
         }
-        field(10; "User ID"; Text[200])
+        field(10; UserName; Code[50])
         {
-            Caption = 'User';
+            Caption = 'User Name';
+            Editable = false;
             DataClassification = ToBeClassified;
-
+            // FieldClass = FlowField;
+            // CalcFormula = lookup(User."User Name" where("User Security ID" = field(SystemCreatedBy)));
         }
-
         field(11; ApprovalType; Boolean)
         {
             Caption = 'General Price Approval';
