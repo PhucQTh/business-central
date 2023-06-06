@@ -69,7 +69,11 @@ table 50101 Material
             Caption = 'Payment term';
             DataClassification = ToBeClassified;
         }
+        field(12; "CC Recipient"; Text[2048])
+        {
+            DataClassification = ToBeClassified;
 
+        }
     }
     keys
     {

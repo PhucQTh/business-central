@@ -159,7 +159,7 @@ page 50100 "Material Html Rendering"
         PRID);
     end;
 
-    procedure SetData(data: Code[10])
+    procedure GetData(data: Code[10])
     begin
         PRID := data;
     end;

@@ -18,4 +18,8 @@ enum 50100 "Custom Approval Enum"
     {
         Caption = 'Rejected';
     }
+    value(4; OnHold)
+    {
+        Caption = 'On Hold';
+    }
 }

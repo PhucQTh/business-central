@@ -5,7 +5,6 @@ table 50105 "Price Approval"
 
     fields
     {
-
         field(1; No_; Code[10])
         {
             Caption = 'No.';
@@ -70,15 +69,13 @@ table 50105 "Price Approval"
             Caption = 'User Name';
             Editable = false;
             DataClassification = ToBeClassified;
-            // FieldClass = FlowField;
-            // CalcFormula = lookup(User."User Name" where("User Security ID" = field(SystemCreatedBy)));
         }
         field(11; ApprovalType; Boolean)
         {
             Caption = 'General Price Approval';
             DataClassification = ToBeClassified;
-
         }
+
     }
     keys
     {

@@ -71,6 +71,9 @@ codeunit 50103 MyWorkflowResponses
         MaterialTreeFunction: Codeunit MaterialTreeFunction;
         RecRef: RecordRef;
         PriceApproval: Record "Price Approval";
+        CCRecipients: list of [text];
+        ToRecipients: list of [text];
+        BCCRecipients: list of [text];
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
@@ -88,8 +91,24 @@ codeunit 50103 MyWorkflowResponses
         Body := EmailTemplate.GetContent();
         Body := Body.Replace('[approver-email]', User."Full Name");
         Body := Body.Replace('[content]', content);
-        EmailMessage.Create(User."Contact Email", 'Hi', Body, true);
+        CCRecipients := GetCC(MaterialTreeRec.Code);
+        ToRecipients.Add(User."Contact Email");
+        EmailMessage.Create(ToRecipients, 'Hi', Body, true, CCRecipients, BCCRecipients);
+
         Mail.Send(EmailMessage, "Email Scenario"::Default);
+    end;
+
+    procedure GetCC(var RequestId: code[10]): List of [Text]
+    var
+        ListCC: List of [Text];
+        Collaborators: Record "Email CC";
+    begin
+        Collaborators.SetRange(ApprovalID, RequestId);
+        if Collaborators.FindFirst() then
+            repeat
+                ListCC.Add(Collaborators."Email");
+            until Collaborators.Next() = 0;
+        exit(ListCC);
     end;
 
     procedure CreateTable(VAR MTRec: Record "Material Tree"): Text

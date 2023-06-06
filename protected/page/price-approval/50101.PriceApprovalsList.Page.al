@@ -73,17 +73,52 @@ page 50101 "Price Approvals"
             }
         }
     }
+
+
     trigger OnOpenPage()
     var
         UserSetup: Record "User Setup";
+        filteredRec: Record "Price Approval" temporary;
     begin
-        if UserSetup.Get(UserId) then
-            if UserSetup."Allow view price approval" then
-                exit;
-        Rec.FilterGroup(100);
-        Rec.SetRange(UserName, UserId);
-        Rec.FilterGroup(0);
+        GetFilterString();
+        if (IdFilterString <> '')
+      then begin
+            Rec.FilterGroup := 100;
+            Rec.SetFilter(Rec.No_, IdFilterString);
+            Rec.FilterGroup := 0;
+        end
+        else begin
+            Rec.FilterGroup := 100;
+            Rec.SetFilter(Rec.UserName, UserId);
+            Rec.FilterGroup := 0;
+        end;
     end;
+
+    procedure GetFilterString()
+    var
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        Collaborators: Record "Email CC";
+        isCollaborator: Boolean;
+    begin
+        Rec.FindFirst();
+
+        repeat
+            isCollaborator := false;
+            Collaborators.SetRange("ApprovalId", Rec.NO_);
+            Collaborators.SetRange("UserName", UserId);
+            // Message(Rec.No_ + ': ' + Rec.Title);s
+            if (Collaborators.FindSet()) then isCollaborator := true;
+            if (ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId)) OR (Rec.UserName = UserId) OR (isCollaborator) then
+                IdFilterString := IdFilterString + Rec.No_ + '|'
+        until Rec.Next() = 0;
+
+        if IdFilterString.LastIndexOf('|') > 0 then
+            IdFilterString := COPYSTR(IdFilterString, 1, STRLEN(IdFilterString) - 1)
+    end;
+
+    var
+        IdFilterString: Text;
+
 }
 
 

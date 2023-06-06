@@ -63,14 +63,15 @@ codeunit 50100 "Custom Workflow Mgmt"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnOpenDocument', '', false, false)]
     local procedure OnOpenDocument(RecRef: RecordRef; var Handled: Boolean)
     var
-        CustomWorkflowHdr: Record "Price Approval";
+        PriceApprovalRec: Record "Price Approval";
+        ApprovalStatus: Enum "Custom Approval Enum";
     begin
         case RecRef.Number of
             Database::"Price Approval":
                 begin
-                    RecRef.SetTable(CustomWorkflowHdr);
-                    CustomWorkflowHdr.Validate(Status, CustomWorkflowHdr.Status::Open);
-                    CustomWorkflowHdr.Modify(true);
+                    RecRef.SetTable(PriceApprovalRec);
+                    PriceApprovalRec.Validate(Status, ApprovalStatus::Open);
+                    PriceApprovalRec.Modify(true);
                     Handled := true;
                 end;
         end;

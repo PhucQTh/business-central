@@ -11,8 +11,10 @@ page 50102 "Price Approval"
     {
         area(content)
         {
+
             group(Generals)
             {
+                Editable = DynamicEditable;
                 group(Informations)
                 {
                     field("Title"; Rec.Title)
@@ -51,19 +53,24 @@ page 50102 "Price Approval"
                     }
                 }
             }
-
             part(HTMLRender; "Material Html Rendering")
             {
+                Editable = DynamicEditable;
+
                 Visible = NOT Rec.ApprovalType;
                 ApplicationArea = All;
             }
             part("General Material"; "General Material")
             {
+                Editable = DynamicEditable;
+
                 Visible = Rec.ApprovalType;
                 ApplicationArea = All;
             }
             group("General explanation")
             {
+                Editable = DynamicEditable;
+
                 ShowCaption = false;
                 Caption = ' ';
                 Visible = true;
@@ -83,27 +90,41 @@ page 50102 "Price Approval"
                 }
 
             }
-            group("Attachment")
+            field(Attachments; 'Attachments')
             {
-                field(Attachments; 'Attachments')
-                {
-                    ApplicationArea = All;
-                    ShowCaption = false;
-                    StyleExpr = 'Strong';
-
-                    trigger OnDrillDown()
-                    var
-                        DocumentAttachmentDetails: Page "Document Attachment Details";
-                        RecRef: RecordRef;
-                    begin
-                        RecRef.GetTable(Rec);
-                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal();
-                    end;
-                }
+                ApplicationArea = All;
+                ShowCaption = false;
+                StyleExpr = 'Strong';
+                Caption = 'Attach files';
+                trigger OnDrillDown()
+                var
+                    DocumentAttachmentDetails: Page "Document Attachment Details";
+                    RecRef: RecordRef;
+                begin
+                    RecRef.GetTable(Rec);
+                    DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                    DocumentAttachmentDetails.RunModal();
+                end;
+            }
+            part(Collaborators; EmailCC)
+            {
+                Editable = DynamicEditable;
+                Caption = 'Collaborators';
+                ApplicationArea = All;
+                SubPageLink = ApprovalID = field("NO_");
             }
         }
+        area(FactBoxes)
+        {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
 
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(50105),
+                              "No." = FIELD(No_);
+            }
+        }
 
     }
     actions
@@ -113,6 +134,19 @@ page 50102 "Price Approval"
             group(Approval)
             {
                 Image = Approvals;
+                action(onHold)
+                {
+                    Caption = 'On Hold';
+                    ApplicationArea = All;
+                    Image = Answers;
+                    Promoted = true;
+                    Visible = OpenApprovalEntriesExistCurrUser AND (REc.Status <> P::OnHold);
+                    trigger OnAction()
+                    begin
+                        Rec.Status := p::OnHold;
+                        Rec.Modify();
+                    end;
+                }
                 action(Approve)
                 {
                     ApplicationArea = All;
@@ -268,7 +302,6 @@ page 50102 "Price Approval"
                 }
             }
         }
-
     }
 
     trigger OnNextRecord(Steps: Integer): Integer
@@ -297,7 +330,7 @@ page 50102 "Price Approval"
             if Selected = 1 then rec.ApprovalType := false else Rec.ApprovalType := true;
             CurrPage.Update();
         end;
-        CurrPage.HTMLRender.Page.SetData(Rec.No_);
+        CurrPage.HTMLRender.Page.GetData(Rec.No_);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -316,11 +349,11 @@ page 50102 "Price Approval"
     end;
 
     trigger OnOpenPage()
-
     begin
-        if (Rec.UserName <> UserId) and (p::Open <> Rec."Status") and (p::Rejected <> Rec."Status") then
+        DynamicEditable := true;
+        if (Rec.UserName <> UserId) then DynamicEditable := false;
+        if (Rec.UserName <> UserId) and ((p::Open <> Rec."Status") or (p::Rejected <> Rec."Status")) then
             CurrPage.Editable(false);
-
     end;
 
     var
