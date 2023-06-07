@@ -34,6 +34,7 @@ page 50101 "Price Approvals"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Status field.';
+
                 }
                 field("Due Date"; Rec."Due Date")
                 {

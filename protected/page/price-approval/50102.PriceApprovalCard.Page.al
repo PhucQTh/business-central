@@ -11,7 +11,6 @@ page 50102 "Price Approval"
     {
         area(content)
         {
-
             group(Generals)
             {
                 Editable = DynamicEditable;
@@ -237,9 +236,6 @@ page 50102 "Price Approval"
                         ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
                     end;
                 }
-
-
-
             }
             group("Request Approval")
             {
@@ -249,7 +245,7 @@ page 50102 "Price Approval"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") OR (p::Rejected = Rec."Status");//! Could be use Enabled
+                    Visible = NOT OpenApprovalEntriesExist AND ((p::Open = Rec."Status") OR (p::Rejected = Rec."Status"));//! Could be use Enabled
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
                     Promoted = true;
@@ -282,12 +278,16 @@ page 50102 "Price Approval"
                         CustomWorkflowMgmt.OnCancelWorkflowForApproval(RecRef);
                     end;
                 }
+            }
+
+            group("File Attachments")
+            {
+                Image = Attach;
                 action(Attachmentss)
                 {
-                    ApplicationArea = All;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -300,6 +300,7 @@ page 50102 "Price Approval"
                         DocumentAttachmentDetails.RunModal();
                     end;
                 }
+
             }
         }
     }
@@ -352,7 +353,7 @@ page 50102 "Price Approval"
     begin
         DynamicEditable := true;
         if (Rec.UserName <> UserId) then DynamicEditable := false;
-        if (Rec.UserName <> UserId) and ((p::Open <> Rec."Status") or (p::Rejected <> Rec."Status")) then
+        if (Rec.UserName <> UserId) and (p::Open <> Rec."Status") then
             CurrPage.Editable(false);
     end;
 
