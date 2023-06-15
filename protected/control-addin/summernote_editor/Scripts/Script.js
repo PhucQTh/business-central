@@ -25,11 +25,10 @@ function InitializeSummerNote(Data, FormType) {
         ["font", ["bold", "underline", "clear"]],
         ["color", ["color"]],
       ];
-      var iframe = window.frameElement;
+      const iframe = window.frameElement;
       iframe.style.removeProperty("height");
       iframe.style.removeProperty("min-height");
       iframe.style.removeProperty("max-height");
-      console.log(iframe);
       iframe.style.height = "200px";
     }
 

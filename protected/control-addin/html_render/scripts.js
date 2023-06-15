@@ -19,7 +19,6 @@ function Render(html, reload) {
 }
 function addButton(line) {
   var placeholder = document.getElementById("btn-placerholder-" + line);
-  console.log(placeholder);
   var button = document.createElement("button");
   button.textContent = "Edit";
   button.className = "btn btn-sm btn-warning";

@@ -166,7 +166,7 @@ page 50102 "Price Approval"
                     ApplicationArea = All;
                     Image = Answers;
                     Promoted = true;
-                    Visible = OpenApprovalEntriesExistCurrUser AND (REc.Status <> P::OnHold);
+                    Visible = OpenApprovalEntriesExistCurrUser AND (Rec.Status <> P::OnHold);
                     trigger OnAction()
                     begin
                         Rec.Status := p::OnHold;
