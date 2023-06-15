@@ -13,6 +13,15 @@ codeunit 50100 "Custom Workflow Mgmt"
         exit(DelChr(StrSubstNo(WorkflowCode, RecRef.Name), '=', ' '));
     end;
 
+    procedure CanRequestApprovalForRecord(MaterialCode: Code[10]): Boolean
+    var
+        MaterialRec: Record "Material";
+    begin
+        MaterialRec.SetRange("Code", MaterialCode);
+        if MaterialRec.FindSet() then
+            exit(true);
+        exit(false);
+    end;
 
     [IntegrationEvent(false, false)]
     procedure OnSendWorkflowForApproval(var RecRef: RecordRef)
@@ -24,7 +33,7 @@ codeunit 50100 "Custom Workflow Mgmt"
     begin
     end;
 
-    // Add events to the library
+    //! Add events to the library
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Event Handling", 'OnAddWorkflowEventsToLibrary', '', false, false)]
 
@@ -142,7 +151,21 @@ codeunit 50100 "Custom Workflow Mgmt"
         end;
     end;
 
-
+    procedure GetStatusStyleText(ApprovalRec: Record "Price Approval") StatusStyleText: Text
+    var
+        ApprovalStatus: enum "Custom Approval Enum";
+    begin
+        Case ApprovalRec.Status Of
+            ApprovalStatus::Approved:
+                StatusStyleText := 'Favorable';
+            ApprovalStatus::Rejected:
+                StatusStyleText := 'UnFavorable';
+            ApprovalStatus::Pending:
+                StatusStyleText := 'Ambiguous';
+            ApprovalStatus::OnHold:
+                StatusStyleText := 'Attention';
+        end;
+    end;
 
     var
         WorkflowMgt: Codeunit "Workflow Management";

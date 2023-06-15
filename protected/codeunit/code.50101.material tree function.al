@@ -11,9 +11,9 @@ codeunit 50101 MaterialTreeFunction
         if materialRec.FindSet() then begin
             materialItemList.SetRange("Code", materialRec.Code);
             materialItemList.SetRange("Material No.", materialRec."Line No.");
-            if (materialItemList.FindSet()) then
+            if materialItemList.FindSet() then
                 materialItemList.DeleteAll();
-            if (lineNo > 0) then materialRec.DeleteAll();
+            // if (lineNo > 0) then materialRec.DeleteAll();
             materialRec.Delete();
             Data := true;
             exit;

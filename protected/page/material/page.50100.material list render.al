@@ -14,6 +14,7 @@ page 50100 "Material Html Rendering"
         {
             field(addNewBtn; AddNewBtnLbl)
             {
+                Visible = EditTable;
                 ApplicationArea = All;
                 ShowCaption = false;
                 StyleExpr = 'Strong';
@@ -138,6 +139,7 @@ page 50100 "Material Html Rendering"
     trigger OnOpenPage()
     begin
         LoadOrders();
+
     end;
 
     procedure Render(reload: Boolean)
@@ -145,10 +147,10 @@ page 50100 "Material Html Rendering"
         LoadOrders();
         if Rec.Count > 0 then begin
             CurrPage.html.Render(CreateTable(), reload);
-            CreateButton();
+            If (EditTable) then CreateButton();
         end;
         if Rec.Count <= 0 then
-            CurrPage.html.Render('<p name="lable-for-null">PLEASE ADD MATERIAL</p>', reload);
+            CurrPage.html.Render('<div class="grid-emptyrowmessage" style="display: block;"><span>(There is nothing to show in this view)</span></div>', reload);
     end;
 
     procedure LoadOrders()
@@ -159,13 +161,15 @@ page 50100 "Material Html Rendering"
         PRID);
     end;
 
-    procedure GetData(data: Code[10])
+    procedure GetData(data: Code[10]; DynamicEdittable: Boolean)
     begin
         PRID := data;
+        EditTable := DynamicEdittable;
     end;
 
     var
         AddNewBtnLbl: Label 'ADD NEW MATERIAL';
         PRID: Code[10];
+        EditTable: Boolean;
 
 }

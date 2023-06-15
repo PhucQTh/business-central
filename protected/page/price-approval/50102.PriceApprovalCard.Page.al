@@ -1,11 +1,11 @@
 page 50102 "Price Approval"
 {
-    ApplicationArea = All;
     Caption = 'Price Approval';
+    RefreshOnActivate = true;
     PageType = Card;
     SourceTable = "Price Approval";
     PromotedActionCategories = 'Approval';
-    UsageCategory = Lists;
+    // DeleteAllowed = false;
 
     layout
     {
@@ -18,6 +18,7 @@ page 50102 "Price Approval"
                 {
                     field("Title"; Rec.Title)
                     {
+                        Editable = DynamicEditable;
                         ShowMandatory = true;
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the comment field.';
@@ -29,9 +30,15 @@ page 50102 "Price Approval"
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the comment field.';
                     }
-
+                    field("Department"; Rec.Department)
+                    {
+                        Editable = false;
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies the value of the comment field.';
+                    }
                     field(Purpose; Rec.Purpose)
                     {
+                        Editable = DynamicEditable;
                         ShowMandatory = true;
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the Purpose field.';
@@ -41,11 +48,14 @@ page 50102 "Price Approval"
                 {
                     field(Status; Rec.Status)
                     {
+                        Editable = false;
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the Status field.';
+                        StyleExpr = StatusStyleTxt;
                     }
                     field("Due Date"; Rec."Due Date")
                     {
+                        Editable = DynamicEditable;
                         ShowMandatory = true;
                         ApplicationArea = All;
                         ToolTip = 'Specifies the value of the Due Date field.';
@@ -55,26 +65,22 @@ page 50102 "Price Approval"
             part(HTMLRender; "Material Html Rendering")
             {
                 Editable = DynamicEditable;
-
                 Visible = NOT Rec.ApprovalType;
                 ApplicationArea = All;
             }
             part("General Material"; "General Material")
             {
                 Editable = DynamicEditable;
-
                 Visible = Rec.ApprovalType;
                 ApplicationArea = All;
             }
             group("General explanation")
             {
                 Editable = DynamicEditable;
-
-                ShowCaption = false;
-                Caption = ' ';
                 Visible = true;
                 usercontrol(SMTEditor; "SMT Editor")
                 {
+                    Visible = DynamicEditable;
                     ApplicationArea = All;
                     trigger ControlAddinReady()
                     begin
@@ -87,14 +93,34 @@ page 50102 "Price Approval"
                         NewData := Data;
                     end;
                 }
-
+                usercontrol(htmlShow; HTML)
+                {
+                    ApplicationArea = All;
+                    Visible = NOT DynamicEditable;
+                    trigger ControlReady()
+                    begin
+                        NewData := Rec.GetContent();
+                        If (NewData <> '') then
+                            CurrPage.htmlShow.Render(NewData, false)
+                        else
+                            CurrPage.htmlShow.Render('<div class="grid-emptyrowmessage" style="display: block;"><span>(There is nothing to show in this view)</span></div>', false);
+                    end;
+                }
+            }
+            part(Collaborators; EmailCC)
+            {
+                Editable = DynamicEditable;
+                Caption = 'Collaborators';
+                ApplicationArea = All;
+                SubPageLink = ApprovalID = field("NO_");
             }
             field(Attachments; 'Attachments')
             {
                 ApplicationArea = All;
                 ShowCaption = false;
-                StyleExpr = 'Strong';
+                StyleExpr = 'Favorable';
                 Caption = 'Attach files';
+                Visible = DynamicEditable;
                 trigger OnDrillDown()
                 var
                     DocumentAttachmentDetails: Page "Document Attachment Details";
@@ -105,13 +131,14 @@ page 50102 "Price Approval"
                     DocumentAttachmentDetails.RunModal();
                 end;
             }
-            part(Collaborators; EmailCC)
+            part("Attached Documents List"; "Document Attachment ListPart")
             {
-                Editable = DynamicEditable;
-                Caption = 'Collaborators';
                 ApplicationArea = All;
-                SubPageLink = ApprovalID = field("NO_");
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(50105),
+                              "No." = FIELD(No_);
             }
+
         }
         area(FactBoxes)
         {
@@ -245,7 +272,7 @@ page 50102 "Price Approval"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Visible = NOT OpenApprovalEntriesExist AND ((p::Open = Rec."Status") OR (p::Rejected = Rec."Status"));//! Could be use Enabled
+                    Visible = NOT OpenApprovalEntriesExist AND ((p::Open = Rec."Status") OR (p::Rejected = Rec."Status")) AND CanRequestApprovalForRecord;//! Could be use Enabled
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
                     Promoted = true;
@@ -258,6 +285,8 @@ page 50102 "Price Approval"
                         RecRef.GetTable(Rec);
                         if CustomWorkflowMgmt.CheckApprovalsWorkflowEnabled(RecRef) then
                             CustomWorkflowMgmt.OnSendWorkflowForApproval(RecRef);
+                        SetEditStatus();
+                        CurrPage.Update(false);
                     end;
                 }
                 action(CancelApprovalRequest)
@@ -276,10 +305,10 @@ page 50102 "Price Approval"
                     begin
                         RecRef.GetTable(Rec);
                         CustomWorkflowMgmt.OnCancelWorkflowForApproval(RecRef);
+                        SetEditStatus();
                     end;
                 }
             }
-
             group("File Attachments")
             {
                 Image = Attach;
@@ -311,27 +340,31 @@ page 50102 "Price Approval"
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        Selected: Integer;
+        Text000: Label 'Choose one of the price approval type:';
+        Text001: Label 'Standard,General';
     begin
+        Selected := Dialog.StrMenu(Text001, 1, Text000);
+        if (Selected = 0) then CurrPage.Close();
+        if Selected = 1 then rec.ApprovalType := false else Rec.ApprovalType := true;
         Rec.UserName := Database.UserId();
     end;
 
     trigger OnAfterGetCurrRecord()
     var
-        Question: Text;
-        Selected: Integer;
-        Text000: Label 'Choose one of the price approval type:';
-        Text001: Label 'Standard,General';
+        CustomWflMgmt: Codeunit "Custom Workflow Mgmt";
+
     begin
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
+        CanRequestApprovalForRecord := CustomWflMgmt.CanRequestApprovalForRecord(Rec.No_);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
-        if (Rec.No_ = '') then begin
-            Selected := Dialog.StrMenu(Text001, 1, Text000);
-            if Selected = 1 then rec.ApprovalType := false else Rec.ApprovalType := true;
-            CurrPage.Update();
-        end;
-        CurrPage.HTMLRender.Page.GetData(Rec.No_);
+        CurrPage.Update();
+        SetEditStatus();
+        CurrPage.HTMLRender.Page.GetData(Rec.No_, DynamicEditable);
+        StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -343,23 +376,31 @@ page 50102 "Price Approval"
 
     trigger OnClosePage()
     begin
-        Rec.TestField(Title);
-        Rec.TestField("Due Date");
-        Rec.TestField(Purpose);
         Rec.SetContent(NewData);
+        if Rec.No_ <> '' then begin
+            Rec.TestField(Title);
+            Rec.TestField("Due Date");
+            Rec.TestField(Purpose);
+        end;
     end;
 
     trigger OnOpenPage()
     begin
+        SetEditStatus();
+        // CurrPage.HTMLRender.Page.GetData(Rec.No_, DynamicEditable);
+    end;
+
+    procedure SetEditStatus()
+    begin
+        CurrPage.Editable(true);
         DynamicEditable := true;
-        if (Rec.UserName <> UserId) then DynamicEditable := false;
-        if (Rec.UserName <> UserId) and (p::Open <> Rec."Status") then
-            CurrPage.Editable(false);
+        if (Rec.UserName = UserId) and (p::Open = Rec."Status") then exit;
+        DynamicEditable := false;
     end;
 
     var
         p: enum "Custom Approval Enum";
-        OpenApprovalEntriesExistCurrUser, OpenApprovalEntriesExist, CanCancelApprovalForRecord
+        OpenApprovalEntriesExistCurrUser, OpenApprovalEntriesExist, CanCancelApprovalForRecord, CanRequestApprovalForRecord
         , HasApprovalEntries : Boolean;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DynamicEditable: Boolean;
@@ -369,5 +410,6 @@ page 50102 "Price Approval"
         AddNewBtnLbl: Label 'ADD NEW MATERIAL';
         Comment: Text;
         IsHTMLFormatted: Boolean;
+
 
 }

@@ -47,24 +47,6 @@ page 50103 MaterialList
 
         area(Processing)
         {
-            // action(NewMaterial)
-            // {
-            //     Image = New;
-            //     Caption = 'Add New Material';
-            //     ApplicationArea = All;
-
-            //     trigger OnAction()
-            //     var
-            //         AddNew: Page "MaterialCardPage";
-            //         NewRec: Record "Material";
-            //     begin
-            //         NewRec.Init();
-            //         NewRec.Code := Rec.Code;
-            //         AddNew.SetRecord(NewRec);
-            //         AddNew.Run();
-            //     end;
-
-            // }
         }
     }
 }

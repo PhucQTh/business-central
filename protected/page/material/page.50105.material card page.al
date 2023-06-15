@@ -76,7 +76,6 @@ page 50105 MaterialCardPage
             {
                 usercontrol(SMTEditor; "SMT Editor")
                 {
-
                     ApplicationArea = All;
                     trigger ControlAddinReady()
                     begin
@@ -98,7 +97,6 @@ page 50105 MaterialCardPage
                 UpdatePropagation = Both;
             }
         }
-
     }
 
 
@@ -109,19 +107,46 @@ page 50105 MaterialCardPage
         if isNew = true then begin
             newRec.init;
             newRec.Code := PRID;
-            CurrPage.SetRecord(newRec);
+            CurrPage.SetRecord(newRec); //! Set record with ID 
             CurrPage.SaveRecord();
         end
+    end;
+    //! ----------------- Check condition for close page action ----------------- */
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        ItemRec: Record MaterialItem;
+        Result: Boolean;
+    begin
+        ItemRec.SetRange("Material No.", Rec."Line No.");
+        ItemRec.SetRange("Code", Rec.Code);
+        if (Rec.Price = '') OR (Rec.Delivery = '') OR (Rec.Supplier = '') OR (NOT ItemRec.FindSet()) then begin
+            Result := CloseConfirmDialog();
+            if Result = true then begin
+                Rec.Delete();
+                exit(true); //!  Close page  
+            end;
+            exit(false); //! continue page
+        end;
+        exit(true); //!  Close page 
     end;
 
     trigger OnClosePage()
     begin
-        Rec.SetContent(NewData);
+        Rec.SetContent(NewData); //! save data in blob type (PriceNote)
+    end;
+
+    procedure CloseConfirmDialog(): Boolean
+    var
+        Selected: Boolean;
+        Text000: Label 'Are there any empty fields? Do you want to close without saving?';
+    begin
+        Selected := Dialog.Confirm(Text000, false);
+        Exit(Selected)
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        Message('Function is diabled');
+        Message('Function is disabled');
     end;
 
     procedure SetData(data: Code[10]; iisNew: Boolean)

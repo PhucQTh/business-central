@@ -49,8 +49,9 @@ table 50106 "Email Template"
         InStreamVar: InStream;
     begin
         CalcFields("Body");
-        if not "Body".HasValue() then
+        if not "Body".HasValue() then begin
             exit;
+        end;
         "Body".CreateInStream(InStreamVar, TextEncoding::UTF8);
         InStreamVar.Read(Data);
     end;

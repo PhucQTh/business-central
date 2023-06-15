@@ -7,13 +7,15 @@ page 50101 "Price Approvals"
     CardPageId = "Price Approval";
     UsageCategory = Lists;
     ShowFilter = false;
-    ModifyAllowed = false;
+    // ModifyAllowed = false;
+    DeleteAllowed = false;
     layout
     {
         area(content)
         {
             repeater(General)
             {
+                Editable = false;
                 field(No_; Rec.NO_)
                 {
                     ApplicationArea = All;
@@ -34,7 +36,7 @@ page 50101 "Price Approvals"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Status field.';
-
+                    StyleExpr = StatusStyleTxt;
                 }
                 field("Due Date"; Rec."Due Date")
                 {
@@ -74,6 +76,13 @@ page 50101 "Price Approvals"
             }
         }
     }
+    trigger OnAfterGetCurrRecord()
+    var
+        Wf: Codeunit "Custom Workflow Mgmt";
+    begin
+        StatusStyleTxt := Wf.GetStatusStyleText(Rec);
+    end;
+
 
 
     trigger OnOpenPage()
@@ -81,6 +90,7 @@ page 50101 "Price Approvals"
         UserSetup: Record "User Setup";
         filteredRec: Record "Price Approval" temporary;
     begin
+        If Rec.Count < 1 then exit;
         GetFilterString();
         if (IdFilterString <> '')
       then begin
@@ -117,8 +127,12 @@ page 50101 "Price Approvals"
             IdFilterString := COPYSTR(IdFilterString, 1, STRLEN(IdFilterString) - 1)
     end;
 
+
+
     var
         IdFilterString: Text;
+        StatusStyleTxt: Text;
+
 
 }
 

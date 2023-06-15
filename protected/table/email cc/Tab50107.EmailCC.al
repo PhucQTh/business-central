@@ -30,7 +30,7 @@ table 50107 "Email CC"
                 UserSelect.ValidateUserName("UserName");
                 UserRec.SetRange("User Name", UserName);
                 if UserRec.FindFirst() then begin
-                    Email := UserRec."Contact Email";
+                    Email := UserRec."Authentication Email";
                     "Full name" := UserRec."Full Name"
                 end;
             end;

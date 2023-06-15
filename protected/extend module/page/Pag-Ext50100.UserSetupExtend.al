@@ -8,6 +8,10 @@ pageextension 50100 "User Setup Extend" extends "User Setup"
             {
                 ApplicationArea = All;
             }
+            field("Department"; Rec."Department")
+            {
+                ApplicationArea = All;
+            }
         }
     }
 }

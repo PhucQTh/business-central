@@ -5,9 +5,14 @@ codeunit 50103 MyWorkflowResponses
         exit(UpperCase('SentEmailToApprover'));
     end;
 
-    procedure InitialSentEmailToApprovalCode(): code[128];
+    procedure SentEmailNotificationToSenderCode(): code[128]
     begin
-        exit(UpperCase('InitialSentEmailToApproval'));
+        exit(UpperCase('SentEmailNotificationToSender'));
+    end;
+
+    procedure SentEmailNotificationToSender(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance")
+    begin
+
     end;
 
     procedure SentEmailToApprover(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance")
@@ -17,9 +22,7 @@ codeunit 50103 MyWorkflowResponses
         RecRef.GetTable(Variant);
         case RecRef.Number of
             DATABASE::"Approval Entry":
-                // begin
                 SendApprovalEmailFromApprovalEntry(Variant, WorkflowStepInstance);
-            // end;
             else
                 SendApprovalEmailFromApprovalRecord(RecRef, WorkflowStepInstance);
         end;
@@ -39,7 +42,7 @@ codeunit 50103 MyWorkflowResponses
             repeat
                 user.SetRange("User Name", ApprovalEntry."Approver ID");
                 user.FindFirst();
-                SentAText(user, RecRef.RecordId);
+                SentAText(user, RecRef.RecordId, ApprovalEntry."Sender ID");
             until ApprovalEntry.Next() = 0;
     end;
 
@@ -56,11 +59,11 @@ codeunit 50103 MyWorkflowResponses
             repeat
                 user.SetRange("User Name", ApprovalEntry2."Approver ID");
                 user.FindFirst();
-                SentAText(user, ApprovalEntry2."Record ID to Approve");
+                SentAText(user, ApprovalEntry2."Record ID to Approve", ApprovalEntry2."Sender ID");
             until ApprovalEntry2.Next() = 0;
     end;
 
-    procedure SentAText(user: Record User; RecId: RecordId)
+    procedure SentAText(user: Record User; RecId: RecordId; SenderId: Code[50])
     var
         Mail: Codeunit "Email";
         EmailMessage: Codeunit "Email Message";
@@ -74,6 +77,7 @@ codeunit 50103 MyWorkflowResponses
         CCRecipients: list of [text];
         ToRecipients: list of [text];
         BCCRecipients: list of [text];
+        ReqUser: Record User;
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
@@ -85,14 +89,16 @@ codeunit 50103 MyWorkflowResponses
                 end;
         end;
         content := CreateTable(MaterialTreeRec);
-        Message(content);
         EmailTemplate.SetRange("No.", 'PAT01');
         EmailTemplate.FindFirst();
         Body := EmailTemplate.GetContent();
         Body := Body.Replace('[approver-email]', User."Full Name");
+        ReqUser.SetRange("User Name", SenderId);
+        ReqUser.FindFirst();
+        Body := Body.Replace('[req-mail]', ReqUser."Full Name");
         Body := Body.Replace('[content]', content);
         CCRecipients := GetCC(MaterialTreeRec.Code);
-        ToRecipients.Add(User."Contact Email");
+        ToRecipients.Add(User."Authentication Email");
         EmailMessage.Create(ToRecipients, 'Hi', Body, true, CCRecipients, BCCRecipients);
 
         Mail.Send(EmailMessage, "Email Scenario"::Default);
@@ -169,6 +175,7 @@ codeunit 50103 MyWorkflowResponses
     local procedure AddMyWorkflowResponsesToLibrary()
     begin
         WorkflowResponseHandling.AddResponseToLibrary(SentEmailToApproverCode, 0, 'Sent Email To Approver', 'GROUP 0');
+        WorkflowResponseHandling.AddResponseToLibrary(SentEmailNotificationToSenderCode, 0, 'Sent Notification Email To Sender', 'GROUP 0');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnExecuteWorkflowResponse', '', true, true)]
@@ -185,6 +192,14 @@ codeunit 50103 MyWorkflowResponses
                     end;
 
             END;
+        case WorkflowResponse."Function Name" of
+            SentEmailNotificationToSenderCode:
+                begin
+                    SentEmailNotificationToSender(Variant, ResponseWorkflowStepInstance);
+                    ResponseExecuted := TRUE;
+                end;
+
+        END;
     end;
 
 
