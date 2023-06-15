@@ -23,8 +23,10 @@ page 50100 "Material Html Rendering"
                     AddNew: Page "MaterialCardPage";
                 begin
                     AddNew.SetData(PRID, true);
-                    if AddNew.RunModal() = Action::OK then
+                    if AddNew.RunModal() = Action::OK then begin
                         Render(true);
+                        CurrPage.Update();
+                    end;
                 end;
             }
             usercontrol(html; HTML)

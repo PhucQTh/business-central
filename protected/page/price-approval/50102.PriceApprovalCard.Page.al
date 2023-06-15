@@ -318,7 +318,6 @@ page 50102 "Price Approval"
                     Caption = 'Attachments';
                     Image = Attach;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
-
                     trigger OnAction()
                     var
                         DocumentAttachmentDetails: Page "Document Attachment Details";
@@ -354,7 +353,6 @@ page 50102 "Price Approval"
     trigger OnAfterGetCurrRecord()
     var
         CustomWflMgmt: Codeunit "Custom Workflow Mgmt";
-
     begin
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
         CanRequestApprovalForRecord := CustomWflMgmt.CanRequestApprovalForRecord(Rec.No_);
@@ -363,7 +361,6 @@ page 50102 "Price Approval"
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
         CurrPage.Update();
         SetEditStatus();
-        CurrPage.HTMLRender.Page.GetData(Rec.No_, DynamicEditable);
         StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec);
     end;
 
@@ -376,7 +373,7 @@ page 50102 "Price Approval"
 
     trigger OnClosePage()
     begin
-        Rec.SetContent(NewData);
+        if (DynamicEditable) then Rec.SetContent(NewData);
         if Rec.No_ <> '' then begin
             Rec.TestField(Title);
             Rec.TestField("Due Date");
@@ -387,7 +384,7 @@ page 50102 "Price Approval"
     trigger OnOpenPage()
     begin
         SetEditStatus();
-        // CurrPage.HTMLRender.Page.GetData(Rec.No_, DynamicEditable);
+        CurrPage.HTMLRender.Page.GetData(Rec.No_, DynamicEditable);
     end;
 
     procedure SetEditStatus()

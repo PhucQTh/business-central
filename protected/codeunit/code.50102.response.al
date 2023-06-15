@@ -100,7 +100,6 @@ codeunit 50103 MyWorkflowResponses
         CCRecipients := GetCC(MaterialTreeRec.Code);
         ToRecipients.Add(User."Authentication Email");
         EmailMessage.Create(ToRecipients, 'Hi', Body, true, CCRecipients, BCCRecipients);
-
         Mail.Send(EmailMessage, "Email Scenario"::Default);
     end;
 

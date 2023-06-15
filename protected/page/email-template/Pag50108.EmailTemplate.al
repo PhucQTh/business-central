@@ -3,8 +3,6 @@ page 50108 "Email Template"
     Caption = 'Email Template';
     PageType = Card;
     SourceTable = "Email Template";
-    ApplicationArea = All;
-    UsageCategory = Documents;
     layout
     {
         area(content)
