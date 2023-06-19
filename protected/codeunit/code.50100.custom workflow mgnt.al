@@ -13,6 +13,23 @@ codeunit 50100 "Custom Workflow Mgmt"
         exit(DelChr(StrSubstNo(WorkflowCode, RecRef.Name), '=', ' '));
     end;
 
+    procedure HasApprovalEntriesForCurrentUser(RecordID: RecordID): Boolean
+    //!Check if there are any approval entries for the current user
+    var
+        ApprovalEntry: Record "Approval Entry";
+    begin
+        ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
+        ApprovalEntry.SetRange("Record ID to Approve", RecordID);
+        // ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
+        ApprovalEntry.SetRange("Approver ID", UserId);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
+        ApprovalEntry.SetRange("Related to Change", false);
+
+        exit(not ApprovalEntry.IsEmpty());
+    end;
+
     procedure CanRequestApprovalForRecord(MaterialCode: Code[10]): Boolean
     var
         MaterialRec: Record "Material";

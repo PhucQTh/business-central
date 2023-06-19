@@ -116,11 +116,13 @@ page 50105 MaterialCardPage
     var
         ItemRec: Record MaterialItem;
         Result: Boolean;
+        Helper: Codeunit "Helper";
+
     begin
         ItemRec.SetRange("Material No.", Rec."Line No.");
         ItemRec.SetRange("Code", Rec.Code);
         if (Rec.Price = '') OR (Rec.Delivery = '') OR (Rec.Supplier = '') OR (NOT ItemRec.FindSet()) then begin
-            Result := CloseConfirmDialog();
+            Result := Helper.CloseConfirmDialog('Are there any empty fields? Do you want to close without saving?');
             if Result = true then begin
                 Rec.Delete();
                 exit(true); //!  Close page  
@@ -135,14 +137,6 @@ page 50105 MaterialCardPage
         Rec.SetContent(NewData); //! save data in blob type (PriceNote)
     end;
 
-    procedure CloseConfirmDialog(): Boolean
-    var
-        Selected: Boolean;
-        Text000: Label 'Are there any empty fields? Do you want to close without saving?';
-    begin
-        Selected := Dialog.Confirm(Text000, false);
-        Exit(Selected)
-    end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin

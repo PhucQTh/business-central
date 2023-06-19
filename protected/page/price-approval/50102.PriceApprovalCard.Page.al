@@ -114,7 +114,7 @@ page 50102 "Price Approval"
                 ApplicationArea = All;
                 SubPageLink = ApprovalID = field("NO_");
             }
-            field(Attachments; 'Attachments')
+            field(Attachments; 'Add Attachment')
             {
                 ApplicationArea = All;
                 ShowCaption = false;
@@ -371,14 +371,28 @@ page 50102 "Price Approval"
         MaterialTreeFunctions.DeleteMaterialEntries(-1, Rec.No_);
     end;
 
+
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        Helper: Codeunit "Helper";
+        Result: Boolean;
+
+    begin
+        if (Rec.Title = '') OR (Rec.Purpose = '') then begin
+            Result := Helper.CloseConfirmDialog('Some important fields are empty. You must complete them in order to save the request? Do you want to close without saving?');
+            if Result = true then begin
+                Rec.Delete();
+                exit(true); //!  Close page  
+            end;
+            exit(false); //! continue page
+        end;
+        exit(true); //!  Close page 
+    end;
+
     trigger OnClosePage()
     begin
         if (DynamicEditable) then Rec.SetContent(NewData);
-        if Rec.No_ <> '' then begin
-            Rec.TestField(Title);
-            Rec.TestField("Due Date");
-            Rec.TestField(Purpose);
-        end;
     end;
 
     trigger OnOpenPage()

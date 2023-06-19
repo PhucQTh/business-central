@@ -108,6 +108,7 @@ page 50101 "Price Approvals"
     procedure GetFilterString()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        CustomApprovalMgmt: Codeunit "Custom Workflow Mgmt";
         Collaborators: Record "Email CC";
         isCollaborator: Boolean;
     begin
@@ -117,9 +118,8 @@ page 50101 "Price Approvals"
             isCollaborator := false;
             Collaborators.SetRange("ApprovalId", Rec.NO_);
             Collaborators.SetRange("UserName", UserId);
-            // Message(Rec.No_ + ': ' + Rec.Title);s
             if (Collaborators.FindSet()) then isCollaborator := true;
-            if (ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId)) OR (Rec.UserName = UserId) OR (isCollaborator) then
+            if (CustomApprovalMgmt.HasApprovalEntriesForCurrentUser(Rec.RecordId)) OR (Rec.UserName = UserId) OR (isCollaborator AND (Rec.Status <> ApprovalStatus::Open)) then
                 IdFilterString := IdFilterString + Rec.No_ + '|'
         until Rec.Next() = 0;
 
@@ -132,6 +132,7 @@ page 50101 "Price Approvals"
     var
         IdFilterString: Text;
         StatusStyleTxt: Text;
+        ApprovalStatus: Enum "Custom Approval Enum";
 
 
 }
