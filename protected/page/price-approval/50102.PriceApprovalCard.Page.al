@@ -62,18 +62,21 @@ page 50102 "Price Approval"
                     }
                 }
             }
-            part(HTMLRender; "Material Html Rendering")
+            //! ----------------------------- Material Render ---------------------------- */
+            part(HTMLRender; "Material Html Rendering") //! Standard
             {
                 Editable = DynamicEditable;
                 Visible = NOT Rec.ApprovalType;
                 ApplicationArea = All;
             }
-            part("General Material"; "General Material")
+            part("General Material"; "General Material")//! General
             {
                 Editable = DynamicEditable;
                 Visible = Rec.ApprovalType;
                 ApplicationArea = All;
             }
+            //! ----------------------------- Material Render ---------------------------- */
+
             group("General explanation")
             {
                 Editable = DynamicEditable;
@@ -344,10 +347,12 @@ page 50102 "Price Approval"
         Text000: Label 'Choose one of the price approval type:';
         Text001: Label 'Standard,General';
     begin
+        DynamicEditable := true;
         Selected := Dialog.StrMenu(Text001, 1, Text000);
         if (Selected = 0) then CurrPage.Close();
         if Selected = 1 then rec.ApprovalType := false else Rec.ApprovalType := true;
-        Rec.UserName := Database.UserId();
+        // Rec.Status := p::Open;
+        Rec.UserName := UserId();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -359,9 +364,9 @@ page 50102 "Price Approval"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
-        CurrPage.Update();
-        SetEditStatus();
         StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec);
+        SetEditStatus();
+        CurrPage.Update(true);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -371,13 +376,10 @@ page 50102 "Price Approval"
         MaterialTreeFunctions.DeleteMaterialEntries(-1, Rec.No_);
     end;
 
-
-
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         Helper: Codeunit "Helper";
         Result: Boolean;
-
     begin
         if (Rec.Title = '') OR (Rec.Purpose = '') then begin
             Result := Helper.CloseConfirmDialog('Some important fields are empty. You must complete them in order to save the request? Do you want to close without saving?');
@@ -397,7 +399,6 @@ page 50102 "Price Approval"
 
     trigger OnOpenPage()
     begin
-        SetEditStatus();
         CurrPage.HTMLRender.Page.GetData(Rec.No_, DynamicEditable);
     end;
 
@@ -405,8 +406,11 @@ page 50102 "Price Approval"
     begin
         CurrPage.Editable(true);
         DynamicEditable := true;
-        if (Rec.UserName = UserId) and (p::Open = Rec."Status") then exit;
-        DynamicEditable := false;
+        if (Rec.UserName = UserId) and (Rec."Status" = p::Open) then
+            DynamicEditable := true
+        else
+            DynamicEditable := false;
+
     end;
 
     var

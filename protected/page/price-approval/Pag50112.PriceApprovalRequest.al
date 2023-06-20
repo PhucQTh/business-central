@@ -1,13 +1,11 @@
-page 50101 "Price Approvals"
+page 50112 "Price Approval Request"
 {
-    ApplicationArea = All;
-    Caption = 'Price Approvals';
+    Caption = 'Price Approval Request';
     PageType = List;
     SourceTable = "Price Approval";
     CardPageId = "Price Approval";
     UsageCategory = Lists;
-    ShowFilter = false;
-    // ModifyAllowed = false;
+    ModifyAllowed = false;
     DeleteAllowed = false;
     layout
     {
@@ -56,39 +54,7 @@ page 50101 "Price Approvals"
                     ToolTip = 'Specifies the value of the SystemModifiedAt field.';
                 }
             }
-        }
-    }
-    actions
-    {
-        area(reporting)
-        {
-            action("Export Report")
-            {
-                Promoted = true;
-                ApplicationArea = All;
-                Caption = 'Export Report';
-                trigger OnAction()
-                var
-                    exportReport: Report "Price Approval Report";
-                begin
-                    exportReport.Run();
-                end;
-            }
-        }
-        area(Navigation)
-        {
-            action("Request list")
-            {
-                // Promoted = true;
-                ApplicationArea = All;
-                Caption = 'Request list';
-                trigger OnAction()
-                var
-                    ReqPage: Page "Price Approval Request";
-                begin
-                    ReqPage.Run();
-                end;
-            }
+
         }
     }
     trigger OnAfterGetCurrRecord()
@@ -97,8 +63,6 @@ page 50101 "Price Approvals"
     begin
         StatusStyleTxt := Wf.GetStatusStyleText(Rec);
     end;
-
-
 
     trigger OnOpenPage()
     var
@@ -115,7 +79,7 @@ page 50101 "Price Approvals"
         end
         else begin
             Rec.FilterGroup := 100;
-            Rec.SetFilter(Rec.UserName, UserId);
+            Rec.SetFilter(Rec.UserName, 'null');
             Rec.FilterGroup := 0;
         end;
     end;
@@ -124,17 +88,12 @@ page 50101 "Price Approvals"
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         CustomApprovalMgmt: Codeunit "Custom Workflow Mgmt";
-        Collaborators: Record "Email CC";
         isCollaborator: Boolean;
     begin
         Rec.FindFirst();
 
         repeat
-            isCollaborator := false;
-            Collaborators.SetRange("ApprovalId", Rec.NO_);
-            Collaborators.SetRange("UserName", UserId);
-            if (Collaborators.FindSet()) then isCollaborator := true;
-            if (CustomApprovalMgmt.HasApprovalEntriesForCurrentUser(Rec.RecordId)) OR (Rec.UserName = UserId) OR (isCollaborator AND (Rec.Status <> ApprovalStatus::Open)) then
+            if (ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId)) then
                 IdFilterString := IdFilterString + Rec.No_ + '|'
         until Rec.Next() = 0;
 
@@ -148,8 +107,4 @@ page 50101 "Price Approvals"
         IdFilterString: Text;
         StatusStyleTxt: Text;
         ApprovalStatus: Enum "Custom Approval Enum";
-
-
 }
-
-
