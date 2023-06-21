@@ -5,12 +5,19 @@ table 50109 "Purchase Request Info"
 
     fields
     {
-        field(1; id; Integer)
+        field(1; No_; Code[10])
         {
-            Caption = 'id';
+            Caption = 'No.';
+            Editable = false;
             DataClassification = ToBeClassified;
-            AutoIncrement = true;
-
+            trigger OnValidate()
+            begin
+                if "No_" <> xRec."No_" then begin
+                    NoSeriesSetup.Get();
+                    NoSeriesMgt.TestManual(NoSeriesSetup."Price Approval No.");
+                    "No. Series" := '';
+                end;
+            end;
         }
         field(2; request_approval_id; Integer)
         {
@@ -82,12 +89,31 @@ table 50109 "Purchase Request Info"
             Caption = 'NgayGetPs';
             DataClassification = ToBeClassified;
         }
+        field(16; "No. Series"; Code[10])
+        {
+            Caption = 'No. Series';
+            DataClassification = ToBeClassified;
+        }
+
     }
     keys
     {
-        key(PK; id)
+        key(PK; No_)
         {
             Clustered = true;
         }
     }
+    trigger OnInsert()
+    begin
+        if "No_" = '' then begin
+            NoSeriesSetup.Get();
+            NoSeriesSetup.TestField("Purchase Request No.");
+            NoSeriesMgt.InitSeries(NoSeriesSetup."Purchase Request No.", xRec."No. Series", 0D, "No_", "No. Series");
+        end;
+
+    end;
+
+    var
+        NoSeriesSetup: Record "No. Series Setup";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
 }

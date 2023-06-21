@@ -23,7 +23,7 @@ page 50113 "Purchase Request"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the TenBoPhan field.';
                 }
-                field(id; Rec.id)
+                field(id; Rec.No_)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the id field.';

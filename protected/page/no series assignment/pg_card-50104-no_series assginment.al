@@ -20,7 +20,12 @@ page 50104 "No. Series Assignment"
                     ApplicationArea = All;
 
                 }
+                field("Purchase Request No."; Rec."Purchase Request No.")
+                {
+                    Caption = 'Purchase Request No.';
+                    ApplicationArea = All;
 
+                }
             }
         }
     }

@@ -18,6 +18,12 @@ table 50103 "No. Series Setup"
             DataClassification = ToBeClassified;
             TableRelation = "No. Series";
         }
+        field(3; "Purchase Request No."; Code[10])
+        {
+            Caption = 'Price Approval No.';
+            DataClassification = ToBeClassified;
+            TableRelation = "No. Series";
+        }
     }
     keys
     {
