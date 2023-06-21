@@ -7,8 +7,7 @@ page 50101 "Price Approvals"
     CardPageId = "Price Approval";
     UsageCategory = Lists;
     ShowFilter = false;
-    // ModifyAllowed = false;
-    DeleteAllowed = false;
+
     layout
     {
         area(content)
@@ -64,7 +63,7 @@ page 50101 "Price Approvals"
         {
             action("Export Report")
             {
-                Promoted = true;
+                // Promoted = true;
                 ApplicationArea = All;
                 Caption = 'Export Report';
                 trigger OnAction()
@@ -89,6 +88,7 @@ page 50101 "Price Approvals"
                     ReqPage.Run();
                 end;
             }
+
         }
     }
     trigger OnAfterGetCurrRecord()
@@ -120,6 +120,11 @@ page 50101 "Price Approvals"
         end;
     end;
 
+    trigger OnModifyRecord(): Boolean
+    begin
+        CurrPage.Update(true);
+    end;
+
     procedure GetFilterString()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -128,13 +133,12 @@ page 50101 "Price Approvals"
         isCollaborator: Boolean;
     begin
         Rec.FindFirst();
-
         repeat
             isCollaborator := false;
             Collaborators.SetRange("ApprovalId", Rec.NO_);
             Collaborators.SetRange("UserName", UserId);
             if (Collaborators.FindSet()) then isCollaborator := true;
-            if (CustomApprovalMgmt.HasApprovalEntriesForCurrentUser(Rec.RecordId)) OR (Rec.UserName = UserId) OR (isCollaborator AND (Rec.Status <> ApprovalStatus::Open)) then
+            if (CustomApprovalMgmt.HasApprovalEntriesForCurrentUser(Rec.RecordId)) OR (Rec.UserName = UserId) OR (isCollaborator) then //AND (Rec.Status <> ApprovalStatus::Open)
                 IdFilterString := IdFilterString + Rec.No_ + '|'
         until Rec.Next() = 0;
 

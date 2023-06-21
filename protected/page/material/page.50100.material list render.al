@@ -25,7 +25,6 @@ page 50100 "Material Html Rendering"
                     AddNew.SetData(PRID, true);
                     if AddNew.RunModal() = Action::OK then begin
                         Render(true);
-                        CurrPage.Update();
                     end;
                 end;
             }
@@ -152,7 +151,7 @@ page 50100 "Material Html Rendering"
             If (EditTable) then CreateButton();
         end;
         if Rec.Count <= 0 then
-            CurrPage.html.Render('<div class="grid-emptyrowmessage" style="display: block;"><span>(There is nothing to show in this view)</span></div>', reload);
+            CurrPage.html.Render('There is nothing to show in this view', reload);
     end;
 
     procedure LoadOrders()

@@ -66,13 +66,13 @@ page 50102 "Price Approval"
             part(HTMLRender; "Material Html Rendering") //! Standard
             {
                 Editable = DynamicEditable;
-                Visible = NOT Rec.ApprovalType;
+                Visible = (Rec.ApprovalType = RecordType::Standard);
                 ApplicationArea = All;
             }
             part("General Material"; "General Material")//! General
             {
                 Editable = DynamicEditable;
-                Visible = Rec.ApprovalType;
+                Visible = (Rec.ApprovalType = RecordType::General);
                 ApplicationArea = All;
             }
             //! ----------------------------- Material Render ---------------------------- */
@@ -266,6 +266,7 @@ page 50102 "Price Approval"
                         ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
                     end;
                 }
+
             }
             group("Request Approval")
             {
@@ -341,17 +342,26 @@ page 50102 "Price Approval"
         Message('Function is diabled');
     end;
 
+    trigger OnOpenPage()
+    begin
+        SetEditStatus();
+    end;
+
     trigger OnNewRecord(BelowxRec: Boolean)
     var
         Selected: Integer;
         Text000: Label 'Choose one of the price approval type:';
         Text001: Label 'Standard,General';
     begin
-        DynamicEditable := true;
         Selected := Dialog.StrMenu(Text001, 1, Text000);
-        if (Selected = 0) then CurrPage.Close();
-        if Selected = 1 then rec.ApprovalType := false else Rec.ApprovalType := true;
-        // Rec.Status := p::Open;
+        if (Selected = 0) then begin
+            Rec.ApprovalType := RecordType::Initial;
+            CurrPage.Close();
+            EXIT;
+        end;
+        ;
+        if Selected = 1 then rec.ApprovalType := RecordType::Standard else Rec.ApprovalType := RecordType::General;
+        Rec.Status := p::Open;
         Rec.UserName := UserId();
     end;
 
@@ -365,8 +375,33 @@ page 50102 "Price Approval"
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
         StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec);
-        SetEditStatus();
         CurrPage.Update(true);
+        CurrPage.HTMLRender.Page.GetData(Rec.No_, DynamicEditable);
+
+    end;
+
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        Helper: Codeunit "Helper";
+        Result: Boolean;
+    begin
+        IF (Rec.ApprovalType <> RecordType::Initial) then
+            if (Rec.Title = '') OR (Rec.Purpose = '') then begin
+                Result := Helper.CloseConfirmDialog('Some important fields are empty. You must complete them in order to save the request? Do you want to close without saving?');
+                if Result = true then begin
+                    Rec.Delete();
+                    exit(true); //!  Close page  
+                end;
+                exit(false); //! continue page
+            end;
+        exit(true); //!  Close page 
+    end;
+
+    trigger OnClosePage()
+    begin
+        if (DynamicEditable) then Rec.SetContent(NewData);
+        CurrPage.Close();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -376,44 +411,21 @@ page 50102 "Price Approval"
         MaterialTreeFunctions.DeleteMaterialEntries(-1, Rec.No_);
     end;
 
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    var
-        Helper: Codeunit "Helper";
-        Result: Boolean;
-    begin
-        if (Rec.Title = '') OR (Rec.Purpose = '') then begin
-            Result := Helper.CloseConfirmDialog('Some important fields are empty. You must complete them in order to save the request? Do you want to close without saving?');
-            if Result = true then begin
-                Rec.Delete();
-                exit(true); //!  Close page  
-            end;
-            exit(false); //! continue page
-        end;
-        exit(true); //!  Close page 
-    end;
-
-    trigger OnClosePage()
-    begin
-        if (DynamicEditable) then Rec.SetContent(NewData);
-    end;
-
-    trigger OnOpenPage()
-    begin
-        CurrPage.HTMLRender.Page.GetData(Rec.No_, DynamicEditable);
-    end;
 
     procedure SetEditStatus()
     begin
         CurrPage.Editable(true);
         DynamicEditable := true;
-        if (Rec.UserName = UserId) and (Rec."Status" = p::Open) then
-            DynamicEditable := true
-        else
+        if (Rec.ApprovalType = RecordType::Initial) then begin
+            DynamicEditable := true;
+            exit;
+        end;
+        if (Rec.UserName <> UserId) OR (Rec."Status" <> p::Open) then
             DynamicEditable := false;
-
     end;
 
     var
+        RecordType: Enum "Approval Type";
         p: enum "Custom Approval Enum";
         OpenApprovalEntriesExistCurrUser, OpenApprovalEntriesExist, CanCancelApprovalForRecord, CanRequestApprovalForRecord
         , HasApprovalEntries : Boolean;

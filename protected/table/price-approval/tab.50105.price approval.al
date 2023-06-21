@@ -70,7 +70,7 @@ table 50105 "Price Approval"
             Editable = false;
             DataClassification = ToBeClassified;
         }
-        field(11; ApprovalType; Boolean)
+        field(11; ApprovalType; Enum "Approval Type")
         {
             Caption = 'General Price Approval';
             DataClassification = ToBeClassified;
