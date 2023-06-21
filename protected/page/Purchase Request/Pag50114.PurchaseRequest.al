@@ -44,6 +44,7 @@ page 50114 "Purchase Request Card"
                 }
                 field(Department; Rec.TenBoPhan)
                 {
+                    Editable = false;
                     Caption = 'Department';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the TenBoPhan field.';
@@ -66,10 +67,17 @@ page 50114 "Purchase Request Card"
             group(Form)
             {
                 ShowCaption = false;
-                part("Purchase Form"; "Purchase Form")
+                part("Materials"; "Materials Form")
                 {
+                    Caption = 'Materials';
                     ApplicationArea = All;
-
+                    Visible = Good;
+                }
+                part("Services"; "Services Form")
+                {
+                    Visible = Service;
+                    Caption = 'Services';
+                    ApplicationArea = All;
                 }
             }
         }
@@ -85,6 +93,7 @@ page 50114 "Purchase Request Card"
     trigger OnAfterGetCurrRecord()
     begin
         IF Rec.pr_type = 1 then Good := true else Service := true;
+        CurrPage.Update();
     end;
 
     var

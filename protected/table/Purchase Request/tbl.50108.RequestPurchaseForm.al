@@ -9,7 +9,7 @@ table 50108 "Request Purchase Form"
             Caption = 'title';
             DataClassification = ToBeClassified;
         }
-        field(2; description; Blob)
+        field(2; description; Text[2048])
         {
             Caption = 'description';
             DataClassification = ToBeClassified;

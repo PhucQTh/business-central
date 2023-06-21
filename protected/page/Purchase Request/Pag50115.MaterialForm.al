@@ -1,6 +1,6 @@
-page 50115 "Purchase Form"
+page 50115 "Materials Form"
 {
-    Caption = 'Purchase Form';
+    Caption = 'Materials Form';
     PageType = ListPart;
     SourceTable = "Request Purchase Form";
 
@@ -27,21 +27,25 @@ page 50115 "Purchase Form"
                 }
                 field(quantity; Rec.quantity)
                 {
+                    Visible = NOT isService;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the quantity field.';
                 }
                 field(unit; Rec.unit)
                 {
+                    Visible = NOT isService;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the unit field.';
                 }
                 field(delivery_date; Rec.delivery_date)
                 {
+                    Visible = NOT isService;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the delivery_date field.';
                 }
                 field(purpose; Rec.purpose)
                 {
+                    Visible = NOT isService;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the purpose field.';
                 }
@@ -50,10 +54,10 @@ page 50115 "Purchase Form"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the remark field.';
                 }
-
-
-
             }
         }
     }
+
+    var
+        isService: Boolean;
 }
