@@ -7,4 +7,6 @@ codeunit 50104 Helper
         Selected := Dialog.Confirm(Question, false);
         Exit(Selected)
     end;
+
+
 }

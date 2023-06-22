@@ -106,6 +106,7 @@ page 50116 "Services Form"
             Evaluate(Form.title, GetValueAtCell(RowNo, 2));
             Evaluate(Form."Description", GetValueAtCell(RowNo, 3));
             Evaluate(Form."Quantity", GetValueAtCell(RowNo, 4));
+            Evaluate(Form.delivery_date, GetValueAtCell(RowNo, 5));
             Evaluate(Form.remark, GetValueAtCell(RowNo, 6));
             Form.Insert();
         end;
@@ -123,7 +124,6 @@ page 50116 "Services Form"
     end;
 
     var
-        BatchName: Code[10];
         FileName: Text[100];
         SheetName: Text[100];
 

@@ -37,11 +37,7 @@ page 50114 "Purchase Request Card"
             group("REQUEST INFORMATION")
             {
                 Caption = 'General';
-                field(NguoiYeuCau; Rec.NguoiYeuCau)
-                {
-                    // ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the NguoiYeuCau field.';
-                }
+
                 field(Department; Rec.TenBoPhan)
                 {
                     Editable = false;
@@ -55,14 +51,12 @@ page 50114 "Purchase Request Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the department_end_user field.';
                 }
-                field(Title; Rec.DienGiaiChung)
+                field(Title; Rec.pr_notes)
                 {
                     Caption = 'Title';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the DienGiaiChung field.';
                 }
-
-
             }
             group(Form)
             {
