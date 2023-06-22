@@ -76,6 +76,36 @@ page 50114 "Purchase Request Card"
                     SubPageLink = id = field(No_), type = field(pr_type);
                 }
             }
+            part(Collaborators; EmailCC)
+            {
+                Caption = 'Collaborators';
+                ApplicationArea = All;
+                SubPageLink = ApprovalID = field("NO_");
+            }
+            field(Attachments; 'Add Attachment')
+            {
+                ApplicationArea = All;
+                ShowCaption = false;
+                StyleExpr = 'Favorable';
+                Caption = 'Attach files';
+                trigger OnDrillDown()
+                var
+                    DocumentAttachmentDetails: Page "Document Attachment Details";
+                    RecRef: RecordRef;
+                begin
+                    RecRef.GetTable(Rec);
+                    DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                    DocumentAttachmentDetails.RunModal();
+                end;
+            }
+            part("Attached Documents List"; "Document Attachment ListPart")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(50109),
+                              "No." = FIELD(No_);
+            }
+
         }
     }
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -83,6 +113,7 @@ page 50114 "Purchase Request Card"
         Good := true;
         Service := false;
         Rec.pr_type := 1;
+        Rec."Request By" := UserId;
         CurrPage.Update();
     end;
 

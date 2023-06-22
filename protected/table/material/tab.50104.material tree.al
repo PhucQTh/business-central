@@ -80,7 +80,7 @@ table 50104 "Material Tree"
             Caption = 'Description';
             DataClassification = SystemMetadata;
         }
-        field(14; Unit;enum "Item Unit")
+        field(14; Unit; enum "Item Unit")
         {
             Caption = 'Unit';
             DataClassification = SystemMetadata;
@@ -96,7 +96,7 @@ table 50104 "Material Tree"
         {
             Caption = 'Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Price Approval"."No_";
+            TableRelation = "Purchase Request Info"."No_";
 
         }
         field(17; "Line No."; Integer)

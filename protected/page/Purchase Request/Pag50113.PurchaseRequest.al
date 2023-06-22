@@ -13,31 +13,32 @@ page 50113 "Purchase Request"
         {
             repeater(General)
             {
-                field(NguoiYeuCau; Rec.NguoiYeuCau)
+                field(No_; Rec.No_)
                 {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the NguoiYeuCau field.';
-                }
-                field(TenBoPhan; Rec.TenBoPhan)
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the TenBoPhan field.';
-                }
-                field(id; Rec.No_)
-                {
+                    Caption = 'No.';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the id field.';
                 }
                 field(pr_notes; Rec.pr_notes)
                 {
+                    Caption = 'Purpose';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the pr_notes field.';
                 }
-                field(pr_number; Rec.pr_number)
+                field(TenBoPhan; Rec.TenBoPhan)
                 {
+                    Caption = 'Department';
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the pr_number field.';
+                    ToolTip = 'Specifies the value of the TenBoPhan field.';
                 }
+
+                field("Request By"; Rec."Request By")
+                {
+                    Caption = 'Request By';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the NguoiYeuCau field.';
+                }
+
             }
         }
     }

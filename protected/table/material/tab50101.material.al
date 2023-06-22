@@ -8,7 +8,7 @@ table 50101 Material
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
-            TableRelation = "Price Approval"."No_";
+            TableRelation = "Purchase Request Info"."No_";
             DataClassification = ToBeClassified;
         }
         field(2; "Line No."; Integer)

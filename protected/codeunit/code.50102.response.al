@@ -73,7 +73,7 @@ codeunit 50103 MyWorkflowResponses
         MaterialTreeRec: Record "Material Tree";
         MaterialTreeFunction: Codeunit MaterialTreeFunction;
         RecRef: RecordRef;
-        PriceApproval: Record "Price Approval";
+        PriceApproval: Record "Purchase Request Info";
         CCRecipients: list of [text];
         ToRecipients: list of [text];
         BCCRecipients: list of [text];
@@ -81,7 +81,7 @@ codeunit 50103 MyWorkflowResponses
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
-            Database::"Price Approval":
+            Database::"Purchase Request Info":
                 begin
                     RecRef.SetTable(PriceApproval);
                     MaterialTreeFunction.CreateMaterialEntries(MaterialTreeRec, PriceApproval.No_);

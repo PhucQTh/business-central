@@ -64,7 +64,7 @@ table 50109 "Purchase Request Info"
             Caption = 'ps_no';
             DataClassification = ToBeClassified;
         }
-        field(11; NguoiYeuCau; Text[200])
+        field(11; "Request By"; Text[200])
         {
             Caption = 'NguoiYeuCau';
             DataClassification = ToBeClassified;
