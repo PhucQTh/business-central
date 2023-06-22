@@ -14,14 +14,17 @@ table 50110 "Purchase Request Confirm"
         {
             Caption = 'Line No_';
             DataClassification = ToBeClassified;
+            AutoIncrement = true;
+
         }
-        field(3; Status; Integer)
+        field(3; Status; Enum "Confirm Status")
         {
             Caption = 'Status';
             DataClassification = ToBeClassified;
         }
         field(4; "Confirm by"; Text[200])
         {
+
             Caption = 'Confirm by';
             DataClassification = ToBeClassified;
         }
