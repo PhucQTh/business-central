@@ -8,7 +8,6 @@ page 50104 "No. Series Assignment"
     PageType = Card;
     SourceTable = "No. Series Setup";
     UsageCategory = Administration;
-
     layout
     {
         area(Content)

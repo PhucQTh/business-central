@@ -10,23 +10,33 @@ page 50116 "Services Form"
         {
             repeater(General)
             {
-                field(pr_code; Rec.pr_code)
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the pr_code field.';
-                }
                 field(title; Rec.title)
                 {
+                    Caption = 'Service';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the title field.';
                 }
                 field(description; Rec.description)
                 {
+                    Caption = 'Description (detailed of service)';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the description field.';
                 }
+                field(quantity; Rec.quantity)
+                {
+                    Caption = 'Quantity';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the quantity field.';
+                }
+                field(delivery_date; Rec.delivery_date)
+                {
+                    Caption = 'Date';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the delivery_date field.';
+                }
                 field(remark; Rec.remark)
                 {
+                    Caption = 'Remark';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the remark field.';
                 }
@@ -83,23 +93,20 @@ page 50116 "Services Form"
         LineNo := 0;
         Form.Reset();
         if Form.FindLast() then
-            // LineNo := Form."Line No.";
-        TempExcelBuffer.Reset();
+            TempExcelBuffer.Reset();
         if TempExcelBuffer.FindLast() then begin
             MaxRowNo := TempExcelBuffer."Row No.";
         end;
 
         for RowNo := 2 to MaxRowNo do begin
-            // LineNo := LineNo + 10000;
             Form.Init();
-            // Evaluate(Form."Batch Name", BatchName);
-            // Form."Line No." := LineNo;
+            Form.id := Rec.id;
+            Form.type := 2;
+            Form."Line No." := LineNo;
             Evaluate(Form.title, GetValueAtCell(RowNo, 2));
             Evaluate(Form."Description", GetValueAtCell(RowNo, 3));
             Evaluate(Form."Quantity", GetValueAtCell(RowNo, 4));
-            // Evaluate(Form.estimated_date, GetValueAtCell(RowNo, 5));
             Evaluate(Form.remark, GetValueAtCell(RowNo, 6));
-            Message(Form.remark);
             Form.Insert();
         end;
         Message(ExcelImportSucess);

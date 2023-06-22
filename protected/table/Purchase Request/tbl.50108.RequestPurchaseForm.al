@@ -54,21 +54,25 @@ table 50108 "Request Purchase Form"
             Caption = 'pr_code';
             DataClassification = ToBeClassified;
         }
-        field(11; "type"; Boolean)
+        field(11; "type"; Integer)
         {
             Caption = 'type';
             DataClassification = ToBeClassified;
         }
-        field(12; id; Integer)
+        field(12; id; Code[20])
         {
             Caption = 'id';
             DataClassification = ToBeClassified;
+        }
+        field(13; "Line No."; Integer)
+        {
+            Caption = 'Line No.';
             AutoIncrement = true;
         }
     }
     keys
     {
-        key(PK; id)
+        key(PK; id, "Line No.")
         {
             Clustered = true;
         }

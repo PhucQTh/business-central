@@ -72,12 +72,14 @@ page 50114 "Purchase Request Card"
                     Caption = 'Materials';
                     ApplicationArea = All;
                     Visible = Good;
+                    SubPageLink = id = field(No_), type = field(pr_type);
                 }
                 part("Services"; "Services Form")
                 {
                     Visible = Service;
                     Caption = 'Services';
                     ApplicationArea = All;
+                    SubPageLink = id = field(No_), type = field(pr_type);
                 }
             }
         }
