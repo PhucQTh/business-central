@@ -16,6 +16,11 @@ page 50114 "Purchase Request Card"
                     ApplicationArea = All;
                     trigger OnValidate()
                     begin
+                        if (NOT checkEmptyForm()) then begin
+                            Message('You must clear the items form before change.');
+                            Good := false;
+                            exit;
+                        end;
                         Rec.pr_type := 1;
                         Service := false;
                         CurrPage.Update();
@@ -28,6 +33,11 @@ page 50114 "Purchase Request Card"
                     ApplicationArea = All;
                     trigger OnValidate()
                     begin
+                        if (NOT checkEmptyForm()) then begin
+                            Message('You must clear the items form before change.');
+                            Service := false;
+                            exit;
+                        end;
                         Rec.pr_type := 2;
                         Good := false;
                         CurrPage.Update();
@@ -153,8 +163,12 @@ page 50114 "Purchase Request Card"
     end;
 
     procedure checkEmptyForm(): Boolean
+    var
+        FormItem: Record "Request Purchase Form";
     begin
-
+        FormItem.SetRange(id, Rec.No_);
+        If FormItem.FindSet() then exit(false);
+        exit(true);
     end;
 
     var
