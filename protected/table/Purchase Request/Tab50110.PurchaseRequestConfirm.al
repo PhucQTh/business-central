@@ -10,12 +10,7 @@ table 50110 "Purchase Request Confirm"
             Caption = 'RequestCode';
             DataClassification = ToBeClassified;
         }
-        field(2; "Line No_"; Integer)
-        {
-            Caption = 'Line No_';
-            DataClassification = ToBeClassified;
-            AutoIncrement = true;
-        }
+
         field(3; Status; Enum "Confirm Status")
         {
             Caption = 'Status';
@@ -45,7 +40,7 @@ table 50110 "Purchase Request Confirm"
     }
     keys
     {
-        key(PK; RequestCode, "Line No_")
+        key(PK; RequestCode, "Confirm by")
         {
             Clustered = true;
         }

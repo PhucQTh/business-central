@@ -26,7 +26,6 @@ page 50114 "Purchase Request Card"
                         CurrPage.Update();
                     end;
                 }
-
                 field(Service; Service)
                 {
                     Editable = NOT Service;
@@ -47,6 +46,14 @@ page 50114 "Purchase Request Card"
             group("REQUEST INFORMATION")
             {
                 Caption = 'General';
+                field(Title; Rec.pr_notes)
+                {
+                    Caption = 'Title';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the DienGiaiChung field.';
+                    MultiLine = true;
+
+                }
                 field("Request By"; Rec."Request By")
                 {
                     Visible = isCurrentUser;
@@ -83,13 +90,10 @@ page 50114 "Purchase Request Card"
                     ApplicationArea = All;
 
                 }
-                field(Title; Rec.pr_notes)
-                {
-                    Caption = 'Title';
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the DienGiaiChung field.';
-                }
+
+
             }
+
             group(Form)
             {
                 ShowCaption = false;
@@ -144,6 +148,27 @@ page 50114 "Purchase Request Card"
                 SubPageLink = ApprovalID = field("NO_");
             }
 
+        }
+
+    }
+    actions
+    {
+        area(Processing)
+        {
+            action("Receiver Confirm")
+            {
+                Caption = 'Confirm';
+                ApplicationArea = All;
+                Image = Completed;
+                Promoted = false;
+                trigger OnAction()
+                var
+                    ConfirmPage: Page "PR Confirm Form";
+                begin
+                    ConfirmPage.RunModal();
+                end;
+
+            }
         }
     }
     trigger OnNewRecord(BelowxRec: Boolean)
