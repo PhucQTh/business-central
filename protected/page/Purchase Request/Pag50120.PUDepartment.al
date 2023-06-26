@@ -5,7 +5,7 @@ page 50120 "PU Department"
     SourceTable = "PU Department";
     ApplicationArea = All;
     UsageCategory = Administration;
-
+    ShowFilter = false;
     layout
     {
         area(content)
