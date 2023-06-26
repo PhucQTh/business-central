@@ -112,19 +112,26 @@ page 50114 "Purchase Request Card"
                     SubPageLink = id = field(No_), type = field(pr_type);
                 }
             }
+            part("PU Department"; "PU Department")
+            {
+                ApplicationArea = All;
+                Editable = false;
+            }
             part(RECEIVER; Receiver)
             {
                 Caption = 'RECEIVER';
                 ApplicationArea = All;
                 SubPageLink = RequestCode = field("NO_");
             }
-            field(Attachments; 'Add Attachment')
+            usercontrol("Attach management"; Button)
             {
                 ApplicationArea = All;
-                ShowCaption = false;
-                StyleExpr = 'Favorable';
-                Caption = 'Attach files';
-                trigger OnDrillDown()
+                trigger ControlReady()
+                begin
+                    CurrPage."Attach management".CreateButton('Attach management', 'btn btn-primary my-2');
+                end;
+
+                trigger ButtonAction()
                 var
                     DocumentAttachmentDetails: Page "Document Attachment Details";
                     RecRef: RecordRef;
@@ -141,6 +148,7 @@ page 50114 "Purchase Request Card"
                 SubPageLink = "Table ID" = CONST(50109),
                               "No." = FIELD(No_);
             }
+
             part(Collaborators; EmailCC)
             {
                 Caption = 'Collaborators';
@@ -155,6 +163,155 @@ page 50114 "Purchase Request Card"
     {
         area(Processing)
         {
+            group(Approval)
+            {
+                Image = Approvals;
+                action(onHold)
+                {
+                    Caption = 'On Hold';
+                    ApplicationArea = All;
+                    Image = Answers;
+                    Promoted = false;
+                    // Visible = OpenApprovalEntriesExistCurrUser AND (Rec.Status <> P::OnHold);
+                    trigger OnAction()
+                    begin
+                        // Rec.Status := p::OnHold;
+                        Rec.Modify();
+                    end;
+                }
+                action(Approve)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Approve';
+                    Image = Approve;
+                    ToolTip = 'Approve the requested.';
+                    Promoted = false;
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    trigger OnAction()
+                    var
+                        Question: Text;
+                        Answer: Boolean;
+                        Text000: Label 'Do you agree with this request?';
+                    begin
+                        Question := Text000;
+                        Answer := Dialog.Confirm(Question, true, false);
+                        if Answer = true then begin
+                            ApprovalsMgmt.ApproveRecordApprovalRequest(Rec.RecordId);
+                        end;
+                    end;
+
+                }
+                action(Reject)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Reject';
+                    Image = Reject;
+                    ToolTip = 'Reject the approval request.';
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    Promoted = false;
+                    trigger OnAction()
+                    var
+                        Question: Text;
+                        Answer: Boolean;
+                        Text000: Label 'Reject request?';
+                    begin
+                        Question := Text000;
+                        Answer := Dialog.Confirm(Question, true, false);
+                        if Answer = true then begin
+                            ApprovalsMgmt.RejectRecordApprovalRequest(Rec.RecordId);
+                        end;
+                    end;
+
+                }
+                action(Delegate)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Delegate';
+                    Image = Delegate;
+                    ToolTip = 'Delegate the approval to a substitute approver.';
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    Promoted = false;
+                    trigger OnAction()
+
+                    begin
+                        ApprovalsMgmt.DelegateRecordApprovalRequest(Rec.RecordId);
+                    end;
+                }
+                action(Comment)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Comments';
+                    Image = ViewComments;
+                    ToolTip = 'View or add comments for the record.';
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    Promoted = false;
+
+
+                    trigger OnAction()
+                    begin
+                        // ApprovalsMgmt.GetApprovalComment(Rec);
+                    end;
+                }
+                action(Approvals)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Approvals History';
+                    Image = Approvals;
+                    ToolTip = 'View approval requests.';
+                    Promoted = false;
+                    Visible = HasApprovalEntries;
+
+                    trigger OnAction()
+                    begin
+                        // ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
+                    end;
+                }
+
+            }
+            group("Request Approval")
+            {
+                Caption = 'Request Approval';
+                Image = SendApprovalRequest;
+                action(SendApprovalRequest)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Send A&pproval Request';
+                    // Visible = NOT OpenApprovalEntriesExist AND ((p::Open = Rec."Status") OR (p::Rejected = Rec."Status")) AND CanRequestApprovalForRecord;//! Could be use Enabled
+                    Image = SendApprovalRequest;
+                    ToolTip = 'Request approval to change the record.';
+                    Promoted = false;
+                    trigger OnAction()
+                    var
+                        CustomWorkflowMgmt: Codeunit "Approval Wfl Mgt";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        if CustomWorkflowMgmt.CheckApprovalsWorkflowEnabled(RecRef) then
+                            CustomWorkflowMgmt.OnSendWorkflowForApproval(RecRef);
+                        // SetEditStatus();
+                        CurrPage.Update(false);
+                    end;
+                }
+                action(CancelApprovalRequest)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Cancel Approval Re&quest';
+                    Visible = CanCancelApprovalForRecord; //! Could be use Enabled
+                    Image = CancelApprovalRequest;
+                    ToolTip = 'Cancel the approval request.';
+                    Promoted = false;
+                    trigger OnAction()
+                    var
+                        CustomWorkflowMgmt: Codeunit "Approval Wfl Mgt";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        CustomWorkflowMgmt.OnCancelWorkflowForApproval(RecRef);
+                        // SetEditStatus();
+                    end;
+                }
+            }
+
             action("Receiver Confirm")
             {
                 Caption = 'Confirm';
@@ -204,4 +361,9 @@ page 50114 "Purchase Request Card"
         ServiceStyle: Text;
         RequesterEmail: Text;
         isCurrentUser: Boolean;
+        OpenApprovalEntriesExistCurrUser, OpenApprovalEntriesExist, CanCancelApprovalForRecord, CanRequestApprovalForRecord
+        , HasApprovalEntries : Boolean;
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+
+
 }

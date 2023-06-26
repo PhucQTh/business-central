@@ -24,6 +24,12 @@ page 50118 Receiver
                     ToolTip = 'Specifies the value of the Confirm by field.';
                     TableRelation = User."User Name";
                 }
+                field("Comment"; Rec.confirm_comment)
+                {
+                    ShowCaption = false;
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Confirm by field.';
+                }
             }
         }
     }

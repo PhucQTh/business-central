@@ -1,4 +1,4 @@
-codeunit 50100 "Custom Workflow Mgmt"
+codeunit 50100 "Approval Wfl Mgt"
 {
     //! ------------------- Check Approvals Workflow Enabled ? ------------------- */
     procedure CheckApprovalsWorkflowEnabled(var RecRef: RecordRef): Boolean
@@ -60,22 +60,29 @@ codeunit 50100 "Custom Workflow Mgmt"
         RecRef: RecordRef;
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
+        //** PRICE APPROVAL */
         RecRef.Open(Database::"Price Approval");
         WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONSENDFORAPPROVALCODE, RecRef), Database::"Price Approval",
           GetWorkflowEventDesc(WorkflowSendForApprovalEventDescTxt, RecRef), 0, false);
         WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONCANCELFORAPPROVALCODE, RecRef), DATABASE::"Price Approval",
           GetWorkflowEventDesc(WorkflowCancelForApprovalEventDescTxt, RecRef), 0, false);
+        //** PURCHASE REQUEST */
+        RecRef.Open(Database::"Purchase Request Info");
+        WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONSENDFORAPPROVALCODE, RecRef), Database::"Purchase Request Info",
+          GetWorkflowEventDesc(WorkflowSendForApprovalEventDescTxt, RecRef), 0, false);
+        WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONCANCELFORAPPROVALCODE, RecRef), DATABASE::"Purchase Request Info",
+          GetWorkflowEventDesc(WorkflowCancelForApprovalEventDescTxt, RecRef), 0, false);
     end;
     //! -------------------------------------------------------------------------- */
     //! -------------------------------- Subscribe ------------------------------- */
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Workflow Mgmt", 'OnSendWorkflowForApproval', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approval Wfl Mgt", 'OnSendWorkflowForApproval', '', false, false)]
     local procedure RunWorkflowOnSendWorkflowForApproval(var RecRef: RecordRef)
     begin
         WorkflowMgt.HandleEvent(GetWorkflowCode(RUNWORKFLOWONSENDFORAPPROVALCODE, RecRef), RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Workflow Mgmt", 'OnCancelWorkflowForApproval', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approval Wfl Mgt", 'OnCancelWorkflowForApproval', '', false, false)]
     local procedure RunWorkflowOnCancelWorkflowForApproval(var RecRef: RecordRef)
     begin
         WorkflowMgt.HandleEvent(GetWorkflowCode(RUNWORKFLOWONCANCELFORAPPROVALCODE, RecRef), RecRef);

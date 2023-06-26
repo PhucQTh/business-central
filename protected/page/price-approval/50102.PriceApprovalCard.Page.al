@@ -283,7 +283,7 @@ page 50102 "Price Approval"
                     PromotedCategory = Process;
                     trigger OnAction()
                     var
-                        CustomWorkflowMgmt: Codeunit "Custom Workflow Mgmt";
+                        CustomWorkflowMgmt: Codeunit "Approval Wfl Mgt";
                         RecRef: RecordRef;
                     begin
                         RecRef.GetTable(Rec);
@@ -304,7 +304,7 @@ page 50102 "Price Approval"
                     PromotedCategory = Process;
                     trigger OnAction()
                     var
-                        CustomWorkflowMgmt: Codeunit "Custom Workflow Mgmt";
+                        CustomWorkflowMgmt: Codeunit "Approval Wfl Mgt";
                         RecRef: RecordRef;
                     begin
                         RecRef.GetTable(Rec);
@@ -367,7 +367,7 @@ page 50102 "Price Approval"
 
     trigger OnAfterGetCurrRecord()
     var
-        CustomWflMgmt: Codeunit "Custom Workflow Mgmt";
+        CustomWflMgmt: Codeunit "Approval Wfl Mgt";
     begin
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
         CanRequestApprovalForRecord := CustomWflMgmt.CanRequestApprovalForRecord(Rec.No_);

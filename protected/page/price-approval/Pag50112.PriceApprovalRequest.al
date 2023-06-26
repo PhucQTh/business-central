@@ -59,7 +59,7 @@ page 50112 "Price Approval Request"
     }
     trigger OnAfterGetCurrRecord()
     var
-        Wf: Codeunit "Custom Workflow Mgmt";
+        Wf: Codeunit "Approval Wfl Mgt";
     begin
         StatusStyleTxt := Wf.GetStatusStyleText(Rec);
     end;
@@ -87,7 +87,7 @@ page 50112 "Price Approval Request"
     procedure GetFilterString()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
-        CustomApprovalMgmt: Codeunit "Custom Workflow Mgmt";
+        CustomApprovalMgmt: Codeunit "Approval Wfl Mgt";
         isCollaborator: Boolean;
     begin
         Rec.FindFirst();
