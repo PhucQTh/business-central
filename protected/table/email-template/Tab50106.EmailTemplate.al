@@ -11,11 +11,6 @@ table 50106 "Email Template"
             DataClassification = ToBeClassified;
 
         }
-        field(2; Name; Text[200])
-        {
-            Caption = 'Name';
-            DataClassification = ToBeClassified;
-        }
 
         field(3; Body; Blob)
         {

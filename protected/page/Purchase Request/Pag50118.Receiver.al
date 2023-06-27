@@ -26,6 +26,7 @@ page 50118 Receiver
                 }
                 field("Comment"; Rec.confirm_comment)
                 {
+                    Editable = false;
                     ShowCaption = false;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Confirm by field.';

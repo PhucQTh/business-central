@@ -17,7 +17,7 @@ page 50106 "Email Templates"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the No. field.';
                 }
-                field(Name; Rec.Name)
+                field(Subject; Rec.Subject)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Name field.';

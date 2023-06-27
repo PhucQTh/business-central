@@ -122,6 +122,7 @@ page 50114 "Purchase Request Card"
             }
             part("PU Department"; "PU Department")
             {
+                Caption = '';
                 Visible = isCurrentUser;
                 ApplicationArea = All;
                 Editable = false;
@@ -136,8 +137,8 @@ page 50114 "Purchase Request Card"
             }
             usercontrol("Attach management"; Button)
             {
-                Visible = DynamicEditable;
                 ApplicationArea = All;
+                Visible = DynamicEditable;
                 trigger ControlReady()
                 begin
                     CurrPage."Attach management".CreateButton('Attach management', 'btn btn-primary my-2');
@@ -298,17 +299,13 @@ page 50114 "Purchase Request Card"
                         CustomWorkflowMgmt: Codeunit "Approval Wfl Mgt";
                         RecRef: RecordRef;
                     begin
+                        Rec.RequestDate := Today();
                         RecRef.GetTable(Rec);
-
                         if CustomWorkflowMgmt.CheckApprovalsWorkflowEnabled(RecRef) then begin
-                            Rec.RequestDate := Today();
-                            Rec.Modify();
                             CustomWorkflowMgmt.OnSendWorkflowForApproval(RecRef);
+
                         end;
-
-                        // SetEditStatus();
-
-                        CurrPage.Update(true);
+                        SetEditStatus();
                     end;
                 }
                 action(CancelApprovalRequest)
@@ -326,7 +323,7 @@ page 50114 "Purchase Request Card"
                     begin
                         RecRef.GetTable(Rec);
                         CustomWorkflowMgmt.OnCancelWorkflowForApproval(RecRef);
-                        // SetEditStatus();
+                        SetEditStatus();
                     end;
                 }
             }
@@ -337,24 +334,23 @@ page 50114 "Purchase Request Card"
                 ApplicationArea = All;
                 Image = Completed;
                 Promoted = false;
+                Visible = (Rec.Status = p::Approved) AND isReceiver;
                 trigger OnAction()
                 var
                     ConfirmPage: Page "PR Confirm Form";
+                    Receiver: Record "Purchase Request Confirm";
+
                 begin
+                    Receiver.SetRange(RequestCode, Rec.No_);
+                    Receiver.SetRange("Confirm by", UserId());
+                    Receiver.FindSet();
+                    ConfirmPage.SetRecord(Receiver);
                     ConfirmPage.RunModal();
                 end;
 
             }
         }
     }
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        Good := true;
-        Service := false;
-        Rec.pr_type := 1;
-        Rec."Request By" := UserId;
-        CurrPage.Update();
-    end;
 
     procedure SetEditStatus()
     begin
@@ -373,8 +369,16 @@ page 50114 "Purchase Request Card"
     var
         CustomWflMgmt: Codeunit "Approval Wfl Mgt";
     begin
+        if Rec.No_ = '' then begin
+            Good := true;
+            Service := false;
+            Rec.pr_type := 1;
+            Rec."Request By" := UserId;
+            CurrPage.Editable(true);
+            DynamicEditable := true;
+        end;
+        if Rec.No_ <> '' then SetEditStatus();
         IF Rec.pr_type = 1 then Good := true else Service := true;
-        CurrPage.Update();
         IF Rec."Request By" = UserId then isCurrentUser := true else isCurrentUser := false;
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
         CanRequestApprovalForRecord := true; //CustomWflMgmt.CanRequestApprovalForRecord(Rec.No_);
@@ -382,7 +386,9 @@ page 50114 "Purchase Request Card"
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
         StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec.Status);
-        SetEditStatus();
+        checkIsReceiver();
+        CurrPage.Update(true);
+
     end;
 
     procedure checkEmptyForm(): Boolean
@@ -394,7 +400,19 @@ page 50114 "Purchase Request Card"
         exit(true);
     end;
 
+    procedure checkIsReceiver(): Boolean
     var
+        Receiver: Record "Purchase Request Confirm";
+        status: Enum "Confirm Status";
+    begin
+        Receiver.SetRange(RequestCode, Rec.No_);
+        Receiver.SetRange("Confirm by", UserId());
+        Receiver.SetRange(Status, status::Pending);
+        If Receiver.FindSet() then isReceiver := true else isReceiver := false;
+    end;
+
+    var
+        isReceiver: Boolean;
         Requestdate: Date;
         Good: Boolean;
         Service: Boolean;

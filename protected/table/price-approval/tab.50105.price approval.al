@@ -75,6 +75,10 @@ table 50105 "Price Approval"
             Caption = 'General Price Approval';
             DataClassification = ToBeClassified;
         }
+        field(12; RequestDate; Date)
+        {
+            DataClassification = ToBeClassified;
+        }
 
     }
     keys

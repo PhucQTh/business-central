@@ -88,9 +88,6 @@ codeunit 50103 MyWorkflowResponses
                 begin
                     URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50101&filter=%27Price%20Approval%27.No_%20IS%20%27#[CODE]%27';
                     RecRef.SetTable(PriceApproval);
-                    // MaterialTreeFunction.CreateMaterialEntries(MaterialTreeRec, PriceApproval.No_);
-                    // MaterialTreeRec.FindFirst();
-                    // content := CreateTable(MaterialTreeRec);
                     EmailTemplate.SetRange("No.", 'SUBMIT_PRICE');
                     EmailTemplate.FindFirst();
                     Body := EmailTemplate.GetContent();
@@ -102,7 +99,8 @@ codeunit 50103 MyWorkflowResponses
                     Body := Body.Replace('[CODE]', PriceApproval.No_);
                     Body := Body.Replace('[REQUESTEDBY]', ReqUser."Full Name");
                     Body := Body.Replace('[RFA_TITLE]', PriceApproval.Title);
-                    //    Body := Body.Replace('[REQUESTED_DATE]', Format(PriceApproval.RequestDate));
+
+                    Body := Body.Replace('[REQUESTED_DATE]', Format(PriceApproval.RequestDate));
                     URL := URL.Replace('#[CODE]', PriceApproval.No_);
                     Body := Body.Replace('[LINK]', URL);
                     CCRecipients := GetCC(PriceApproval.No_);
@@ -130,7 +128,11 @@ codeunit 50103 MyWorkflowResponses
                     Body := Body.Replace('[REQUESTEDBY]', ReqUser."Full Name");
                     URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
                     Body := Body.Replace('[LINK]', URL);
-                    Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
+                    if Format(PurchaseRequest.RequestDate) <> '' then
+                        Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate))
+                    else
+                        Body := Body.Replace('[REQUESTED_DATE]', Format(Today));
+                    Message(Body);
                     CCRecipients := GetCC(PurchaseRequest.No_);
                     ToRecipients.Add(User."Authentication Email");
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);

@@ -286,11 +286,12 @@ page 50102 "Price Approval"
                         CustomWorkflowMgmt: Codeunit "Approval Wfl Mgt";
                         RecRef: RecordRef;
                     begin
+                        Rec.RequestDate := Today();
                         RecRef.GetTable(Rec);
-                        if CustomWorkflowMgmt.CheckApprovalsWorkflowEnabled(RecRef) then
+                        if CustomWorkflowMgmt.CheckApprovalsWorkflowEnabled(RecRef) then begin
                             CustomWorkflowMgmt.OnSendWorkflowForApproval(RecRef);
+                        end;
                         SetEditStatus();
-                        CurrPage.Update(false);
                     end;
                 }
                 action(CancelApprovalRequest)
