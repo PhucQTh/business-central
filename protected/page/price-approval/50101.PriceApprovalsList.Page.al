@@ -95,7 +95,7 @@ page 50101 "Price Approvals"
     var
         Wf: Codeunit "Approval Wfl Mgt";
     begin
-        StatusStyleTxt := Wf.GetStatusStyleText(Rec);
+        StatusStyleTxt := Wf.GetStatusStyleText(Rec.Status);
     end;
 
 

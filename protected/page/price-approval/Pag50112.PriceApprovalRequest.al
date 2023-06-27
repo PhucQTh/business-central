@@ -61,7 +61,7 @@ page 50112 "Price Approval Request"
     var
         Wf: Codeunit "Approval Wfl Mgt";
     begin
-        StatusStyleTxt := Wf.GetStatusStyleText(Rec);
+        StatusStyleTxt := Wf.GetStatusStyleText(Rec.Status);
     end;
 
     trigger OnOpenPage()

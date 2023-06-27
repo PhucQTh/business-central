@@ -94,6 +94,14 @@ table 50109 "Purchase Request Info"
             Caption = 'No. Series';
             DataClassification = ToBeClassified;
         }
+        field(17; Status; Enum "Custom Approval Enum")
+        {
+            DataClassification = ToBeClassified;
+        }
+        field(18; RequestDate; Date)
+        {
+            DataClassification = ToBeClassified;
+        }
 
     }
     keys

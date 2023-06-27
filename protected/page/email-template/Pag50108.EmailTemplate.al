@@ -20,10 +20,14 @@ page 50108 "Email Template"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Name field.';
                 }
-
-
             }
-            group("General explanation")
+            field(Subject; Rec.Subject)
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Name field.';
+                MultiLine = true;
+            }
+            group("Body")
             {
                 ShowCaption = false;
                 Caption = ' ';

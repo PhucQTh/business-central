@@ -68,39 +68,75 @@ codeunit 50103 MyWorkflowResponses
         Mail: Codeunit "Email";
         EmailMessage: Codeunit "Email Message";
         Body: Text;
+        Subject: Text;
         content: text;
         EmailTemplate: Record "Email Template";
         MaterialTreeRec: Record "Material Tree";
         MaterialTreeFunction: Codeunit MaterialTreeFunction;
         RecRef: RecordRef;
-        PriceApproval: Record "Purchase Request Info";
+        PriceApproval: Record "Price Approval";
+        PurchaseRequest: Record "Purchase Request Info";
         CCRecipients: list of [text];
         ToRecipients: list of [text];
         BCCRecipients: list of [text];
         ReqUser: Record User;
+        URL: Text;
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
-            Database::"Purchase Request Info":
+            Database::"Price Approval":
                 begin
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50101&filter=%27Price%20Approval%27.No_%20IS%20%27#[CODE]%27';
                     RecRef.SetTable(PriceApproval);
-                    MaterialTreeFunction.CreateMaterialEntries(MaterialTreeRec, PriceApproval.No_);
-                    MaterialTreeRec.FindFirst();
+                    // MaterialTreeFunction.CreateMaterialEntries(MaterialTreeRec, PriceApproval.No_);
+                    // MaterialTreeRec.FindFirst();
+                    // content := CreateTable(MaterialTreeRec);
+                    EmailTemplate.SetRange("No.", 'SUBMIT_PRICE');
+                    EmailTemplate.FindFirst();
+                    Body := EmailTemplate.GetContent();
+                    Subject := EmailTemplate.Subject;
+                    Subject := Subject.Replace('#[CODE]', PriceApproval.No_);
+                    Body := Body.Replace('[FULL_NAME]', User."Full Name");
+                    ReqUser.SetRange("User Name", SenderId);
+                    ReqUser.FindFirst();
+                    Body := Body.Replace('[CODE]', PriceApproval.No_);
+                    Body := Body.Replace('[REQUESTEDBY]', ReqUser."Full Name");
+                    Body := Body.Replace('[RFA_TITLE]', PriceApproval.Title);
+                    //    Body := Body.Replace('[REQUESTED_DATE]', Format(PriceApproval.RequestDate));
+                    URL := URL.Replace('#[CODE]', PriceApproval.No_);
+                    Body := Body.Replace('[LINK]', URL);
+                    CCRecipients := GetCC(PriceApproval.No_);
+                    ToRecipients.Add(User."Authentication Email");
+                    EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
+                    Mail.Send(EmailMessage, "Email Scenario"::Default);
                 end;
         end;
-        content := CreateTable(MaterialTreeRec);
-        EmailTemplate.SetRange("No.", 'PAT01');
-        EmailTemplate.FindFirst();
-        Body := EmailTemplate.GetContent();
-        Body := Body.Replace('[approver-email]', User."Full Name");
-        ReqUser.SetRange("User Name", SenderId);
-        ReqUser.FindFirst();
-        Body := Body.Replace('[req-mail]', ReqUser."Full Name");
-        Body := Body.Replace('[content]', content);
-        CCRecipients := GetCC(MaterialTreeRec.Code);
-        ToRecipients.Add(User."Authentication Email");
-        EmailMessage.Create(ToRecipients, 'Hi', Body, true, CCRecipients, BCCRecipients);
-        Mail.Send(EmailMessage, "Email Scenario"::Default);
+        case RecRef.Number of
+            Database::"Purchase Request Info":
+                begin
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+                    RecRef.SetTable(PurchaseRequest);
+                    EmailTemplate.SetRange("No.", 'SUBMIT_PURCHASE');
+                    EmailTemplate.FindFirst();
+                    Subject := EmailTemplate.Subject;
+                    Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
+                    Body := EmailTemplate.GetContent();
+                    Body := Body.Replace('[approver-email]', User."Full Name");
+                    Body := Body.Replace('[CODE]', PurchaseRequest.No_);
+                    Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
+                    Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
+                    ReqUser.SetRange("User Name", SenderId);
+                    ReqUser.FindFirst();
+                    Body := Body.Replace('[REQUESTEDBY]', ReqUser."Full Name");
+                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
+                    Body := Body.Replace('[LINK]', URL);
+                    Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
+                    CCRecipients := GetCC(PurchaseRequest.No_);
+                    ToRecipients.Add(User."Authentication Email");
+                    EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
+                    Mail.Send(EmailMessage, "Email Scenario"::Default);
+                end;
+        end;
     end;
 
     procedure GetCC(var RequestId: code[10]): List of [Text]

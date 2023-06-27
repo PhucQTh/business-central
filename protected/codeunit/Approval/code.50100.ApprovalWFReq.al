@@ -61,11 +61,11 @@ codeunit 50100 "Approval Wfl Mgt"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         //** PRICE APPROVAL */
-        RecRef.Open(Database::"Price Approval");
-        WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONSENDFORAPPROVALCODE, RecRef), Database::"Price Approval",
-          GetWorkflowEventDesc(WorkflowSendForApprovalEventDescTxt, RecRef), 0, false);
-        WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONCANCELFORAPPROVALCODE, RecRef), DATABASE::"Price Approval",
-          GetWorkflowEventDesc(WorkflowCancelForApprovalEventDescTxt, RecRef), 0, false);
+        // RecRef.Open(Database::"Price Approval");
+        // WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONSENDFORAPPROVALCODE, RecRef), Database::"Price Approval",
+        //   GetWorkflowEventDesc(WorkflowSendForApprovalEventDescTxt, RecRef), 0, false);
+        // WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONCANCELFORAPPROVALCODE, RecRef), DATABASE::"Price Approval",
+        //   GetWorkflowEventDesc(WorkflowCancelForApprovalEventDescTxt, RecRef), 0, false);
         //** PURCHASE REQUEST */
         RecRef.Open(Database::"Purchase Request Info");
         WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONSENDFORAPPROVALCODE, RecRef), Database::"Purchase Request Info",
@@ -97,6 +97,8 @@ codeunit 50100 "Approval Wfl Mgt"
     local procedure OnOpenDocument(RecRef: RecordRef; var Handled: Boolean)
     var
         PriceApprovalRec: Record "Price Approval";
+        PurchaseRequestInfoRec: Record "Purchase Request Info";
+
         ApprovalStatus: Enum "Custom Approval Enum";
     begin
         case RecRef.Number of
@@ -107,6 +109,17 @@ codeunit 50100 "Approval Wfl Mgt"
                     PriceApprovalRec.Modify(true);
                     Handled := true;
                 end;
+
+        end;
+        case RecRef.Number of
+            Database::"Purchase Request Info":
+                begin
+                    RecRef.SetTable(PurchaseRequestInfoRec);
+                    PurchaseRequestInfoRec.Validate(Status, ApprovalStatus::Open);
+                    PurchaseRequestInfoRec.Modify(true);
+                    Handled := true;
+                end;
+
         end;
     end;
 
@@ -114,6 +127,7 @@ codeunit 50100 "Approval Wfl Mgt"
     local procedure OnSetStatusToPendingApproval(RecRef: RecordRef; var Variant: Variant; var IsHandled: Boolean)
     var
         PriceApproval: Record "Price Approval";
+        PurchaseRequestInfo: Record "Purchase Request Info";
     begin
         case RecRef.Number of
             Database::"Price Approval":
@@ -125,18 +139,36 @@ codeunit 50100 "Approval Wfl Mgt"
                     IsHandled := true;
                 end;
         end;
+        case RecRef.Number of
+            Database::"Purchase Request Info":
+                begin
+                    RecRef.SetTable(PurchaseRequestInfo);
+                    PurchaseRequestInfo.Validate(Status, PurchaseRequestInfo.Status::Pending);
+                    PurchaseRequestInfo.Modify(true);
+                    Variant := PurchaseRequestInfo;
+                    IsHandled := true;
+                end;
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnPopulateApprovalEntryArgument', '', false, false)]
     local procedure OnPopulateApprovalEntryArgument(var RecRef: RecordRef; var ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance")
     var
         PriceApproval: Record "Price Approval";
+        PurchaseRequestInfo: Record "Purchase Request Info";
     begin
         case RecRef.Number of
             DataBase::"Price Approval":
                 begin
                     RecRef.SetTable(PriceApproval);
                     ApprovalEntryArgument."Document No." := PriceApproval."No_";
+                end;
+        end;
+        case RecRef.Number of
+            Database::"Purchase Request Info":
+                begin
+                    RecRef.SetTable(PurchaseRequestInfo);
+                    ApprovalEntryArgument."Document No." := PurchaseRequestInfo."No_";
                 end;
         end;
     end;
@@ -146,6 +178,7 @@ codeunit 50100 "Approval Wfl Mgt"
     var
         RecRef: RecordRef;
         PriceApproval: Record "Price Approval";
+        PurchaseRequestInfo: Record "Purchase Request Info";
         v: Codeunit "Record Restriction Mgt.";
     begin
         case ApprovalEntry."Table ID" of
@@ -157,12 +190,22 @@ codeunit 50100 "Approval Wfl Mgt"
                     end;
                 end;
         end;
+        case ApprovalEntry."Table ID" of
+            DataBase::"Purchase Request Info":
+                begin
+                    if PurchaseRequestInfo.Get(ApprovalEntry."Document No.") then begin
+                        PurchaseRequestInfo.Validate(Status, PurchaseRequestInfo.Status::Rejected);
+                        PurchaseRequestInfo.Modify(true);
+                    end;
+                end;
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnReleaseDocument', '', false, false)]
     local procedure OnReleaseDocument(RecRef: RecordRef; var Handled: Boolean)
     var
         PriceApproval: Record "Price Approval";
+        PurchaseRequestInfo: Record "Purchase Request Info";
     begin
         case RecRef.Number of
             DataBase::"Price Approval":
@@ -173,13 +216,22 @@ codeunit 50100 "Approval Wfl Mgt"
                     Handled := true;
                 end;
         end;
+        case RecRef.Number of
+            DataBase::"Purchase Request Info":
+                begin
+                    RecRef.SetTable(PurchaseRequestInfo);
+                    PurchaseRequestInfo.Validate(Status, PurchaseRequestInfo.Status::Approved);
+                    PurchaseRequestInfo.Modify(true);
+                    Handled := true;
+                end;
+        end;
     end;
 
-    procedure GetStatusStyleText(ApprovalRec: Record "Price Approval") StatusStyleText: Text
+    procedure GetStatusStyleText(RecStatus: Enum "Custom Approval Enum") StatusStyleText: Text
     var
         ApprovalStatus: enum "Custom Approval Enum";
     begin
-        Case ApprovalRec.Status Of
+        Case RecStatus Of
             ApprovalStatus::Approved:
                 StatusStyleText := 'Favorable';
             ApprovalStatus::Rejected:

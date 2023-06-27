@@ -10,6 +10,7 @@ page 50114 "Purchase Request Card"
         {
             group("GENERAL INFORMATION")
             {
+                Visible = DynamicEditable;
                 field(Good; Good)
                 {
                     Editable = NOT Good;
@@ -46,13 +47,20 @@ page 50114 "Purchase Request Card"
             group("REQUEST INFORMATION")
             {
                 Caption = 'General';
+                Editable = DynamicEditable;
                 field(Title; Rec.pr_notes)
                 {
                     Caption = 'Title';
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the DienGiaiChung field.';
                     MultiLine = true;
 
+                }
+                field(Status; Rec.Status)
+                {
+                    Caption = 'Status';
+                    ApplicationArea = All;
+                    StyleExpr = StatusStyleTxt;
+                    Editable = false;
                 }
                 field("Request By"; Rec."Request By")
                 {
@@ -84,11 +92,10 @@ page 50114 "Purchase Request Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the department_end_user field.';
                 }
-                field("Request date"; Requestdate)
+                field("Request date"; Rec.RequestDate)
                 {
                     Editable = false;
                     ApplicationArea = All;
-
                 }
 
 
@@ -96,6 +103,7 @@ page 50114 "Purchase Request Card"
 
             group(Form)
             {
+                Editable = DynamicEditable;
                 ShowCaption = false;
                 part("Materials"; "Materials Form")
                 {
@@ -114,17 +122,21 @@ page 50114 "Purchase Request Card"
             }
             part("PU Department"; "PU Department")
             {
+                Visible = isCurrentUser;
                 ApplicationArea = All;
                 Editable = false;
             }
             part(RECEIVER; Receiver)
             {
+                Editable = DynamicEditable;
+
                 Caption = 'RECEIVER';
                 ApplicationArea = All;
                 SubPageLink = RequestCode = field("NO_");
             }
             usercontrol("Attach management"; Button)
             {
+                Visible = DynamicEditable;
                 ApplicationArea = All;
                 trigger ControlReady()
                 begin
@@ -151,6 +163,7 @@ page 50114 "Purchase Request Card"
 
             part(Collaborators; EmailCC)
             {
+                Editable = DynamicEditable;
                 Caption = 'Collaborators';
                 ApplicationArea = All;
                 SubPageLink = ApprovalID = field("NO_");
@@ -172,10 +185,10 @@ page 50114 "Purchase Request Card"
                     ApplicationArea = All;
                     Image = Answers;
                     Promoted = false;
-                    // Visible = OpenApprovalEntriesExistCurrUser AND (Rec.Status <> P::OnHold);
+                    Visible = OpenApprovalEntriesExistCurrUser AND (Rec.Status <> P::OnHold);
                     trigger OnAction()
                     begin
-                        // Rec.Status := p::OnHold;
+                        Rec.Status := p::OnHold;
                         Rec.Modify();
                     end;
                 }
@@ -249,7 +262,7 @@ page 50114 "Purchase Request Card"
 
                     trigger OnAction()
                     begin
-                        // ApprovalsMgmt.GetApprovalComment(Rec);
+                        ApprovalsMgmt.GetApprovalComment(Rec);
                     end;
                 }
                 action(Approvals)
@@ -263,7 +276,7 @@ page 50114 "Purchase Request Card"
 
                     trigger OnAction()
                     begin
-                        // ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
+                        ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
                     end;
                 }
 
@@ -276,7 +289,7 @@ page 50114 "Purchase Request Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    // Visible = NOT OpenApprovalEntriesExist AND ((p::Open = Rec."Status") OR (p::Rejected = Rec."Status")) AND CanRequestApprovalForRecord;//! Could be use Enabled
+                    Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") AND CanRequestApprovalForRecord;//! Could be use Enabled
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
                     Promoted = false;
@@ -286,10 +299,16 @@ page 50114 "Purchase Request Card"
                         RecRef: RecordRef;
                     begin
                         RecRef.GetTable(Rec);
-                        if CustomWorkflowMgmt.CheckApprovalsWorkflowEnabled(RecRef) then
+
+                        if CustomWorkflowMgmt.CheckApprovalsWorkflowEnabled(RecRef) then begin
+                            Rec.RequestDate := Today();
+                            Rec.Modify();
                             CustomWorkflowMgmt.OnSendWorkflowForApproval(RecRef);
+                        end;
+
                         // SetEditStatus();
-                        CurrPage.Update(false);
+
+                        CurrPage.Update(true);
                     end;
                 }
                 action(CancelApprovalRequest)
@@ -337,11 +356,33 @@ page 50114 "Purchase Request Card"
         CurrPage.Update();
     end;
 
+    procedure SetEditStatus()
+    begin
+        CurrPage.Editable(true);
+        DynamicEditable := true;
+        if (Rec.SystemCreatedBy <> UserSecurityId())
+        then
+            isCurrentUser := false else
+            isCurrentUser := true;
+        if (Rec.SystemCreatedBy <> UserSecurityId()) OR (Rec."Status" <> p::Open) then
+            DynamicEditable := false;
+    end;
+
+
     trigger OnAfterGetCurrRecord()
+    var
+        CustomWflMgmt: Codeunit "Approval Wfl Mgt";
     begin
         IF Rec.pr_type = 1 then Good := true else Service := true;
         CurrPage.Update();
         IF Rec."Request By" = UserId then isCurrentUser := true else isCurrentUser := false;
+        OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
+        CanRequestApprovalForRecord := true; //CustomWflMgmt.CanRequestApprovalForRecord(Rec.No_);
+        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
+        CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
+        HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
+        StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec.Status);
+        SetEditStatus();
     end;
 
     procedure checkEmptyForm(): Boolean
@@ -364,6 +405,9 @@ page 50114 "Purchase Request Card"
         OpenApprovalEntriesExistCurrUser, OpenApprovalEntriesExist, CanCancelApprovalForRecord, CanRequestApprovalForRecord
         , HasApprovalEntries : Boolean;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        StatusStyleTxt: Text;
+        DynamicEditable: Boolean;
 
+        p: enum "Custom Approval Enum";
 
 }

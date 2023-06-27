@@ -16,12 +16,13 @@ table 50106 "Email Template"
             Caption = 'Name';
             DataClassification = ToBeClassified;
         }
+
         field(3; Body; Blob)
         {
             Caption = 'Body';
             DataClassification = ToBeClassified;
         }
-        field(4; Title; Text[2048])
+        field(4; Subject; Text[2048])
         {
             DataClassification = ToBeClassified;
         }

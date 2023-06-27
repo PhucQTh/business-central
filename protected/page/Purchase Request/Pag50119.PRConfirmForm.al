@@ -10,17 +10,7 @@ page 50119 "PR Confirm Form"
     {
         area(content)
         {
-            // group(General)
-            // {
-            //     Caption = 'General';
-            //     field(confirm_comment; Rec.confirm_comment)
-            //     {
-            //         Caption = 'Comment';
-            //         ApplicationArea = All;
-            //         MultiLine = true;
-            //     }
 
-            // }
             usercontrol(SMTEditor; "SMT Editor")
             {
                 ApplicationArea = All;

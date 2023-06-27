@@ -374,7 +374,7 @@ page 50102 "Price Approval"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
-        StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec);
+        StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec.Status);
         CurrPage.Update(true);
         CurrPage.HTMLRender.Page.GetData(Rec.No_, DynamicEditable);
 
