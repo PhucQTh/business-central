@@ -95,7 +95,7 @@ codeunit 50103 MyWorkflowResponses
         IF ApprovalStatus = ApprovalStatus::Approved THEN begin
             user.SetRange("User Name", ApprovalEntry."Approver ID");
             user.FindLast();
-            SentApprovedEmail(user, RecRef.RecordId, ApprovalEntry."Sender ID");
+            SentCompletedApprovedEmail(user, RecRef.RecordId, ApprovalEntry."Sender ID");
         end;
 
     end;
@@ -121,7 +121,7 @@ codeunit 50103 MyWorkflowResponses
         IF ApprovalStatus = ApprovalStatus::Approved THEN begin
             user.SetRange("User Name", ApprovalEntry."Approver ID");
             user.FindLast();
-            SentApprovedEmail(user, ApprovalEntry2."Record ID to Approve", ApprovalEntry."Sender ID");
+            SentCompletedApprovedEmail(user, ApprovalEntry2."Record ID to Approve", ApprovalEntry."Sender ID");
         end;
     end;
 
@@ -131,10 +131,7 @@ codeunit 50103 MyWorkflowResponses
         EmailMessage: Codeunit "Email Message";
         Body: Text;
         Subject: Text;
-        content: text;
         EmailTemplate: Record "Email Template";
-        MaterialTreeRec: Record "Material Tree";
-        MaterialTreeFunction: Codeunit MaterialTreeFunction;
         RecRef: RecordRef;
         PriceApproval: Record "Price Approval";
         PurchaseRequest: Record "Purchase Request Info";
@@ -148,25 +145,27 @@ codeunit 50103 MyWorkflowResponses
         case RecRef.Number of
             Database::"Price Approval":
                 begin
-                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50101&filter=%27Price%20Approval%27.No_%20IS%20%27#[CODE]%27';
                     RecRef.SetTable(PriceApproval);
-                    EmailTemplate.SetRange("Key", 'SUBMIT_PRICE');
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50101&filter=%27Price%20Approval%27.No_%20IS%20%27#[CODE]%27';
+                    URL := URL.Replace('#[CODE]', PriceApproval.No_);
+                    EmailTemplate.SetRange("Key", 'SUBMIT_PRICE'); //! Find Email Template
                     EmailTemplate.FindFirst();
-                    Body := EmailTemplate.GetContent();
+                    /* ------------------------------- Get subject ------------------------------ */
                     Subject := EmailTemplate.Subject;
                     Subject := Subject.Replace('#[CODE]', PriceApproval.No_);
-                    Body := Body.Replace('[FULL_NAME]', User."Full Name");
-                    ReqUser.SetRange("User Name", SenderId);
+                    /* ------------------------------------ i ----------------------------------- */
+                    ReqUser.SetRange("User Name", SenderId); //! Find Requested User
                     ReqUser.FindFirst();
+                    /* -------------------------------- Get body -------------------------------- */
+                    Body := EmailTemplate.GetContent();
+                    Body := Body.Replace('[FULL_NAME]', User."Full Name");
                     Body := Body.Replace('[CODE]', PriceApproval.No_);
                     Body := Body.Replace('[REQUESTEDBY]', ReqUser."Full Name");
                     Body := Body.Replace('[RFA_TITLE]', PriceApproval.Title);
-
                     Body := Body.Replace('[REQUESTED_DATE]', Format(PriceApproval.RequestDate));
-                    URL := URL.Replace('#[CODE]', PriceApproval.No_);
                     Body := Body.Replace('[LINK]', URL);
                     CCRecipients := GetCC(PriceApproval.No_);
-                    ToRecipients.Add(User."Authentication Email");
+                    ToRecipients.Add(User."Authentication Email"); //! Add user approver email to to recipients
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
                 end;
@@ -174,21 +173,23 @@ codeunit 50103 MyWorkflowResponses
         case RecRef.Number of
             Database::"Purchase Request Info":
                 begin
-                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
                     RecRef.SetTable(PurchaseRequest);
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
                     EmailTemplate.SetRange("Key", 'SUBMIT_PURCHASE');
                     EmailTemplate.FindFirst();
+                    /* ------------------------------- Get subject ------------------------------ */
                     Subject := EmailTemplate.Subject;
                     Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
+                    /* ---------------------------- Find User Request --------------------------- */
+                    ReqUser.SetRange("User Name", SenderId);
+                    ReqUser.FindFirst();
+                    /* -------------------------------- Get body -------------------------------- */
                     Body := EmailTemplate.GetContent();
-                    Body := Body.Replace('[approver-email]', User."Full Name");
                     Body := Body.Replace('[CODE]', PurchaseRequest.No_);
                     Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
                     Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
-                    ReqUser.SetRange("User Name", SenderId);
-                    ReqUser.FindFirst();
                     Body := Body.Replace('[REQUESTEDBY]', ReqUser."Full Name");
-                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
                     Body := Body.Replace('[LINK]', URL);
                     if Format(PurchaseRequest.RequestDate) <> '' then
                         Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate))
@@ -208,10 +209,7 @@ codeunit 50103 MyWorkflowResponses
         EmailMessage: Codeunit "Email Message";
         Body: Text;
         Subject: Text;
-        content: text;
         EmailTemplate: Record "Email Template";
-        MaterialTreeRec: Record "Material Tree";
-        MaterialTreeFunction: Codeunit MaterialTreeFunction;
         RecRef: RecordRef;
         PriceApproval: Record "Price Approval";
         PurchaseRequest: Record "Purchase Request Info";
@@ -225,47 +223,42 @@ codeunit 50103 MyWorkflowResponses
         case RecRef.Number of
             Database::"Purchase Request Info":
                 begin
-                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
                     RecRef.SetTable(PurchaseRequest);
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
                     EmailTemplate.SetRange("Key", 'REJECTED_PURCHASE');
                     EmailTemplate.FindFirst();
+                    /* ---------------------------- Get user request ---------------------------- */
+                    ReqUser.SetRange("User Name", SenderId);
+                    ReqUser.FindFirst();
+                    /* ------------------------------- Get subject ------------------------------ */
                     Subject := EmailTemplate.Subject;
                     Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
+                    /* -------------------------------- Get body -------------------------------- */
                     Body := EmailTemplate.GetContent();
                     Body := Body.Replace('[CODE]', PurchaseRequest.No_);
                     Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
                     Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
-                    ReqUser.SetRange("User Name", SenderId);
-                    ReqUser.FindFirst();
                     Body := Body.Replace('[REJECT_USER]', ReqUser."Full Name");
                     Body := Body.Replace('[REQUESTEDBY]', user."Full Name");
-                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
                     Body := Body.Replace('[LINK]', URL);
-                    if Format(PurchaseRequest.RequestDate) <> '' then
-                        Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate))
-                    else
-                        Body := Body.Replace('[REQUESTED_DATE]', Format(Today));
-                    Message(Body);
+                    Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
                     CCRecipients := GetCC(PurchaseRequest.No_);
-                    ToRecipients.Add(ReqUser."Authentication Email");
+                    ToRecipients.Add(ReqUser."Authentication Email"); //! In this case - Recipient is requested user
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
                 end;
         end;
     end;
 
-    procedure SentApprovedEmail(user: Record User; RecId: RecordId; SenderId: Code[50])
+    procedure SentCompletedApprovedEmail(user: Record User; RecId: RecordId; SenderId: Code[50])
     var
         Mail: Codeunit "Email";
         EmailMessage: Codeunit "Email Message";
         Body: Text;
         Subject: Text;
-        content: text;
         EmailTemplate: Record "Email Template";
-        MaterialTreeRec: Record "Material Tree";
-        MaterialTreeFunction: Codeunit MaterialTreeFunction;
         RecRef: RecordRef;
-        PriceApproval: Record "Price Approval";
         PurchaseRequest: Record "Purchase Request Info";
         CCRecipients: list of [text];
         ToRecipients: list of [text];
@@ -277,29 +270,28 @@ codeunit 50103 MyWorkflowResponses
         case RecRef.Number of
             Database::"Purchase Request Info":
                 begin
-                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
                     RecRef.SetTable(PurchaseRequest);
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
+                    ReqUser.SetRange("User Name", SenderId);
+                    ReqUser.FindFirst();
+                    /* --------------------------- Get email template --------------------------- */
                     EmailTemplate.SetRange("Key", 'APPROVED_COMPLETED_PURCHASE');
                     EmailTemplate.FindFirst();
+                    /* ------------------------------- Get subject ------------------------------ */
                     Subject := EmailTemplate.Subject;
                     Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
+                    /* -------------------------------- Get body -------------------------------- */
                     Body := EmailTemplate.GetContent();
                     Body := Body.Replace('[CODE]', PurchaseRequest.No_);
                     Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
                     Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
-                    ReqUser.SetRange("User Name", SenderId);
-                    ReqUser.FindFirst();
                     Body := Body.Replace('[REJECT_USER]', ReqUser."Full Name");
                     Body := Body.Replace('[REQUESTEDBY]', user."Full Name");
-                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
                     Body := Body.Replace('[LINK]', URL);
-                    if Format(PurchaseRequest.RequestDate) <> '' then
-                        Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate))
-                    else
-                        Body := Body.Replace('[REQUESTED_DATE]', Format(Today));
-                    Message(Body);
+                    Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
                     CCRecipients := GetCC(PurchaseRequest.No_);
-                    ToRecipients.Add(ReqUser."Authentication Email");
+                    ToRecipients := GetReceivers(PurchaseRequest.No_); //! In this case - Recipient is received user
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
                 end;
@@ -319,59 +311,22 @@ codeunit 50103 MyWorkflowResponses
         exit(ListCC);
     end;
 
-    procedure CreateTable(VAR MTRec: Record "Material Tree"): Text
+    procedure GetReceivers(var RequestId: code[10]): List of [Text]
     var
-        out: Text;
-        stt: Integer;
+        Receivers: List of [Text];
+        ReceiverRecord: Record "Purchase Request Confirm";
+        UserRef: Record "User";
     begin
-        MTRec.FindFirst();
-        if MTRec.Count() > 0 then begin
-            stt := 1;
-            out := '<table style="border: 1px solid black;">';
+        ReceiverRecord.SetRange(RequestCode, RequestId);
+        if ReceiverRecord.FindFirst() then
             repeat
-                if (MTRec.Indentation = 1) then begin
-                    #region TbItem
-                    out += '<tr style="border: 1px solid black;"><td style="border: 1px solid black;">' + MTRec.ItemNo + '</td><td colspan="4" style="border: 1px solid black;">' + MTRec.Description + '</td><td colspan="2" style="border: 1px solid black;">' + MTRec.Quantity + '</td> <td style="border: 1px solid black;">' + Format(MTRec.Unit) + '</td></tr>';
-                    #endregion TbItem
-                end;
-                if MTRec.Indentation = 0 then begin
-                    #region TBinfo
-                    if stt > 1 then out += '</tbody>';
-                    out += '<tr><td colspan="8"></td><tr>';//! spacing bettwen 2 suplier 
-                    out += '<tr>';//! Header row
-                    out += ' <td colspan="8" style="border: 1px solid black; background-color: lightblue; text-align: center;"bgcolor="lightblue" align="center">Material ' + Format(stt) + '</td>';
-                    out += '</tr>';
-                    out += '<tr style="border: 1px solid black;">';
-                    out += '<td style="border: 1px solid black;"><label class="control-label">Product code of Manufacturer:</label></td>';
-                    out += '<td style="border: 1px solid black;">' + MTRec."Manufacturer's code:" + '</td>';
-                    out += '<td style="border: 1px solid black;"><label class="control-label">Price:</label></td>';
-                    out += '<td style="border: 1px solid black;">' + MTRec.Price + '</td>';
-                    out += '<td style="border: 1px solid black;"><label class="control-label">Delivery:</label></td>';
-                    out += '<td style="border: 1px solid black;">' + MTRec.Delivery + '</td>';
-                    out += '<td style="border: 1px solid black;"><label class="control-label">Roll length:</label></td>';
-                    out += '<td style="border: 1px solid black;">' + MTRec."Roll length" + '</td>';
-                    out += '</tr>';
-                    out += '<tr style="border: 1px solid black;">';
-                    out += '<td style="border: 1px solid black;"><label class="control-label">Supplier:</label></td>';
-                    out += '<td style="border: 1px solid black;">' + MTRec.Supplier + '</td>';
-                    out += '<td style="border: 1px solid black;"><label class="control-label">Price term:</label></td>';
-                    out += '<td style="border: 1px solid black;">' + MTRec."Price Term" + '</td>';
-                    out += '<td style="border: 1px solid black;"><label class="control-label">Pallet/No pallet:</label></td>';
-                    out += '<td style="border: 1px solid black;">' + MTRec."Pallet/No pallet" + '</td>';
-                    out += '<td class="table-secondary"><label class="control-label">Payment term:</label></td>';
-                    out += '<td style="border: 1px solid black;">' + MTRec."Payment term" + '</td>';
-                    out += '</tr>';
-                    out += '<tr style="border: 1px solid black;"> <td style="border: 1px solid black;">Price note</td> <td colspan="7" style="border: 1px solid black;">' + MTRec.GetContent() + '</td></tr>';
-                    out += '<tbody class="table-group-divider">';
-                    out += '<tr style="border: 1px solid black;"><td style="border: 1px solid black;">Mtl code</td><td colspan="4" style="border: 1px solid black;">Material name</td><td colspan="2" style="border: 1px solid black;">Quantity</td> <td style="border: 1px solid black;">Unit</td> </tr>';
-                    #endregion TBinfo
-                    stt += 1;
-                end;
-            until MTRec.Next() = 0;
-        end;
-        out += '</table>';
-        exit(out);
+                UserRef.SetRange("User Name", ReceiverRecord."Confirm by");
+                UserRef.FindFirst();
+                Receivers.Add(UserRef."Authentication Email");
+            until ReceiverRecord.Next() = 0;
+        exit(Receivers);
     end;
+
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsesToLibrary', '', true, true)]
     local procedure AddMyWorkflowResponsesToLibrary()
