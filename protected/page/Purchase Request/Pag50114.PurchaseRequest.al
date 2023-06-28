@@ -411,6 +411,26 @@ page 50114 "Purchase Request Card"
         If Receiver.FindSet() then isReceiver := true else isReceiver := false;
     end;
 
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        Helper: Codeunit "Helper";
+        Result: Boolean;
+    begin
+        if Rec.pr_notes = '' then
+            Result := Helper.CloseConfirmDialog('You must fill in the title to save the record! Do you want to close without saving?')
+        else
+            exit(true);
+        //* This code is check if the user want to close without saving
+        if Result = true then begin
+            Rec.Delete();
+            CurrPage.Close();
+            exit(true); //!  Close page  
+        end else
+            exit(false);//! continue page   
+    end;
+
+
+
     var
         isReceiver: Boolean;
         Requestdate: Date;

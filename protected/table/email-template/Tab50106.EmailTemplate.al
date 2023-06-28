@@ -5,7 +5,7 @@ table 50106 "Email Template"
 
     fields
     {
-        field(1; "No."; Code[20])
+        field(1; "Key"; Code[200])
         {
             Caption = 'No.';
             DataClassification = ToBeClassified;
@@ -24,7 +24,7 @@ table 50106 "Email Template"
     }
     keys
     {
-        key(PK; "No.")
+        key(PK; "Key")
         {
             Clustered = true;
         }

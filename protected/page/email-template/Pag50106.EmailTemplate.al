@@ -12,7 +12,7 @@ page 50106 "Email Templates"
         {
             repeater(General)
             {
-                field("No."; Rec."No.")
+                field("No."; Rec."Key")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the No. field.';

@@ -10,7 +10,7 @@ page 50108 "Email Template"
             group(General)
             {
                 Caption = 'General';
-                field("No."; Rec."No.")
+                field("No."; Rec."Key")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the No. field.';

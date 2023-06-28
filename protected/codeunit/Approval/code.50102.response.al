@@ -10,25 +10,69 @@ codeunit 50103 MyWorkflowResponses
         exit(UpperCase('SentEmailNotificationToSender'));
     end;
 
+    procedure SentEmailWhenRejectedCode(): code[128]
+    begin
+        exit(UpperCase('SentEmailWhenRejected'));
+    end;
+
+    procedure SentEmailWhenApprovedCompleteCode(): code[128]
+    begin
+        exit(UpperCase('SentEmailWhenApprovedComplete'));
+    end;
+
+
     procedure SentEmailNotificationToSender(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance")
     begin
 
     end;
 
-    procedure SentEmailToApprover(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance")
+    procedure SentEmailWhenSubmitRequest(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance")
     var
         RecRef: RecordRef;
+        ApprovalStatus: Enum "Approval Status";
     begin
         RecRef.GetTable(Variant);
         case RecRef.Number of
             DATABASE::"Approval Entry":
-                SendApprovalEmailFromApprovalEntry(Variant, WorkflowStepInstance);
+                SendApprovalEmailFromApprovalEntry(Variant, WorkflowStepInstance, ApprovalStatus::Open);
             else
-                SendApprovalEmailFromApprovalRecord(RecRef, WorkflowStepInstance);
+                SendApprovalEmailFromApprovalRecord(RecRef, WorkflowStepInstance, ApprovalStatus::Open);
         end;
     end;
 
-    procedure SendApprovalEmailFromApprovalRecord(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance")
+
+    //* Sent Email When Rejected
+    procedure SentEmailWhenRejected(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance")
+    var
+        RecRef: RecordRef;
+        ApprovalStatus: Enum "Approval Status";
+    begin
+        RecRef.GetTable(Variant);
+        case
+            RecRef.Number of
+            DATABASE::"Approval Entry":
+                SendApprovalEmailFromApprovalEntry(Variant, WorkflowStepInstance, ApprovalStatus::Rejected);
+            else
+                SendApprovalEmailFromApprovalRecord(RecRef, WorkflowStepInstance, ApprovalStatus::Rejected);
+        end;
+    end;
+    //* Sent Email When Approved Complete
+    procedure SentEmailWhenApprovedComplete(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance")
+    var
+        RecRef: RecordRef;
+        ApprovalStatus: Enum "Approval Status";
+    begin
+        RecRef.GetTable(Variant);
+        case
+            RecRef.Number of
+            DATABASE::"Approval Entry":
+                SendApprovalEmailFromApprovalEntry(Variant, WorkflowStepInstance, ApprovalStatus::Approved);
+            else
+                SendApprovalEmailFromApprovalRecord(RecRef, WorkflowStepInstance, ApprovalStatus::Approved);
+        end;
+    end;
+
+    procedure SendApprovalEmailFromApprovalRecord(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance"; ApprovalStatus: Enum "Approval Status")
     var
         ApprovalEntry: Record "Approval Entry";
         user: Record User;
@@ -36,34 +80,52 @@ codeunit 50103 MyWorkflowResponses
         ApprovalEntry.SetCurrentKey("Table ID", "Record ID to Approve", Status, "Workflow Step Instance ID", "Sequence No.");
         ApprovalEntry.SetRange("Table ID", RecRef.Number);
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
-        ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
+        ApprovalEntry.SetRange(Status, ApprovalStatus);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
         if ApprovalEntry.FindFirst() then
             repeat
                 user.SetRange("User Name", ApprovalEntry."Approver ID");
-                user.FindFirst();
-                SentAText(user, RecRef.RecordId, ApprovalEntry."Sender ID");
+                user.FindLast();
+                IF ApprovalStatus = ApprovalStatus::Open THEN
+                    SentSubmitedEmail(user, RecRef.RecordId, ApprovalEntry."Sender ID");
+                IF ApprovalStatus = ApprovalStatus::Rejected THEN
+                    SentRejectedEmail(user, RecRef.RecordId, ApprovalEntry."Sender ID");
             until ApprovalEntry.Next() = 0;
+
+        IF ApprovalStatus = ApprovalStatus::Approved THEN begin
+            user.SetRange("User Name", ApprovalEntry."Approver ID");
+            user.FindLast();
+            SentApprovedEmail(user, RecRef.RecordId, ApprovalEntry."Sender ID");
+        end;
+
     end;
 
-    procedure SendApprovalEmailFromApprovalEntry(ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance")
+    procedure SendApprovalEmailFromApprovalEntry(ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance"; ApprovalStatus: Enum "Approval Status")
     var
         ApprovalEntry2: Record "Approval Entry";
-        ApprovalStatus: Enum "Approval Status";
         user: Record User;
     begin
         ApprovalEntry2.SetCurrentKey("Table ID", "Document Type", "Document No.", "Sequence No.");
         ApprovalEntry2.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
-        ApprovalEntry2.SetRange(Status, ApprovalStatus::Open);
+        ApprovalEntry2.SetRange(Status, ApprovalStatus);
         if ApprovalEntry2.FindSet() then
             repeat
                 user.SetRange("User Name", ApprovalEntry2."Approver ID");
-                user.FindFirst();
-                SentAText(user, ApprovalEntry2."Record ID to Approve", ApprovalEntry2."Sender ID");
+                user.FindLast();
+                IF ApprovalStatus = ApprovalStatus::Open THEN
+                    SentSubmitedEmail(user, ApprovalEntry2."Record ID to Approve", ApprovalEntry."Sender ID");
+                IF ApprovalStatus = ApprovalStatus::Rejected THEN
+                    SentRejectedEmail(user, ApprovalEntry2."Record ID to Approve", ApprovalEntry."Sender ID");
+
             until ApprovalEntry2.Next() = 0;
+        IF ApprovalStatus = ApprovalStatus::Approved THEN begin
+            user.SetRange("User Name", ApprovalEntry."Approver ID");
+            user.FindLast();
+            SentApprovedEmail(user, ApprovalEntry2."Record ID to Approve", ApprovalEntry."Sender ID");
+        end;
     end;
 
-    procedure SentAText(user: Record User; RecId: RecordId; SenderId: Code[50])
+    procedure SentSubmitedEmail(user: Record User; RecId: RecordId; SenderId: Code[50])
     var
         Mail: Codeunit "Email";
         EmailMessage: Codeunit "Email Message";
@@ -88,7 +150,7 @@ codeunit 50103 MyWorkflowResponses
                 begin
                     URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50101&filter=%27Price%20Approval%27.No_%20IS%20%27#[CODE]%27';
                     RecRef.SetTable(PriceApproval);
-                    EmailTemplate.SetRange("No.", 'SUBMIT_PRICE');
+                    EmailTemplate.SetRange("Key", 'SUBMIT_PRICE');
                     EmailTemplate.FindFirst();
                     Body := EmailTemplate.GetContent();
                     Subject := EmailTemplate.Subject;
@@ -114,7 +176,7 @@ codeunit 50103 MyWorkflowResponses
                 begin
                     URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
                     RecRef.SetTable(PurchaseRequest);
-                    EmailTemplate.SetRange("No.", 'SUBMIT_PURCHASE');
+                    EmailTemplate.SetRange("Key", 'SUBMIT_PURCHASE');
                     EmailTemplate.FindFirst();
                     Subject := EmailTemplate.Subject;
                     Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
@@ -132,9 +194,112 @@ codeunit 50103 MyWorkflowResponses
                         Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate))
                     else
                         Body := Body.Replace('[REQUESTED_DATE]', Format(Today));
-                    Message(Body);
                     CCRecipients := GetCC(PurchaseRequest.No_);
                     ToRecipients.Add(User."Authentication Email");
+                    EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
+                    Mail.Send(EmailMessage, "Email Scenario"::Default);
+                end;
+        end;
+    end;
+
+    procedure SentRejectedEmail(user: Record User; RecId: RecordId; SenderId: Code[50])
+    var
+        Mail: Codeunit "Email";
+        EmailMessage: Codeunit "Email Message";
+        Body: Text;
+        Subject: Text;
+        content: text;
+        EmailTemplate: Record "Email Template";
+        MaterialTreeRec: Record "Material Tree";
+        MaterialTreeFunction: Codeunit MaterialTreeFunction;
+        RecRef: RecordRef;
+        PriceApproval: Record "Price Approval";
+        PurchaseRequest: Record "Purchase Request Info";
+        CCRecipients: list of [text];
+        ToRecipients: list of [text];
+        BCCRecipients: list of [text];
+        ReqUser: Record User;
+        URL: Text;
+    begin
+        RecRef.Get(RecId);
+        case RecRef.Number of
+            Database::"Purchase Request Info":
+                begin
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+                    RecRef.SetTable(PurchaseRequest);
+                    EmailTemplate.SetRange("Key", 'REJECTED_PURCHASE');
+                    EmailTemplate.FindFirst();
+                    Subject := EmailTemplate.Subject;
+                    Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
+                    Body := EmailTemplate.GetContent();
+                    Body := Body.Replace('[CODE]', PurchaseRequest.No_);
+                    Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
+                    Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
+                    ReqUser.SetRange("User Name", SenderId);
+                    ReqUser.FindFirst();
+                    Body := Body.Replace('[REJECT_USER]', ReqUser."Full Name");
+                    Body := Body.Replace('[REQUESTEDBY]', user."Full Name");
+                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
+                    Body := Body.Replace('[LINK]', URL);
+                    if Format(PurchaseRequest.RequestDate) <> '' then
+                        Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate))
+                    else
+                        Body := Body.Replace('[REQUESTED_DATE]', Format(Today));
+                    Message(Body);
+                    CCRecipients := GetCC(PurchaseRequest.No_);
+                    ToRecipients.Add(ReqUser."Authentication Email");
+                    EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
+                    Mail.Send(EmailMessage, "Email Scenario"::Default);
+                end;
+        end;
+    end;
+
+    procedure SentApprovedEmail(user: Record User; RecId: RecordId; SenderId: Code[50])
+    var
+        Mail: Codeunit "Email";
+        EmailMessage: Codeunit "Email Message";
+        Body: Text;
+        Subject: Text;
+        content: text;
+        EmailTemplate: Record "Email Template";
+        MaterialTreeRec: Record "Material Tree";
+        MaterialTreeFunction: Codeunit MaterialTreeFunction;
+        RecRef: RecordRef;
+        PriceApproval: Record "Price Approval";
+        PurchaseRequest: Record "Purchase Request Info";
+        CCRecipients: list of [text];
+        ToRecipients: list of [text];
+        BCCRecipients: list of [text];
+        ReqUser: Record User;
+        URL: Text;
+    begin
+        RecRef.Get(RecId);
+        case RecRef.Number of
+            Database::"Purchase Request Info":
+                begin
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+                    RecRef.SetTable(PurchaseRequest);
+                    EmailTemplate.SetRange("Key", 'APPROVED_COMPLETED_PURCHASE');
+                    EmailTemplate.FindFirst();
+                    Subject := EmailTemplate.Subject;
+                    Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
+                    Body := EmailTemplate.GetContent();
+                    Body := Body.Replace('[CODE]', PurchaseRequest.No_);
+                    Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
+                    Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
+                    ReqUser.SetRange("User Name", SenderId);
+                    ReqUser.FindFirst();
+                    Body := Body.Replace('[REJECT_USER]', ReqUser."Full Name");
+                    Body := Body.Replace('[REQUESTEDBY]', user."Full Name");
+                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
+                    Body := Body.Replace('[LINK]', URL);
+                    if Format(PurchaseRequest.RequestDate) <> '' then
+                        Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate))
+                    else
+                        Body := Body.Replace('[REQUESTED_DATE]', Format(Today));
+                    Message(Body);
+                    CCRecipients := GetCC(PurchaseRequest.No_);
+                    ToRecipients.Add(ReqUser."Authentication Email");
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
                 end;
@@ -213,6 +378,9 @@ codeunit 50103 MyWorkflowResponses
     begin
         WorkflowResponseHandling.AddResponseToLibrary(SentEmailToApproverCode, 0, 'Sent Email To Approver', 'GROUP 0');
         WorkflowResponseHandling.AddResponseToLibrary(SentEmailNotificationToSenderCode, 0, 'Sent Notification Email To Sender', 'GROUP 0');
+        WorkflowResponseHandling.AddResponseToLibrary(SentEmailWhenRejectedCode, 0, 'Sent Rejected Email', 'GROUP 0');
+        WorkflowResponseHandling.AddResponseToLibrary(SentEmailWhenApprovedCompleteCode, 0, 'Sent Approve Complete Email', 'GROUP 0');
+
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnExecuteWorkflowResponse', '', true, true)]
@@ -224,7 +392,7 @@ codeunit 50103 MyWorkflowResponses
             case WorkflowResponse."Function Name" of
                 SentEmailToApproverCode:
                     begin
-                        SentEmailToApprover(Variant, ResponseWorkflowStepInstance);
+                        SentEmailWhenSubmitRequest(Variant, ResponseWorkflowStepInstance);
                         ResponseExecuted := TRUE;
                     end;
 
@@ -235,7 +403,20 @@ codeunit 50103 MyWorkflowResponses
                     SentEmailNotificationToSender(Variant, ResponseWorkflowStepInstance);
                     ResponseExecuted := TRUE;
                 end;
-
+        END;
+        case WorkflowResponse."Function Name" of
+            SentEmailWhenRejectedCode:
+                begin
+                    SentEmailWhenRejected(Variant, ResponseWorkflowStepInstance);
+                    ResponseExecuted := TRUE;
+                end;
+        END;
+        case WorkflowResponse."Function Name" of
+            SentEmailWhenApprovedCompleteCode:
+                begin
+                    SentEmailWhenApprovedComplete(Variant, ResponseWorkflowStepInstance);
+                    ResponseExecuted := TRUE;
+                end;
         END;
     end;
 
