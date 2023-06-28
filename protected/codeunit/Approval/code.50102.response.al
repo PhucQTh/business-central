@@ -298,6 +298,11 @@ codeunit 50103 MyWorkflowResponses
         end;
     end;
 
+    procedure SentOnHoldEmail()
+    begin
+
+    end;
+
     procedure GetCC(var RequestId: code[10]): List of [Text]
     var
         ListCC: List of [Text];
