@@ -185,7 +185,9 @@ page 50114 "Purchase Request Card"
                     Caption = 'On Hold';
                     ApplicationArea = All;
                     Image = Answers;
-                    Promoted = false;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     Visible = OpenApprovalEntriesExistCurrUser AND (Rec.Status <> P::OnHold);
                     trigger OnAction()
                     begin
@@ -199,7 +201,9 @@ page 50114 "Purchase Request Card"
                     Caption = 'Approve';
                     Image = Approve;
                     ToolTip = 'Approve the requested.';
-                    Promoted = false;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     Visible = OpenApprovalEntriesExistCurrUser;
                     trigger OnAction()
                     var
@@ -222,7 +226,9 @@ page 50114 "Purchase Request Card"
                     Image = Reject;
                     ToolTip = 'Reject the approval request.';
                     Visible = OpenApprovalEntriesExistCurrUser;
-                    Promoted = false;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     trigger OnAction()
                     var
                         Question: Text;
@@ -244,7 +250,9 @@ page 50114 "Purchase Request Card"
                     Image = Delegate;
                     ToolTip = 'Delegate the approval to a substitute approver.';
                     Visible = OpenApprovalEntriesExistCurrUser;
-                    Promoted = false;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     trigger OnAction()
 
                     begin
@@ -258,8 +266,9 @@ page 50114 "Purchase Request Card"
                     Image = ViewComments;
                     ToolTip = 'View or add comments for the record.';
                     Visible = OpenApprovalEntriesExistCurrUser;
-                    Promoted = false;
-
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
 
                     trigger OnAction()
                     begin
@@ -293,7 +302,9 @@ page 50114 "Purchase Request Card"
                     Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") AND CanRequestApprovalForRecord;//! Could be use Enabled
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
-                    Promoted = false;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     trigger OnAction()
                     var
                         CustomWorkflowMgmt: Codeunit "Approval Wfl Mgt";
@@ -315,7 +326,9 @@ page 50114 "Purchase Request Card"
                     Visible = CanCancelApprovalForRecord; //! Could be use Enabled
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
-                    Promoted = false;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     trigger OnAction()
                     var
                         CustomWorkflowMgmt: Codeunit "Approval Wfl Mgt";
@@ -333,7 +346,10 @@ page 50114 "Purchase Request Card"
                 Caption = 'Confirm';
                 ApplicationArea = All;
                 Image = Completed;
-                Promoted = false;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedCategory = Process;
+
                 Visible = (Rec.Status = p::Approved) AND isReceiver;
                 trigger OnAction()
                 var
@@ -348,6 +364,28 @@ page 50114 "Purchase Request Card"
                     ConfirmPage.RunModal();
                 end;
 
+            }
+
+            action(Comments)
+            {
+                Enabled = HasApprovalEntries;
+                ApplicationArea = Suite;
+                Caption = 'Comments';
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedCategory = Process;
+                Image = ViewComments;
+                ToolTip = 'View or add comments for the record.';
+
+                trigger OnAction()
+                var
+                    ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                    RecRef: RecordRef;
+                begin
+                    RecRef.Get(Rec.RecordId);
+                    Clear(ApprovalsMgmt);
+                    ApprovalsMgmt.GetApprovalComment(RecRef);
+                end;
             }
         }
     }
@@ -429,6 +467,10 @@ page 50114 "Purchase Request Card"
             exit(false);//! continue page   
     end;
 
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        exit(0);
+    end;
 
 
     var

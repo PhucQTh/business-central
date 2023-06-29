@@ -303,6 +303,11 @@ codeunit 50103 MyWorkflowResponses
 
     end;
 
+    procedure SentConfirmedEmail(UserConfirmed: Text; RecId: RecordId)
+    begin
+
+    end;
+
     procedure GetCC(var RequestId: code[10]): List of [Text]
     var
         ListCC: List of [Text];

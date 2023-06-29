@@ -19,6 +19,14 @@ page 50113 "Purchase Request"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the id field.';
                 }
+                field(Status; Rec.Status)
+                {
+                    StyleExpr = StatusStyleTxt;
+                    Caption = 'Status';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the id field.';
+                }
+
                 field(pr_notes; Rec.pr_notes)
                 {
                     Caption = 'Purpose';
@@ -42,4 +50,36 @@ page 50113 "Purchase Request"
             }
         }
     }
+
+    actions
+    {
+        area(Processing)
+        {
+            action("Reset Filter")
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                Image = RemoveFilterLines;
+
+                trigger OnAction()
+                begin
+                    Rec.SetFilter(Rec.No_, '');
+                    Rec.SetFilter(Rec.pr_notes, '');
+                    Rec.SetFilter(Rec."Request By", '');
+                    CurrPage.Update();
+                end;
+            }
+        }
+    }
+    trigger OnAfterGetRecord()
+    var
+        CustomWflMgmt: Codeunit "Approval Wfl Mgt";
+    begin
+        StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec.Status);
+    end;
+
+    var
+        StatusStyleTxt: Text;
 }

@@ -91,7 +91,7 @@ page 50101 "Price Approvals"
 
         }
     }
-    trigger OnAfterGetCurrRecord()
+    trigger OnAfterGetRecord()
     var
         Wf: Codeunit "Approval Wfl Mgt";
     begin

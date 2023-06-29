@@ -340,8 +340,9 @@ page 50102 "Price Approval"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        Message('Function is diabled');
+        exit(0);
     end;
+
 
     trigger OnOpenPage()
     begin

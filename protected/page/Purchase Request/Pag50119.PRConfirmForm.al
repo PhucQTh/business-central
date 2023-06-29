@@ -10,20 +10,11 @@ page 50119 "PR Confirm Form"
     {
         area(content)
         {
-
-            usercontrol(SMTEditor; "SMT Editor")
+            field(Comment; Rec.confirm_comment)
             {
+                ShowCaption = false;
                 ApplicationArea = All;
-                trigger ControlAddinReady()
-                begin
-                    // NewData := Rec.GetContent();
-                    CurrPage.SMTEditor.InitializeSummerNote(Rec.confirm_comment, 'compact');
-                end;
-
-                trigger onBlur(Data: Text)
-                begin
-                    Rec.confirm_comment := Data;
-                end;
+                MultiLine = true;
             }
             usercontrol(ConfirmButton; Button)
             {
@@ -45,8 +36,12 @@ page 50119 "PR Confirm Form"
                 end;
             }
         }
-    }
 
+    }
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        exit(0);
+    end;
 
 
 }
