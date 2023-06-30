@@ -190,9 +190,12 @@ page 50114 "Purchase Request Card"
                     PromotedCategory = Process;
                     Visible = OpenApprovalEntriesExistCurrUser AND (Rec.Status <> P::OnHold);
                     trigger OnAction()
+                    var
+                        Response: Codeunit MyWorkflowResponses;
                     begin
                         Rec.Status := p::OnHold;
                         Rec.Modify();
+                        Response.SentOnHoldEmail(UserId, Rec.RecordId);
                     end;
                 }
                 action(Approve)
@@ -426,7 +429,7 @@ page 50114 "Purchase Request Card"
         StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec.Status);
         checkIsReceiver();
         CurrPage.Update(true);
-
+        // Message(GetUrl(ClientType::Web, CompanyName, ObjectType::Page, Page::"Purchase Request Card", Rec, false));
     end;
 
     procedure checkEmptyForm(): Boolean

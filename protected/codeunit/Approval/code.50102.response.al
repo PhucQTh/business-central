@@ -298,15 +298,90 @@ codeunit 50103 MyWorkflowResponses
         end;
     end;
 
-    procedure SentOnHoldEmail()
+    procedure SentOnHoldEmail(OnHoldedUser: Text; RecId: RecordId)
+    var
+        Mail: Codeunit "Email";
+        EmailMessage: Codeunit "Email Message";
+        Body: Text;
+        Subject: Text;
+        EmailTemplate: Record "Email Template";
+        RecRef: RecordRef;
+        PurchaseRequest: Record "Purchase Request Info";
+        CCRecipients: list of [text];
+        ToRecipients: list of [text];
+        BCCRecipients: list of [text];
+        ReqUser: Record User;
+        URL: Text;
     begin
-
+        RecRef.Get(RecId);
+        RecRef.SetTable(PurchaseRequest);
+        URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+        URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
+        EmailTemplate.SetRange("Key", 'ONHOLD_PURCHASE');
+        EmailTemplate.FindFirst();
+        /* ---------------------------- Get user request ---------------------------- */
+        ReqUser.SetRange("User Name", PurchaseRequest."Request By");
+        ReqUser.FindFirst();
+        /* ------------------------------- Get subject ------------------------------ */
+        Subject := EmailTemplate.Subject;
+        Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
+        /* -------------------------------- Get body -------------------------------- */
+        Body := EmailTemplate.GetContent();
+        Body := Body.Replace('[CODE]', PurchaseRequest.No_);
+        Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
+        Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
+        Body := Body.Replace('[ONHOLD_USER]', OnHoldedUser);
+        Body := Body.Replace('[REQUESTEDBY]', PurchaseRequest."Request By");
+        Body := Body.Replace('[LINK]', URL);
+        Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
+        CCRecipients := GetCC(PurchaseRequest.No_);
+        ToRecipients.Add(ReqUser."Authentication Email"); //! In this case - Recipient is requested user
+        EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
+        Mail.Send(EmailMessage, "Email Scenario"::Default);
     end;
 
-    procedure SentConfirmedEmail(UserConfirmed: Text; RecId: RecordId)
+    procedure SentConfirmedEmail(ConfirmedUser: Text; RecId: RecordId)
+    var
+        Mail: Codeunit "Email";
+        EmailMessage: Codeunit "Email Message";
+        Body: Text;
+        Subject: Text;
+        EmailTemplate: Record "Email Template";
+        RecRef: RecordRef;
+        PurchaseRequest: Record "Purchase Request Info";
+        CCRecipients: list of [text];
+        ToRecipients: list of [text];
+        BCCRecipients: list of [text];
+        ReqUser: Record User;
+        URL: Text;
     begin
-
+        RecRef.Get(RecId);
+        RecRef.SetTable(PurchaseRequest);
+        URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+        URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
+        EmailTemplate.SetRange("Key", 'CONFIRM_PURCHASE');
+        EmailTemplate.FindFirst();
+        /* ---------------------------- Get user request ---------------------------- */
+        ReqUser.SetRange("User Name", PurchaseRequest."Request By");
+        ReqUser.FindFirst();
+        /* ------------------------------- Get subject ------------------------------ */
+        Subject := EmailTemplate.Subject;
+        Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
+        /* -------------------------------- Get body -------------------------------- */
+        Body := EmailTemplate.GetContent();
+        Body := Body.Replace('[CODE]', PurchaseRequest.No_);
+        Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
+        Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
+        Body := Body.Replace('[ONHOLD_USER]', ConfirmedUser);
+        Body := Body.Replace('[REQUESTEDBY]', PurchaseRequest."Request By");
+        Body := Body.Replace('[LINK]', URL);
+        Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
+        CCRecipients := GetCC(PurchaseRequest.No_);
+        ToRecipients.Add(ReqUser."Authentication Email"); //! In this case - Recipient is requested user
+        EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
+        Mail.Send(EmailMessage, "Email Scenario"::Default);
     end;
+
 
     procedure GetCC(var RequestId: code[10]): List of [Text]
     var
