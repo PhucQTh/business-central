@@ -291,7 +291,7 @@ codeunit 50103 MyWorkflowResponses
                     Body := Body.Replace('[LINK]', URL);
                     Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
                     CCRecipients := GetCC(PurchaseRequest.No_);
-                    ToRecipients := GetReceivers(PurchaseRequest.No_); //! In this case - Recipient is received user
+                    ToRecipients := GetConfirmReceivers(PurchaseRequest.No_); //! In this case - Recipient is received user
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
                 end;
@@ -383,7 +383,7 @@ codeunit 50103 MyWorkflowResponses
     end;
 
 
-    procedure GetCC(var RequestId: code[10]): List of [Text]
+    procedure GetCC(var RequestId: code[10]): List of [Text] //! Get CC recipients from Collaborators
     var
         ListCC: List of [Text];
         Collaborators: Record "Email CC";
@@ -396,7 +396,7 @@ codeunit 50103 MyWorkflowResponses
         exit(ListCC);
     end;
 
-    procedure GetReceivers(var RequestId: code[10]): List of [Text]
+    procedure GetConfirmReceivers(var RequestId: code[10]): List of [Text]
     var
         Receivers: List of [Text];
         ReceiverRecord: Record "Purchase Request Confirm";
