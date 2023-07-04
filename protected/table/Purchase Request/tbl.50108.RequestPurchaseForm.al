@@ -1,4 +1,4 @@
-table 50108 "Request Purchase Form"
+table 50108 "Purchase Request Form"
 {
     DataClassification = ToBeClassified;
 

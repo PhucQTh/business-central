@@ -4,7 +4,7 @@ page 50117 Form
     UsageCategory = Lists;
     Caption = 'Form AA';
     PageType = List;
-    SourceTable = "Request Purchase Form";
+    SourceTable = "Purchase Request Form";
 
     layout
     {

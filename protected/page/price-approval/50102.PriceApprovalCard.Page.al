@@ -372,7 +372,7 @@ page 50102 "Price Approval"
         CustomWflMgmt: Codeunit "Approval Wfl Mgt";
     begin
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
-        CanRequestApprovalForRecord := CustomWflMgmt.CanRequestApprovalForRecord(Rec.No_);
+        CanRequestApprovalForRecord := CustomWflMgmt.CanRequestApprovalForRecord(Rec.RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);

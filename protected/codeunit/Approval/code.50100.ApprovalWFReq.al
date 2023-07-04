@@ -30,14 +30,35 @@ codeunit 50100 "Approval Wfl Mgt"
         exit(not ApprovalEntry.IsEmpty());
     end;
 
-    procedure CanRequestApprovalForRecord(MaterialCode: Code[10]): Boolean
+    procedure CanRequestApprovalForRecord(RecId: RecordId): Boolean
     var
+        RecRef: RecordRef;
+        PriceApproval: Record "Price Approval";
         MaterialRec: Record "Material";
+        PruchReqInfo: Record "Purchase Request Info";
+        PurchReqForm: Record "Purchase Request Form";
     begin
-        MaterialRec.SetRange("Code", MaterialCode);
-        if MaterialRec.FindSet() then
-            exit(true);
-        exit(false);
+        RecRef.Get(RecId);
+        case RecRef.Number of
+            Database::"Price Approval":
+                begin
+                    RecRef.SetTable(PriceApproval);
+                    MaterialRec.SetRange("Code", PriceApproval.No_);
+                    if MaterialRec.FindSet() then
+                        exit(true);
+                    exit(false);
+                end;
+        end;
+        case RecRef.Number of
+            Database::"Purchase Request Info":
+                begin
+                    RecRef.SetTable(PruchReqInfo);
+                    PurchReqForm.SetRange("id", PruchReqInfo.No_);
+                    if PurchReqForm.FindSet() then
+                        exit(true);
+                    exit(false);
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

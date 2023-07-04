@@ -2,7 +2,7 @@ page 50116 "Services Form"
 {
     Caption = 'Services Form';
     PageType = ListPart;
-    SourceTable = "Request Purchase Form";
+    SourceTable = "Purchase Request Form";
 
     layout
     {
@@ -81,7 +81,7 @@ page 50116 "Services Form"
 
     local procedure ImportExcelData()
     var
-        Form: Record "Request Purchase Form";
+        Form: Record "Purchase Request Form";
         RowNo: Integer;
         ColNo: Integer;
         LineNo: Integer;

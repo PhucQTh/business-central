@@ -284,7 +284,9 @@ page 50114 "Purchase Request Card"
                     Caption = 'Approvals History';
                     Image = Approvals;
                     ToolTip = 'View approval requests.';
-                    Promoted = false;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     Visible = HasApprovalEntries;
 
                     trigger OnAction()
@@ -302,7 +304,7 @@ page 50114 "Purchase Request Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") AND CanRequestApprovalForRecord;//! Could be use Enabled
+                    Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") AND isCurrentUser;//! Could be use Enabled
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
                     Promoted = true;
@@ -316,10 +318,12 @@ page 50114 "Purchase Request Card"
                         Rec.RequestDate := Today();
                         RecRef.GetTable(Rec);
                         if CustomWorkflowMgmt.CheckApprovalsWorkflowEnabled(RecRef) then begin
-                            CustomWorkflowMgmt.OnSendWorkflowForApproval(RecRef);
-
+                            IF CanRequestApprovalForRecord then begin
+                                CustomWorkflowMgmt.OnSendWorkflowForApproval(RecRef);
+                                SetEditStatus();
+                            end;
                         end;
-                        SetEditStatus();
+
                     end;
                 }
                 action(CancelApprovalRequest)
@@ -422,7 +426,7 @@ page 50114 "Purchase Request Card"
         IF Rec.pr_type = 1 then Good := true else Service := true;
         IF Rec."Request By" = UserId then isCurrentUser := true else isCurrentUser := false;
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
-        CanRequestApprovalForRecord := true; //CustomWflMgmt.CanRequestApprovalForRecord(Rec.No_);
+        CanRequestApprovalForRecord := CustomWflMgmt.CanRequestApprovalForRecord(Rec.RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
@@ -434,7 +438,7 @@ page 50114 "Purchase Request Card"
 
     procedure checkEmptyForm(): Boolean
     var
-        FormItem: Record "Request Purchase Form";
+        FormItem: Record "Purchase Request Form";
     begin
         FormItem.SetRange(id, Rec.No_);
         If FormItem.FindSet() then exit(false);
