@@ -394,6 +394,8 @@ page 50114 "Purchase Request Card"
                     ApprovalsMgmt.GetApprovalComment(RecRef);
                 end;
             }
+
+
         }
     }
 

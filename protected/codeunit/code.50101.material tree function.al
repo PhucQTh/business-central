@@ -49,7 +49,6 @@ codeunit 50101 MaterialTreeFunction
         rlMaterialTree."Payment term" := MSupplier."Payment term";
         rlMaterialTree.Price := MSupplier.Price;
         rlMaterialTree.SetContent(MSupplier.GetContent());
-        // Message(MSupplier.GetContent());
         rlMaterialTree."Price Term" := MSupplier."Price Term";
         rlMaterialTree.Code := MSupplier.Code;
         rlMaterialTree."Line No." := MSupplier."Line No.";
