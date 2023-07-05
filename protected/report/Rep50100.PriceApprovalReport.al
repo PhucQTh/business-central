@@ -12,7 +12,7 @@ report 50100 "Price Approval Report"
     {
         dataitem(PriceApproval; "Price Approval")
         {
-            RequestFilterFields = "No_", "Title", "Due Date", UserName, Status;
+            RequestFilterFields = "No_", "Title", "Due Date", "Request By", Status;
             column(No_; No_)
             {
             }
@@ -25,7 +25,7 @@ report 50100 "Price Approval Report"
             column(DueDate; "Due Date")
             {
             }
-            column(UserID; Username)
+            column(UserID; "Request By")
             {
             }
             column(SystemCreatedAt; SystemCreatedAt)

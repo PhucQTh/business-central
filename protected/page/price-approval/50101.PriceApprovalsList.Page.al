@@ -25,7 +25,7 @@ page 50101 "Price Approvals"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Title field.';
                 }
-                field("User ID"; Rec.UserName)
+                field("Request By"; Rec."Request By")
                 {
                     Caption = 'Request by';
                     ApplicationArea = All;
@@ -115,7 +115,7 @@ page 50101 "Price Approvals"
         end
         else begin
             Rec.FilterGroup := 100;
-            Rec.SetFilter(Rec.UserName, UserId);
+            Rec.SetFilter(Rec."Request By", UserId);
             Rec.FilterGroup := 0;
         end;
     end;
@@ -138,7 +138,7 @@ page 50101 "Price Approvals"
             Collaborators.SetRange("ApprovalId", Rec.NO_);
             Collaborators.SetRange("UserName", UserId);
             if (Collaborators.FindSet()) then isCollaborator := true;
-            if (CustomApprovalMgmt.HasApprovalEntriesForCurrentUser(Rec.RecordId)) OR (Rec.UserName = UserId) OR (isCollaborator) then //AND (Rec.Status <> ApprovalStatus::Open)
+            if (CustomApprovalMgmt.HasApprovalEntriesForCurrentUser(Rec.RecordId)) OR (Rec."Request By" = UserId) OR (isCollaborator) then //AND (Rec.Status <> ApprovalStatus::Open)
                 IdFilterString := IdFilterString + Rec.No_ + '|'
         until Rec.Next() = 0;
 

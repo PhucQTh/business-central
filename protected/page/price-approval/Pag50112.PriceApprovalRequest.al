@@ -24,7 +24,7 @@ page 50112 "Price Approval Request"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Title field.';
                 }
-                field("User ID"; Rec.UserName)
+                field("User ID"; Rec."Request By")
                 {
                     Caption = 'Request by';
                     ApplicationArea = All;
@@ -79,7 +79,7 @@ page 50112 "Price Approval Request"
         end
         else begin
             Rec.FilterGroup := 100;
-            Rec.SetFilter(Rec.UserName, 'null');
+            Rec.SetFilter(Rec."Request By", 'null');
             Rec.FilterGroup := 0;
         end;
     end;

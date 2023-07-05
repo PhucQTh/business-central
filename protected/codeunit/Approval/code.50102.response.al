@@ -87,15 +87,15 @@ codeunit 50103 MyWorkflowResponses
                 user.SetRange("User Name", ApprovalEntry."Approver ID");
                 user.FindLast();
                 IF ApprovalStatus = ApprovalStatus::Open THEN
-                    SentSubmitedEmail(user, RecRef.RecordId, ApprovalEntry."Sender ID");
+                    SentSubmitedEmail(user, RecRef.RecordId);
                 IF ApprovalStatus = ApprovalStatus::Rejected THEN
-                    SentRejectedEmail(user, RecRef.RecordId, ApprovalEntry."Sender ID");
+                    SentRejectedEmail(user, RecRef.RecordId);
             until ApprovalEntry.Next() = 0;
 
         IF ApprovalStatus = ApprovalStatus::Approved THEN begin
             user.SetRange("User Name", ApprovalEntry."Approver ID");
             user.FindLast();
-            SentCompletedApprovedEmail(user, RecRef.RecordId, ApprovalEntry."Sender ID");
+            SentCompletedApprovedEmail(user, RecRef.RecordId);
         end;
 
     end;
@@ -113,19 +113,19 @@ codeunit 50103 MyWorkflowResponses
                 user.SetRange("User Name", ApprovalEntry2."Approver ID");
                 user.FindLast();
                 IF ApprovalStatus = ApprovalStatus::Open THEN
-                    SentSubmitedEmail(user, ApprovalEntry2."Record ID to Approve", ApprovalEntry."Sender ID");
+                    SentSubmitedEmail(user, ApprovalEntry2."Record ID to Approve");
                 IF ApprovalStatus = ApprovalStatus::Rejected THEN
-                    SentRejectedEmail(user, ApprovalEntry2."Record ID to Approve", ApprovalEntry."Sender ID");
+                    SentRejectedEmail(user, ApprovalEntry2."Record ID to Approve");
 
             until ApprovalEntry2.Next() = 0;
         IF ApprovalStatus = ApprovalStatus::Approved THEN begin
             user.SetRange("User Name", ApprovalEntry."Approver ID");
             user.FindLast();
-            SentCompletedApprovedEmail(user, ApprovalEntry2."Record ID to Approve", ApprovalEntry."Sender ID");
+            SentCompletedApprovedEmail(user, ApprovalEntry2."Record ID to Approve");
         end;
     end;
 
-    procedure SentSubmitedEmail(user: Record User; RecId: RecordId; SenderId: Code[50])
+    procedure SentSubmitedEmail(user: Record User; RecId: RecordId)
     var
         Mail: Codeunit "Email";
         EmailMessage: Codeunit "Email Message";
@@ -154,7 +154,7 @@ codeunit 50103 MyWorkflowResponses
                     Subject := EmailTemplate.Subject;
                     Subject := Subject.Replace('#[CODE]', PriceApproval.No_);
                     /* ------------------------------------ i ----------------------------------- */
-                    ReqUser.SetRange("User Name", SenderId); //! Find Requested User
+                    ReqUser.SetRange("User Name", PriceApproval."Request By"); //! Find Requested User
                     ReqUser.FindFirst();
                     /* -------------------------------- Get body -------------------------------- */
                     Body := EmailTemplate.GetContent();
@@ -164,7 +164,7 @@ codeunit 50103 MyWorkflowResponses
                     Body := Body.Replace('[RFA_TITLE]', PriceApproval.Title);
                     Body := Body.Replace('[REQUESTED_DATE]', Format(PriceApproval.RequestDate));
                     Body := Body.Replace('[LINK]', URL);
-                    CCRecipients := GetCC(PriceApproval.No_);
+                    CCRecipients := GetCollaborators(PriceApproval.No_);
                     ToRecipients.Add(User."Authentication Email"); //! Add user approver email to to recipients
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
@@ -182,7 +182,7 @@ codeunit 50103 MyWorkflowResponses
                     Subject := EmailTemplate.Subject;
                     Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
                     /* ---------------------------- Find User Request --------------------------- */
-                    ReqUser.SetRange("User Name", SenderId);
+                    ReqUser.SetRange("User Name", PurchaseRequest."Request By");
                     ReqUser.FindFirst();
                     /* -------------------------------- Get body -------------------------------- */
                     Body := EmailTemplate.GetContent();
@@ -195,7 +195,7 @@ codeunit 50103 MyWorkflowResponses
                         Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate))
                     else
                         Body := Body.Replace('[REQUESTED_DATE]', Format(Today));
-                    CCRecipients := GetCC(PurchaseRequest.No_);
+                    CCRecipients := GetCollaborators(PurchaseRequest.No_);
                     ToRecipients.Add(User."Authentication Email");
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
@@ -203,7 +203,7 @@ codeunit 50103 MyWorkflowResponses
         end;
     end;
 
-    procedure SentRejectedEmail(user: Record User; RecId: RecordId; SenderId: Code[50])
+    procedure SentRejectedEmail(user: Record User; RecId: RecordId)
     var
         Mail: Codeunit "Email";
         EmailMessage: Codeunit "Email Message";
@@ -229,7 +229,7 @@ codeunit 50103 MyWorkflowResponses
                     EmailTemplate.SetRange("Key", 'REJECTED_PURCHASE');
                     EmailTemplate.FindFirst();
                     /* ---------------------------- Get user request ---------------------------- */
-                    ReqUser.SetRange("User Name", SenderId);
+                    ReqUser.SetRange("User Name", PurchaseRequest."Request By");
                     ReqUser.FindFirst();
                     /* ------------------------------- Get subject ------------------------------ */
                     Subject := EmailTemplate.Subject;
@@ -243,7 +243,7 @@ codeunit 50103 MyWorkflowResponses
                     Body := Body.Replace('[REQUESTEDBY]', user."Full Name");
                     Body := Body.Replace('[LINK]', URL);
                     Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
-                    CCRecipients := GetCC(PurchaseRequest.No_);
+                    CCRecipients := GetCollaborators(PurchaseRequest.No_);
                     ToRecipients.Add(ReqUser."Authentication Email"); //! In this case - Recipient is requested user
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
@@ -251,7 +251,7 @@ codeunit 50103 MyWorkflowResponses
         end;
     end;
 
-    procedure SentCompletedApprovedEmail(user: Record User; RecId: RecordId; SenderId: Code[50])
+    procedure SentCompletedApprovedEmail(user: Record User; RecId: RecordId)
     var
         Mail: Codeunit "Email";
         EmailMessage: Codeunit "Email Message";
@@ -273,7 +273,7 @@ codeunit 50103 MyWorkflowResponses
                     RecRef.SetTable(PurchaseRequest);
                     URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
                     URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
-                    ReqUser.SetRange("User Name", SenderId);
+                    ReqUser.SetRange("User Name", PurchaseRequest."Request By");
                     ReqUser.FindFirst();
                     /* --------------------------- Get email template --------------------------- */
                     EmailTemplate.SetRange("Key", 'APPROVED_COMPLETED_PURCHASE');
@@ -290,7 +290,7 @@ codeunit 50103 MyWorkflowResponses
                     Body := Body.Replace('[REQUESTEDBY]', user."Full Name");
                     Body := Body.Replace('[LINK]', URL);
                     Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
-                    CCRecipients := GetCC(PurchaseRequest.No_);
+                    CCRecipients := GetCollaborators(PurchaseRequest.No_);
                     ToRecipients := GetConfirmReceivers(PurchaseRequest.No_); //! In this case - Recipient is received user
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
@@ -334,7 +334,7 @@ codeunit 50103 MyWorkflowResponses
         Body := Body.Replace('[REQUESTEDBY]', PurchaseRequest."Request By");
         Body := Body.Replace('[LINK]', URL);
         Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
-        CCRecipients := GetCC(PurchaseRequest.No_);
+        CCRecipients := GetCollaborators(PurchaseRequest.No_);
         ToRecipients.Add(ReqUser."Authentication Email"); //! In this case - Recipient is requested user
         EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
         Mail.Send(EmailMessage, "Email Scenario"::Default);
@@ -376,14 +376,18 @@ codeunit 50103 MyWorkflowResponses
         Body := Body.Replace('[REQUESTEDBY]', PurchaseRequest."Request By");
         Body := Body.Replace('[LINK]', URL);
         Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
-        CCRecipients := GetCC(PurchaseRequest.No_);
+        CCRecipients := GetCollaborators(PurchaseRequest.No_);
         ToRecipients.Add(ReqUser."Authentication Email"); //! In this case - Recipient is requested user
         EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
         Mail.Send(EmailMessage, "Email Scenario"::Default);
     end;
 
+    procedure SentDelegatedEmail(user: Record User; RecId: RecordId)
+    begin
 
-    procedure GetCC(var RequestId: code[10]): List of [Text] //! Get CC recipients from Collaborators
+    end;
+
+    procedure GetCollaborators(var RequestId: code[10]): List of [Text] //! Get CC recipients from Collaborators
     var
         ListCC: List of [Text];
         Collaborators: Record "Email CC";
@@ -420,7 +424,6 @@ codeunit 50103 MyWorkflowResponses
         WorkflowResponseHandling.AddResponseToLibrary(SentEmailNotificationToSenderCode, 0, 'Sent Notification Email To Sender', 'GROUP 0');
         WorkflowResponseHandling.AddResponseToLibrary(SentEmailWhenRejectedCode, 0, 'Sent Rejected Email', 'GROUP 0');
         WorkflowResponseHandling.AddResponseToLibrary(SentEmailWhenApprovedCompleteCode, 0, 'Sent Approve Complete Email', 'GROUP 0');
-
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnExecuteWorkflowResponse', '', true, true)]
@@ -435,7 +438,6 @@ codeunit 50103 MyWorkflowResponses
                         SentEmailWhenSubmitRequest(Variant, ResponseWorkflowStepInstance);
                         ResponseExecuted := TRUE;
                     end;
-
             END;
         case WorkflowResponse."Function Name" of
             SentEmailNotificationToSenderCode:

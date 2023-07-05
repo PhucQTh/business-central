@@ -433,7 +433,6 @@ page 50114 "Purchase Request Card"
         StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec.Status);
         checkIsReceiver();
         CurrPage.Update(true);
-        // Message(GetUrl(ClientType::Web, CompanyName, ObjectType::Page, Page::"Purchase Request Card", Rec, false));
     end;
 
     procedure checkEmptyForm(): Boolean

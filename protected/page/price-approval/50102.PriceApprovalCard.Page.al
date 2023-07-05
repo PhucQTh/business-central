@@ -21,27 +21,24 @@ page 50102 "Price Approval"
                         Editable = DynamicEditable;
                         ShowMandatory = true;
                         ApplicationArea = All;
-                        ToolTip = 'Specifies the value of the comment field.';
                     }
 
-                    field("User ID"; Rec.UserName)
+                    field("Request By"; Rec."Request By")
                     {
+                        Caption = 'Request by';
                         Editable = false;
                         ApplicationArea = All;
-                        ToolTip = 'Specifies the value of the comment field.';
                     }
                     field("Department"; Rec.Department)
                     {
                         Editable = false;
                         ApplicationArea = All;
-                        ToolTip = 'Specifies the value of the comment field.';
                     }
                     field(Purpose; Rec.Purpose)
                     {
                         Editable = DynamicEditable;
                         ShowMandatory = true;
                         ApplicationArea = All;
-                        ToolTip = 'Specifies the value of the Purpose field.';
                     }
                 }
                 group("Ticket Status")
@@ -364,7 +361,7 @@ page 50102 "Price Approval"
         ;
         if Selected = 1 then rec.ApprovalType := RecordType::Standard else Rec.ApprovalType := RecordType::General;
         Rec.Status := p::Open;
-        Rec.UserName := UserId();
+        Rec."Request By" := UserId();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -422,7 +419,7 @@ page 50102 "Price Approval"
             DynamicEditable := true;
             exit;
         end;
-        if (Rec.UserName <> UserId) OR (Rec."Status" <> p::Open) then
+        if (Rec."Request By" <> UserId) OR (Rec."Status" <> p::Open) then
             DynamicEditable := false;
     end;
 

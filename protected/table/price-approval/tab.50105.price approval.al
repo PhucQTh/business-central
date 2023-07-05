@@ -64,7 +64,7 @@ table 50105 "Price Approval"
             NotBlank = true;
 
         }
-        field(10; UserName; Code[50])
+        field(10; "Request By"; Code[50])
         {
             Caption = 'User Name';
             Editable = false;
