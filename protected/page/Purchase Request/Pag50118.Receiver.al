@@ -3,7 +3,6 @@ page 50118 Receiver
     Caption = 'Receiver';
     PageType = ListPart;
     SourceTable = "Purchase Request Confirm";
-
     layout
     {
         area(content)

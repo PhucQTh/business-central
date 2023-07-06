@@ -148,7 +148,6 @@ page 50113 "Purchase Request"
             if (CustomApprovalMgmt.HasApprovalEntriesForCurrentUser(Rec.RecordId)) OR (Rec."Request By" = UserId) OR (isCollaborator) OR (isConfirmReceiver) then //AND (Rec.Status <> ApprovalStatus::Open)
                 IdFilterString := IdFilterString + Rec.No_ + '|'
         until Rec.Next() = 0;
-
         if IdFilterString.LastIndexOf('|') > 0 then
             IdFilterString := COPYSTR(IdFilterString, 1, STRLEN(IdFilterString) - 1)
     end;

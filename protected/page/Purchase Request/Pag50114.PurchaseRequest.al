@@ -411,20 +411,27 @@ page 50114 "Purchase Request Card"
             DynamicEditable := false;
     end;
 
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Good := true;
+        Service := false;
+        Rec.pr_type := 1;
+        Rec."Request By" := UserId;
+    end;
 
     trigger OnAfterGetCurrRecord()
     var
         CustomWflMgmt: Codeunit "Approval Wfl Mgt";
     begin
-        if Rec.No_ = '' then begin
-            Good := true;
-            Service := false;
-            Rec.pr_type := 1;
-            Rec."Request By" := UserId;
+        if (Rec.pr_notes = '') AND (Rec."Request By" = UserId) then begin
+            // Good := true;
+            // Service := false;
+            // Rec.pr_type := 1;
+
             CurrPage.Editable(true);
             DynamicEditable := true;
         end;
-        if Rec.No_ <> '' then SetEditStatus();
+        if Rec.pr_notes <> '' then SetEditStatus();
         IF Rec.pr_type = 1 then Good := true else Service := true;
         IF Rec."Request By" = UserId then isCurrentUser := true else isCurrentUser := false;
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
@@ -479,6 +486,7 @@ page 50114 "Purchase Request Card"
     begin
         exit(0);
     end;
+
 
 
     var

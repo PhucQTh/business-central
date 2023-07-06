@@ -21,6 +21,13 @@ table 50110 "Purchase Request Confirm"
 
             Caption = 'Confirm by';
             DataClassification = ToBeClassified;
+            trigger OnValidate()
+            begin
+                IF (xRec."Confirm by" = 'PHUC.THUONG') AND (xRec."Confirm by" <> Rec."Confirm by") then begin
+                    Error('You can not modify this record!');
+                    exit;
+                end;
+            end;
         }
         field(5; "Confirm date"; DateTime)
         {
@@ -45,4 +52,11 @@ table 50110 "Purchase Request Confirm"
             Clustered = true;
         }
     }
+    trigger OnDelete()
+    begin
+        IF REC."Confirm by" = 'PHUC.THUONG' then begin
+            Error('You can not delete this record!');
+            exit;
+        end;
+    end;
 }
