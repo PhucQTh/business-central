@@ -440,10 +440,10 @@ page 50114 "Purchase Request Card"
         CurrPage.Update(true);
     end;
 
-    trigger OnOpenPage()
-    begin
-        SetEditStatus();
-    end;
+    // trigger OnOpenPage()
+    // begin
+    //     SetEditStatus();
+    // end;
 
     procedure checkEmptyForm(): Boolean
     var
