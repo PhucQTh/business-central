@@ -411,23 +411,22 @@ page 50114 "Purchase Request Card"
             DynamicEditable := false;
     end;
 
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        Good := true;
-        Service := false;
-        Rec.pr_type := 1;
-        Rec."Request By" := UserId;
-    end;
+    // trigger OnNewRecord(BelowxRec: Boolean)
+    // begin
+    //     Good := true;
+    //     Service := false;
+    //     Rec.pr_type := 1;
+    //     Rec."Request By" := UserId;
+    // end;
 
     trigger OnAfterGetCurrRecord()
     var
         CustomWflMgmt: Codeunit "Approval Wfl Mgt";
     begin
-        if (Rec.pr_notes = '') AND (Rec."Request By" = UserId) then begin
-            // Good := true;
-            // Service := false;
-            // Rec.pr_type := 1;
+        if (Rec.No_ = '') then begin //AND (Rec."Request By" = UserId) then begin
 
+            Rec.pr_type := 1;
+            Rec."Request By" := UserId;
             CurrPage.Editable(true);
             DynamicEditable := true;
         end;
@@ -442,6 +441,11 @@ page 50114 "Purchase Request Card"
         StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec.Status);
         checkIsReceiver();
         CurrPage.Update(true);
+    end;
+
+    trigger OnOpenPage()
+    begin
+        SetEditStatus();
     end;
 
     procedure checkEmptyForm(): Boolean
