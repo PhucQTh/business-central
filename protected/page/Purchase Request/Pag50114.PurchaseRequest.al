@@ -411,13 +411,10 @@ page 50114 "Purchase Request Card"
             DynamicEditable := false;
     end;
 
-    // trigger OnNewRecord(BelowxRec: Boolean)
-    // begin
-    //     Good := true;
-    //     Service := false;
-    //     Rec.pr_type := 1;
-    //     Rec."Request By" := UserId;
-    // end;
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Rec.pr_type := 1;
+    end;
 
     trigger OnAfterGetCurrRecord()
     var
