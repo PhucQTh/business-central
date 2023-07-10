@@ -64,7 +64,7 @@ page 50114 "Purchase Request Card"
                 }
                 field("Request By"; Rec."Request By")
                 {
-                    Visible = isCurrentUser;
+                    // Visible = isCurrentUser;
                     Editable = false;
                     Caption = 'Requester Name';
                     ApplicationArea = All;
@@ -411,21 +411,19 @@ page 50114 "Purchase Request Card"
             DynamicEditable := false;
     end;
 
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        Rec.pr_type := 1;
-    end;
+
 
     trigger OnAfterGetCurrRecord()
     var
         CustomWflMgmt: Codeunit "Approval Wfl Mgt";
     begin
         if (Rec.No_ = '') then begin //AND (Rec."Request By" = UserId) then begin
-
             Rec.pr_type := 1;
             Rec."Request By" := UserId;
+            CurrPage.Update(true);
             CurrPage.Editable(true);
             DynamicEditable := true;
+            CurrPage.Update(true);
         end;
         if Rec.pr_notes <> '' then SetEditStatus();
         IF Rec.pr_type = 1 then Good := true else Service := true;
@@ -440,10 +438,11 @@ page 50114 "Purchase Request Card"
         CurrPage.Update(true);
     end;
 
-    // trigger OnOpenPage()
-    // begin
-    //     SetEditStatus();
-    // end;
+    trigger OnOpenPage()
+    begin
+        isDeleted := false;
+        DynamicEditable := true;
+    end;
 
     procedure checkEmptyForm(): Boolean
     var
@@ -470,10 +469,13 @@ page 50114 "Purchase Request Card"
         Helper: Codeunit "Helper";
         Result: Boolean;
     begin
-        if Rec.pr_notes = '' then
-            Result := Helper.CloseConfirmDialog('You must fill in the title to save the record! Do you want to close without saving?')
+        IF isDeleted = TRUE then
+            exit(true)
         else
-            exit(true);
+            if Rec.pr_notes = '' then
+                Result := Helper.CloseConfirmDialog('You must fill in the title to save the record! Do you want to close without saving?')
+            else
+                exit(true);
         //* This code is check if the user want to close without saving
         if Result = true then begin
             Rec.Delete();
@@ -484,11 +486,18 @@ page 50114 "Purchase Request Card"
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
+
     begin
         exit(0);
     end;
 
-
+    trigger OnDeleteRecord(): Boolean
+    var
+        Helper: Codeunit "Helper";
+        Result: Boolean;
+    begin
+        isDeleted := true;
+    end;
 
     var
         isReceiver: Boolean;
@@ -504,7 +513,7 @@ page 50114 "Purchase Request Card"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         StatusStyleTxt: Text;
         DynamicEditable: Boolean;
-
+        isDeleted: Boolean;
         p: enum "Custom Approval Enum";
 
 }

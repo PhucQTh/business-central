@@ -346,28 +346,43 @@ page 50102 "Price Approval"
         SetEditStatus();
     end;
 
-    trigger OnNewRecord(BelowxRec: Boolean)
-    var
-        Selected: Integer;
-        Text000: Label 'Choose one of the price approval type:';
-        Text001: Label 'Standard,General';
-    begin
-        Selected := Dialog.StrMenu(Text001, 1, Text000);
-        if (Selected = 0) then begin
-            Rec.ApprovalType := RecordType::Initial;
-            CurrPage.Close();
-            EXIT;
-        end;
-        ;
-        if Selected = 1 then rec.ApprovalType := RecordType::Standard else Rec.ApprovalType := RecordType::General;
-        Rec.Status := p::Open;
-        Rec."Request By" := UserId();
-    end;
+    // trigger OnNewRecord(BelowxRec: Boolean)
+    // var
+    //     Selected: Integer;
+    //     Text000: Label 'Choose one of the price approval type:';
+    //     Text001: Label 'Standard,General';
+    // begin
+    //     Selected := Dialog.StrMenu(Text001, 1, Text000);
+    //     if (Selected = 0) then begin
+    //         Rec.ApprovalType := RecordType::Initial;
+    //         CurrPage.Close();
+    //         EXIT;
+    //     end;
+    //     if Selected = 1 then rec.ApprovalType := RecordType::Standard else Rec.ApprovalType := RecordType::General;
+    //     Rec.Status := p::Open;
+    //     Rec."Request By" := UserId();
+    //     CurrPage.Update(true);
+    // end;
 
     trigger OnAfterGetCurrRecord()
     var
         CustomWflMgmt: Codeunit "Approval Wfl Mgt";
+        Selected: Integer;
+        Text000: Label 'Choose one of the price approval type:';
+        Text001: Label 'Standard,General';
     begin
+        IF Rec.ApprovalType = RecordType::Initial THEN BEGIN
+            Selected := Dialog.StrMenu(Text001, 1, Text000);
+            if (Selected = 0) then begin
+                Rec.ApprovalType := RecordType::Initial;
+                CurrPage.Close();
+                EXIT;
+            end;
+            if Selected = 1 then rec.ApprovalType := RecordType::Standard else Rec.ApprovalType := RecordType::General;
+            Rec.Status := p::Open;
+            Rec."Request By" := UserId();
+            CurrPage.Update(true);
+        END;
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
         CanRequestApprovalForRecord := CustomWflMgmt.CanRequestApprovalForRecord(Rec.RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
@@ -376,7 +391,6 @@ page 50102 "Price Approval"
         StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec.Status);
         CurrPage.Update(true);
         CurrPage.HTMLRender.Page.GetData(Rec.No_, DynamicEditable);
-
     end;
 
 
@@ -385,15 +399,17 @@ page 50102 "Price Approval"
         Helper: Codeunit "Helper";
         Result: Boolean;
     begin
-        IF (Rec.ApprovalType <> RecordType::Initial) then
-            if (Rec.Title = '') OR (Rec.Purpose = '') then begin
-                Result := Helper.CloseConfirmDialog('Some important fields are empty. You must complete them in order to save the request? Do you want to close without saving?');
-                if Result = true then begin
-                    Rec.Delete();
-                    exit(true); //!  Close page  
+        IF isDeleted = TRUE then
+            exit(true) ELSE
+            IF (Rec.ApprovalType <> RecordType::Initial) then
+                if (Rec.Title = '') OR (Rec.Purpose = '') then begin
+                    Result := Helper.CloseConfirmDialog('Some important fields are empty. You must complete them in order to save the request? Do you want to close without saving?');
+                    if Result = true then begin
+                        Rec.Delete();
+                        exit(true); //!  Close page  
+                    end;
+                    exit(false); //! continue page
                 end;
-                exit(false); //! continue page
-            end;
         exit(true); //!  Close page 
     end;
 
@@ -408,6 +424,7 @@ page 50102 "Price Approval"
         MaterialTreeFunctions: Codeunit "MaterialTreeFunction";
     begin
         MaterialTreeFunctions.DeleteMaterialEntries(-1, Rec.No_);
+        isDeleted := true;
     end;
 
 
@@ -437,5 +454,6 @@ page 50102 "Price Approval"
         Comment: Text;
         IsHTMLFormatted: Boolean;
 
+        isDeleted: Boolean;
 
 }
