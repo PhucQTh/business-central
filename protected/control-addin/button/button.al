@@ -8,4 +8,5 @@ controladdin Button
     event ControlReady();
     procedure CreateButton(buttonText: Text; className: Text);
     event ButtonAction();
+    procedure Dispose();
 }

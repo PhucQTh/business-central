@@ -130,30 +130,12 @@ page 50114 "Purchase Request Card"
             part(RECEIVER; Receiver)
             {
                 Editable = DynamicEditable;
-
                 Caption = 'RECEIVER';
                 ApplicationArea = All;
                 SubPageLink = RequestCode = field("NO_");
             }
-            usercontrol("Attach management"; Button)
-            {
-                ApplicationArea = All;
-                Visible = DynamicEditable;
-                trigger ControlReady()
-                begin
-                    CurrPage."Attach management".CreateButton('Attach management', 'btn btn-primary my-2');
-                end;
 
-                trigger ButtonAction()
-                var
-                    DocumentAttachmentDetails: Page "Document Attachment Details";
-                    RecRef: RecordRef;
-                begin
-                    RecRef.GetTable(Rec);
-                    DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                    DocumentAttachmentDetails.RunModal();
-                end;
-            }
+
             part("Attached Documents List"; "Document Attachment ListPart")
             {
                 ApplicationArea = All;
@@ -372,7 +354,6 @@ page 50114 "Purchase Request Card"
                 end;
 
             }
-
             action(Comments)
             {
                 Enabled = HasApprovalEntries;
@@ -394,7 +375,25 @@ page 50114 "Purchase Request Card"
                     ApprovalsMgmt.GetApprovalComment(RecRef);
                 end;
             }
-
+            Action(Attachments)
+            {
+                ApplicationArea = All;
+                Caption = 'Attach files';
+                Image = Attachments;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedCategory = Process;
+                Enabled = DynamicEditable;
+                trigger OnAction()
+                var
+                    DocumentAttachmentDetails: Page "Document Attachment Details";
+                    RecRef: RecordRef;
+                begin
+                    RecRef.GetTable(Rec);
+                    DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                    DocumentAttachmentDetails.RunModal();
+                end;
+            }
 
         }
     }
@@ -402,28 +401,32 @@ page 50114 "Purchase Request Card"
     procedure SetEditStatus()
     begin
         CurrPage.Editable(true);
-        DynamicEditable := true;
         if (Rec.SystemCreatedBy <> UserSecurityId())
         then
-            isCurrentUser := false else
+            isCurrentUser := false
+        else
             isCurrentUser := true;
         if (Rec.SystemCreatedBy <> UserSecurityId()) OR (Rec."Status" <> p::Open) then
-            DynamicEditable := false;
+            DynamicEditable := false
+        else
+            DynamicEditable := true;
     end;
 
-
+    trigger OnInit()
+    begin
+        isDeleted := false;
+    end;
 
     trigger OnAfterGetCurrRecord()
     var
         CustomWflMgmt: Codeunit "Approval Wfl Mgt";
     begin
-        if (Rec.No_ = '') then begin //AND (Rec."Request By" = UserId) then begin
+        if (Rec.No_ = '') then begin
             Rec.pr_type := 1;
             Rec."Request By" := UserId;
             CurrPage.Update(true);
             CurrPage.Editable(true);
             DynamicEditable := true;
-            CurrPage.Update(true);
         end;
         if Rec.pr_notes <> '' then SetEditStatus();
         IF Rec.pr_type = 1 then Good := true else Service := true;
@@ -436,12 +439,6 @@ page 50114 "Purchase Request Card"
         StatusStyleTxt := CustomWflMgmt.GetStatusStyleText(Rec.Status);
         checkIsReceiver();
         CurrPage.Update(true);
-    end;
-
-    trigger OnOpenPage()
-    begin
-        isDeleted := false;
-        DynamicEditable := true;
     end;
 
     procedure checkEmptyForm(): Boolean
@@ -486,15 +483,11 @@ page 50114 "Purchase Request Card"
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
-
     begin
         exit(0);
     end;
 
     trigger OnDeleteRecord(): Boolean
-    var
-        Helper: Codeunit "Helper";
-        Result: Boolean;
     begin
         isDeleted := true;
     end;

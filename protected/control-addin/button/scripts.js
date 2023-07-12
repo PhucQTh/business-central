@@ -2,7 +2,7 @@ function CreateButton(buttonText, className) {
   var button = document.createElement("button");
   button.textContent = buttonText;
   button.className = className;
-
+  button.id = "ctrl-addin-btn-attachment";
   button.onclick = () => {
     Microsoft.Dynamics.NAV.InvokeExtensibilityMethod("ButtonAction");
   };
@@ -20,4 +20,9 @@ function CreateButton(buttonText, className) {
   iframe.style.flexGrow = "1";
   iframe.style.flexShrink = "1";
   iframe.style.flexBasis = "auto";
+}
+function Dispose() {
+  let btn = document.getElementById("ctrl-addin-btn-attachment");
+  console.log(btn);
+  HTMLContainer.removeChild(btn);
 }

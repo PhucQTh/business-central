@@ -114,23 +114,7 @@ page 50102 "Price Approval"
                 ApplicationArea = All;
                 SubPageLink = ApprovalID = field("NO_");
             }
-            field(Attachments; 'Add Attachment')
-            {
-                ApplicationArea = All;
-                ShowCaption = false;
-                StyleExpr = 'Favorable';
-                Caption = 'Attach files';
-                Visible = DynamicEditable;
-                trigger OnDrillDown()
-                var
-                    DocumentAttachmentDetails: Page "Document Attachment Details";
-                    RecRef: RecordRef;
-                begin
-                    RecRef.GetTable(Rec);
-                    DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                    DocumentAttachmentDetails.RunModal();
-                end;
-            }
+
             part("Attached Documents List"; "Document Attachment ListPart")
             {
                 ApplicationArea = All;
@@ -311,27 +295,26 @@ page 50102 "Price Approval"
                     end;
                 }
             }
-            group("File Attachments")
+            Action(Attachments)
             {
-                Image = Attach;
-                action(Attachmentss)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Attachments';
-                    Image = Attach;
-                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
-                    trigger OnAction()
-                    var
-                        DocumentAttachmentDetails: Page "Document Attachment Details";
-                        RecRef: RecordRef;
-                    begin
-                        RecRef.GetTable(Rec);
-                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal();
-                    end;
-                }
-
+                ApplicationArea = All;
+                Caption = 'Attach files';
+                Image = Attachments;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedCategory = Process;
+                Enabled = DynamicEditable;
+                trigger OnAction()
+                var
+                    DocumentAttachmentDetails: Page "Document Attachment Details";
+                    RecRef: RecordRef;
+                begin
+                    RecRef.GetTable(Rec);
+                    DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                    DocumentAttachmentDetails.RunModal();
+                end;
             }
+
         }
     }
 
@@ -342,8 +325,12 @@ page 50102 "Price Approval"
 
 
     trigger OnOpenPage()
+    var
+        URL: text;
     begin
         SetEditStatus();
+        // URL := GetUrl(ClientType::Current, CompanyName, ObjectType::Page, Page::"Purchase Request Card", Rec, false);
+        // Message(URL);
     end;
 
     // trigger OnNewRecord(BelowxRec: Boolean)

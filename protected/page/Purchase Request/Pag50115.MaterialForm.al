@@ -14,53 +14,41 @@ page 50115 "Materials Form"
                 {
                     Caption = 'Goods/ Material code';
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the pr_code field.';
                 }
                 field(title; Rec.title)
                 {
-                    Caption = 'Goods/ Material code';
+                    Caption = 'Goods/ Material name';
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the title field.';
                 }
                 field(description; Rec.description)
                 {
                     Caption = 'Description (Color, TDS, Origin,size...)';
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the description field.';
                 }
                 field(quantity; Rec.quantity)
                 {
                     Caption = 'Quantity';
-
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the quantity field.';
                 }
                 field(unit; Rec.unit)
                 {
                     Caption = 'Unit';
-
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the unit field.';
                 }
                 field(delivery_date; Rec.delivery_date)
                 {
                     Caption = 'Delivery Date';
-
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the delivery_date field.';
                 }
                 field(purpose; Rec.purpose)
                 {
                     Caption = 'Purpose';
-
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the purpose field.';
                 }
                 field(remark; Rec.remark)
                 {
                     Caption = 'Remark';
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the value of the remark field.';
                 }
             }
         }

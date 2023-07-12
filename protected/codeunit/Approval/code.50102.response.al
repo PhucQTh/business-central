@@ -357,6 +357,7 @@ codeunit 50103 MyWorkflowResponses
     begin
         RecRef.Get(RecId);
         RecRef.SetTable(PurchaseRequest);
+
         URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
         URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
         EmailTemplate.SetRange("Key", 'CONFIRM_PURCHASE');
