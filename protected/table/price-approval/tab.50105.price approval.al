@@ -5,7 +5,7 @@ table 50105 "Price Approval"
 
     fields
     {
-        field(1; No_; Code[10])
+        field(1; No_; Code[20])
         {
             Caption = 'No.';
             Editable = false;

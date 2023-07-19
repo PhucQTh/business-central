@@ -40,6 +40,7 @@ page 50111 "Document Attachment ListPart"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the date when the document was attached.';
                 }
+           
             }
         }
     }

@@ -128,7 +128,6 @@ page 50102 "Price Approval"
         {
             part("Attached Documents"; "Document Attachment Factbox")
             {
-
                 ApplicationArea = All;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = CONST(50105),
@@ -295,7 +294,7 @@ page 50102 "Price Approval"
                     end;
                 }
             }
-            Action(Attachments)
+            Action(AttachFiles)
             {
                 ApplicationArea = All;
                 Caption = 'Attach files';
@@ -329,8 +328,6 @@ page 50102 "Price Approval"
         URL: text;
     begin
         SetEditStatus();
-        // URL := GetUrl(ClientType::Current, CompanyName, ObjectType::Page, Page::"Purchase Request Card", Rec, false);
-        // Message(URL);
     end;
 
     // trigger OnNewRecord(BelowxRec: Boolean)

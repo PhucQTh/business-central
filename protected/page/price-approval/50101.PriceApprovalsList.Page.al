@@ -7,7 +7,7 @@ page 50101 "Price Approvals"
     CardPageId = "Price Approval";
     UsageCategory = Lists;
     ShowFilter = false;
-
+    RefreshOnActivate = true;
     layout
     {
         area(content)

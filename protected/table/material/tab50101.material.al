@@ -5,7 +5,7 @@ table 50101 Material
 
     fields
     {
-        field(1; "Code"; Code[10])
+        field(1; "Code"; Code[20])
         {
             Caption = 'Code';
             TableRelation = "Purchase Request Info"."No_";

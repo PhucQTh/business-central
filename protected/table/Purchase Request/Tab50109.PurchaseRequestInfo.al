@@ -5,7 +5,7 @@ table 50109 "Purchase Request Info"
 
     fields
     {
-        field(1; No_; Code[10])
+        field(1; No_; Code[20])
         {
             Caption = 'No.';
             Editable = false;
@@ -14,7 +14,7 @@ table 50109 "Purchase Request Info"
             begin
                 if "No_" <> xRec."No_" then begin
                     NoSeriesSetup.Get();
-                    NoSeriesMgt.TestManual(NoSeriesSetup."Price Approval No.");
+                    NoSeriesMgt.TestManual(NoSeriesSetup."Purchase Request No.");
                     "No. Series" := '';
                 end;
             end;

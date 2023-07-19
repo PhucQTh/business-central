@@ -5,7 +5,7 @@ table 50110 "Purchase Request Confirm"
 
     fields
     {
-        field(1; RequestCode; Code[10])
+        field(1; RequestCode; Code[20])
         {
             Caption = 'RequestCode';
             DataClassification = ToBeClassified;

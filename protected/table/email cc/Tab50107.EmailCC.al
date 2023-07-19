@@ -5,7 +5,7 @@ table 50107 "Email CC"
     fields
     {
 
-        field(2; ApprovalID; Code[10])
+        field(2; ApprovalID; Code[20])
         {
             Caption = 'ApprovalID';
             DataClassification = ToBeClassified;

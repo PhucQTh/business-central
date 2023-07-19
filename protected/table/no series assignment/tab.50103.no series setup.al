@@ -12,13 +12,13 @@ table 50103 "No. Series Setup"
             DataClassification = ToBeClassified;
         }
         //! Assign no. code 
-        field(2; "Price Approval No."; Code[10])
+        field(2; "Price Approval No."; Code[20])
         {
             Caption = 'Price Approval No.';
             DataClassification = ToBeClassified;
             TableRelation = "No. Series";
         }
-        field(3; "Purchase Request No."; Code[10])
+        field(3; "Purchase Request No."; Code[20])
         {
             Caption = 'Price Approval No.';
             DataClassification = ToBeClassified;
