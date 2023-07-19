@@ -2,7 +2,6 @@ table 50105 "Price Approval"
 {
     Caption = 'Price Approval';
     DataClassification = ToBeClassified;
-
     fields
     {
         field(1; No_; Code[20])

@@ -122,7 +122,6 @@ page 50102 "Price Approval"
                 SubPageLink = "Table ID" = CONST(50105),
                               "No." = FIELD(No_);
             }
-
         }
         area(FactBoxes)
         {
@@ -305,12 +304,11 @@ page 50102 "Price Approval"
                 Enabled = DynamicEditable;
                 trigger OnAction()
                 var
-                    DocumentAttachmentDetails: Page "Document Attachment Details";
+                    Helper: Codeunit Helper;
                     RecRef: RecordRef;
                 begin
                     RecRef.GetTable(Rec);
-                    DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                    DocumentAttachmentDetails.RunModal();
+                    Helper.AttachFile(RecRef);
                 end;
             }
 
@@ -329,24 +327,6 @@ page 50102 "Price Approval"
     begin
         SetEditStatus();
     end;
-
-    // trigger OnNewRecord(BelowxRec: Boolean)
-    // var
-    //     Selected: Integer;
-    //     Text000: Label 'Choose one of the price approval type:';
-    //     Text001: Label 'Standard,General';
-    // begin
-    //     Selected := Dialog.StrMenu(Text001, 1, Text000);
-    //     if (Selected = 0) then begin
-    //         Rec.ApprovalType := RecordType::Initial;
-    //         CurrPage.Close();
-    //         EXIT;
-    //     end;
-    //     if Selected = 1 then rec.ApprovalType := RecordType::Standard else Rec.ApprovalType := RecordType::General;
-    //     Rec.Status := p::Open;
-    //     Rec."Request By" := UserId();
-    //     CurrPage.Update(true);
-    // end;
 
     trigger OnAfterGetCurrRecord()
     var

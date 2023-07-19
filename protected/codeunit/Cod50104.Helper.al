@@ -8,5 +8,12 @@ codeunit 50104 Helper
         Exit(Selected)
     end;
 
+    procedure AttachFile(RecRef: RecordRef)
+    var
+        DocumentAttachmentDetails: Page "Document Attachment Details";
+    begin
+        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+        DocumentAttachmentDetails.RunModal();
+    end;
 
 }

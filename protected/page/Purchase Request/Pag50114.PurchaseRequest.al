@@ -386,12 +386,11 @@ page 50114 "Purchase Request Card"
                 Enabled = DynamicEditable;
                 trigger OnAction()
                 var
-                    DocumentAttachmentDetails: Page "Document Attachment Details";
+                    Helper: Codeunit Helper;
                     RecRef: RecordRef;
                 begin
                     RecRef.GetTable(Rec);
-                    DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                    DocumentAttachmentDetails.RunModal();
+                    Helper.AttachFile(RecRef);
                 end;
             }
 
