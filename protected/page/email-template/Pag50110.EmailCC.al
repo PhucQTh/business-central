@@ -15,15 +15,6 @@ page 50110 EmailCC
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the User field.';
                     TableRelation = User."User Name";
-                    // trigger OnLookup(var Text: Text): Boolean
-                    // var
-                    //     UserList: Page "User Lookup";
-                    // begin
-                    //     UserList.LookupMode(true);
-                    //     if UserList.RunModal() = Action::LookupOK then begin
-
-                    //     end;
-                    // end;
                 }
                 field(Email; Rec.Email)
                 {

@@ -20,6 +20,15 @@ codeunit 50103 MyWorkflowResponses
         exit(UpperCase('SentEmailWhenApprovedComplete'));
     end;
 
+    procedure SetApprovedStatusCode(): code[128]
+    begin
+        exit(UpperCase('SetApprovedStatus'));
+    end;
+
+    procedure GetApproversListCode(): code[128]
+    begin
+        exit(UpperCase('GetApproversList'));
+    end;
 
     procedure SentEmailNotificationToSender(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance")
     begin
@@ -425,6 +434,8 @@ codeunit 50103 MyWorkflowResponses
         WorkflowResponseHandling.AddResponseToLibrary(SentEmailNotificationToSenderCode, 0, 'Sent Notification Email To Sender', 'GROUP 0');
         WorkflowResponseHandling.AddResponseToLibrary(SentEmailWhenRejectedCode, 0, 'Sent Rejected Email', 'GROUP 0');
         WorkflowResponseHandling.AddResponseToLibrary(SentEmailWhenApprovedCompleteCode, 0, 'Sent Approve Complete Email', 'GROUP 0');
+        WorkflowResponseHandling.AddResponseToLibrary(SetApprovedStatusCode, 0, 'Set Approved Status', 'GROUP 0');
+        WorkflowResponseHandling.AddResponseToLibrary(GetApproversListCode(), 0, 'Get Approvers List', 'GROUP 0');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnExecuteWorkflowResponse', '', true, true)]
@@ -461,10 +472,133 @@ codeunit 50103 MyWorkflowResponses
                     ResponseExecuted := TRUE;
                 end;
         END;
+        case WorkflowResponse."Function Name" of
+            SetApprovedStatusCode:
+                begin
+                    SetApprovedStatus(Variant);
+                    ResponseExecuted := TRUE;
+                end;
+        END;
+        case WorkflowResponse."Function Name" of
+            GetApproversListCode:
+                begin
+                    CreateApprovalRequests(Variant, ResponseWorkflowStepInstance);
+                    ResponseExecuted := TRUE;
+                end;
+        END;
     end;
 
 
+    procedure SetApprovedStatus(ApprovalEntry: Record "Approval Entry")
+    var
+        PriceApproval: Record "Price Approval";
+        PurchaseRequestInfo: Record "Purchase Request Info";
+        RecRef: RecordRef;
+        Status: Enum "Custom Approval Enum";
+    begin
+        case ApprovalEntry."Table ID" of
+            DataBase::"Purchase Request Info":
+                begin
+                    RecRef.Get(ApprovalEntry."Record ID to Approve");
+                    RecRef.SetTable(PurchaseRequestInfo);
+                    PurchaseRequestInfo.find();
+                    PurchaseRequestInfo.Validate(Status, Status::Approved);
+                    PurchaseRequestInfo.Modify(true);
+                end;
+        end;
+        case ApprovalEntry."Table ID" of
+            DataBase::"Price Approval":
+                begin
+                    RecRef.Get(ApprovalEntry."Record ID to Approve");
+                    RecRef.SetTable(PriceApproval);
+                    PriceApproval.find();
+                    PriceApproval.Validate(Status, Status::Approved);
+                    PriceApproval.Modify(true);
+                end;
+        end;
+    end;
+    /* -------------- Create Approval Requests folow Approvers List ------------- */
+    /* ---------------------------------- BEGIN --------------------------------- */
+    /* -------------- This code base on Workflow Response Handling -------------- */
+    procedure CreateApprovalRequests(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance")
+    var
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        ApprovalEntryArgument: Record "Approval Entry";
+        IsHandled: Boolean;
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+
+    begin
+        ApprovalsMgmt.PopulateApprovalEntryArgument(RecRef, WorkflowStepInstance, ApprovalEntryArgument);
+        CreateApprReqForApprTypeWorkflowUserGroup(WorkflowStepArgument, ApprovalEntryArgument);
+        OnCreateApprovalRequestsOnAfterCreateRequests(RecRef, WorkflowStepArgument, ApprovalEntryArgument);
+        if WorkflowStepArgument."Show Confirmation Message" then
+            ApprovalsMgmt.InformUserOnStatusChange(RecRef, WorkflowStepInstance.ID);
+    end;
+    /* -------------------- This code base on Approvals Mgmt. ------------------- */
+    local procedure CreateApprReqForApprTypeWorkflowUserGroup(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    var
+        UserSetup: Record "User Setup";
+        WorkflowUserGroupMember: Record "Workflow User Group Member";
+        ApproverId: Code[50];
+        SequenceNo: Integer;
+        IsHandled: Boolean;
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        ApproversMember: Record Approvers;
+        RecRef: RecordRef;
+        RequestId: Code[20];
+        PurchaseRequestInfo: Record "Purchase Request Info";
+        PriceApproval: Record "Price Approval";
+    begin
+        //===================
+        RecRef.Get(ApprovalEntryArgument."Record ID to Approve");
+        case
+            ApprovalEntryArgument."Table ID" of
+            Database::"Purchase Request Info":
+                begin
+                    RecRef.SetTable(PurchaseRequestInfo);
+                    RequestId := PurchaseRequestInfo.No_;
+                end;
+            Database::"Price Approval":
+                begin
+                    RecRef.SetTable(PriceApproval);
+                    RequestId := PriceApproval.No_;
+                end;
+        end;
+        //===================
+        IsHandled := false;
+        // OnBeforeCreateApprReqForApprTypeWorkflowUserGroup(WorkflowUserGroupMember, WorkflowStepArgument, ApprovalEntryArgument, SequenceNo, IsHandled);
+        // if not IsHandled then begin
+        //     if not UserSetup.Get(UserId) then
+        //         Error(UserIdNotInSetupErr, UserId);
+        SequenceNo := ApprovalsMgmt.GetLastSequenceNo(ApprovalEntryArgument);
+        ApproversMember.SetCurrentKey(RequestId, "Sequence No.");
+        ApproversMember.SetRange(RequestId, RequestId);
+        if not ApproversMember.FindSet() then
+            Error(NoWFUserGroupMembersErr) else
+            repeat
+                ApproverId := ApproversMember.Approver;
+                if not UserSetup.Get(ApproverId) then
+                    Error(WFUserGroupNotInSetupErr, ApproverId);
+                IsHandled := false;
+                if not IsHandled then
+                    ApprovalsMgmt.MakeApprovalEntry(ApprovalEntryArgument, SequenceNo + ApproversMember."Sequence No.", ApproverId, WorkflowStepArgument);
+            until ApproversMember.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestsOnAfterCreateRequests(RecRef: RecordRef; WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateApprReqForApprTypeWorkflowUserGroupOnBeforeMakeApprovalEntry(var WorkflowUserGroupMember: Record "Workflow User Group Member"; var ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; var ApproverId: Code[50]; var IsHandled: Boolean)
+    begin
+    end;
+    /* ----------------------------------- END ---------------------------------- */
     var
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        WFUserGroupNotInSetupErr: Label 'The workflow user group member with user ID %1 does not exist in the Approval User Setup window.', Comment = 'The workflow user group member with user ID NAVUser does not exist in the Approval User Setup window.';
+        NoWFUserGroupMembersErr: Label 'A workflow user group with at least one member must be set up.';
+
 
 }

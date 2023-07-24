@@ -120,7 +120,6 @@ codeunit 50100 "Approval Wfl Mgt"
     var
         PriceApprovalRec: Record "Price Approval";
         PurchaseRequestInfoRec: Record "Purchase Request Info";
-
         ApprovalStatus: Enum "Custom Approval Enum";
     begin
         case RecRef.Number of

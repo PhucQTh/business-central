@@ -151,7 +151,13 @@ page 50114 "Purchase Request Card"
                 ApplicationArea = All;
                 SubPageLink = ApprovalID = field("NO_");
             }
-
+            part(Approvers; ApproversChoice)
+            {
+                Editable = DynamicEditable;
+                Caption = 'Approvers';
+                ApplicationArea = All;
+                SubPageLink = RequestId = field("NO_");
+            }
         }
 
     }
@@ -286,7 +292,7 @@ page 50114 "Purchase Request Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") AND isCurrentUser;//! Could be use Enabled
+                    // Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") AND isCurrentUser;//! Could be use Enabled
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
                     Promoted = true;
