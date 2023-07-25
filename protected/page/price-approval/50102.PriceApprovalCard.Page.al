@@ -11,17 +11,23 @@ page 50102 "Price Approval"
     {
         area(content)
         {
+            group("Title Group")
+            {
+                Caption = 'Title';
+                field("Title"; Rec.Title)
+                {
+                    ShowCaption = false;
+                    Editable = DynamicEditable;
+                    ShowMandatory = true;
+                    ApplicationArea = All;
+                }
+            }
             group(Generals)
             {
                 Editable = DynamicEditable;
+
                 group(Informations)
                 {
-                    field("Title"; Rec.Title)
-                    {
-                        Editable = DynamicEditable;
-                        ShowMandatory = true;
-                        ApplicationArea = All;
-                    }
 
                     field("Request By"; Rec."Request By")
                     {
@@ -114,7 +120,13 @@ page 50102 "Price Approval"
                 ApplicationArea = All;
                 SubPageLink = ApprovalID = field("NO_");
             }
-
+            part(Approvers; ApproversChoice)
+            {
+                Editable = DynamicEditable;
+                Caption = 'Approvers';
+                ApplicationArea = All;
+                SubPageLink = RequestId = field("NO_");
+            }
             part("Attached Documents List"; "Document Attachment ListPart")
             {
                 ApplicationArea = All;

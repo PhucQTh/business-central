@@ -44,17 +44,24 @@ page 50114 "Purchase Request Card"
                     end;
                 }
             }
-            group("REQUEST INFORMATION")
+            group("PURCHASE REQUEST Title")
             {
-                Caption = 'General';
-                Editable = DynamicEditable;
+                Caption = 'Title';
                 field(Title; Rec.pr_notes)
                 {
-                    Caption = 'Title';
+                    Editable = DynamicEditable;
+                    ShowCaption = false;
+                    ShowMandatory = true;
                     ApplicationArea = All;
                     MultiLine = true;
 
                 }
+            }
+            group("REQUEST INFORMATION")
+            {
+                Caption = 'General';
+                Editable = DynamicEditable;
+
                 field(Status; Rec.Status)
                 {
                     Caption = 'Status';
@@ -292,7 +299,7 @@ page 50114 "Purchase Request Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    // Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") AND isCurrentUser;//! Could be use Enabled
+                    Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") AND isCurrentUser;//! Could be use Enabled
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
                     Promoted = true;
@@ -311,7 +318,6 @@ page 50114 "Purchase Request Card"
                                 SetEditStatus();
                             end;
                         end;
-
                     end;
                 }
                 action(CancelApprovalRequest)

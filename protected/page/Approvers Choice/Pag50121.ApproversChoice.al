@@ -2,7 +2,7 @@ page 50121 ApproversChoice
 {
     Caption = 'Workflow User Group Members';
     PageType = ListPart;
-    SourceTable = "Approvers";
+    SourceTable = "Approval Workflow User Step";
 
     layout
     {
@@ -10,10 +10,11 @@ page 50121 ApproversChoice
         {
             repeater(Group)
             {
-                field("User Name"; Rec.Approver)
+                field("User Name"; Rec."User name")
                 {
                     ApplicationArea = Suite;
-                    LookupPageID = "Approval User Setup";
+                    LookupPageID = "Approvers List";
+                    // TableRelation = "Approvers List";
                     ToolTip = 'Specifies the name of the workflow user.';
                 }
                 field("Sequence No."; Rec."Sequence No.")

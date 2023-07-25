@@ -475,7 +475,7 @@ codeunit 50103 MyWorkflowResponses
         case WorkflowResponse."Function Name" of
             SetApprovedStatusCode:
                 begin
-                    SetApprovedStatus(Variant);
+                    SetRequestStatusToApproved(Variant);
                     ResponseExecuted := TRUE;
                 end;
         END;
@@ -489,7 +489,7 @@ codeunit 50103 MyWorkflowResponses
     end;
 
 
-    procedure SetApprovedStatus(ApprovalEntry: Record "Approval Entry")
+    procedure SetRequestStatusToApproved(ApprovalEntry: Record "Approval Entry")
     var
         PriceApproval: Record "Price Approval";
         PurchaseRequestInfo: Record "Purchase Request Info";
@@ -543,13 +543,13 @@ codeunit 50103 MyWorkflowResponses
         SequenceNo: Integer;
         IsHandled: Boolean;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
-        ApproversMember: Record Approvers;
+        ApproversMember: Record "Approval Workflow User Step";
         RecRef: RecordRef;
         RequestId: Code[20];
         PurchaseRequestInfo: Record "Purchase Request Info";
         PriceApproval: Record "Price Approval";
     begin
-        //===================
+        /* ------------------------------------ * ----------------------------------- */
         RecRef.Get(ApprovalEntryArgument."Record ID to Approve");
         case
             ApprovalEntryArgument."Table ID" of
@@ -564,7 +564,7 @@ codeunit 50103 MyWorkflowResponses
                     RequestId := PriceApproval.No_;
                 end;
         end;
-        //===================
+        /* ------------------------------------ * ----------------------------------- */
         IsHandled := false;
         // OnBeforeCreateApprReqForApprTypeWorkflowUserGroup(WorkflowUserGroupMember, WorkflowStepArgument, ApprovalEntryArgument, SequenceNo, IsHandled);
         // if not IsHandled then begin
@@ -576,7 +576,7 @@ codeunit 50103 MyWorkflowResponses
         if not ApproversMember.FindSet() then
             Error(NoWFUserGroupMembersErr) else
             repeat
-                ApproverId := ApproversMember.Approver;
+                ApproverId := ApproversMember."User name";
                 if not UserSetup.Get(ApproverId) then
                     Error(WFUserGroupNotInSetupErr, ApproverId);
                 IsHandled := false;

@@ -8,7 +8,10 @@ codeunit 50100 "Approval Wfl Mgt"
         exit(true);
     end;
 
-    procedure GetWorkflowCode(WorkflowCode: code[128]; RecRef: RecordRef): Code[128]
+    procedure GetWorkflowCode(WorkflowCode: code[128];
+            RecRef:
+                RecordRef):
+            Code[128]
     begin
         exit(DelChr(StrSubstNo(WorkflowCode, RecRef.Name), '=', ' '));
     end;

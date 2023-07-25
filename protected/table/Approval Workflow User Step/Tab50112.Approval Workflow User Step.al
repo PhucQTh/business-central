@@ -1,4 +1,4 @@
-table 50112 Approvers
+table 50112 "Approval Workflow User Step"
 {
     Caption = 'Approvers';
     DataClassification = ToBeClassified;
@@ -15,18 +15,18 @@ table 50112 Approvers
             Caption = 'Sequence No.';
             MinValue = 1;
         }
-        field(3; Approver; Code[200])
+        field(3; "User name"; Code[200])
         {
-            Caption = 'Approver';
-            TableRelation = "User Setup"."User ID";
+            Caption = 'User name';
+            TableRelation = "Approvers List"."User name";
 
             trigger OnValidate()
             var
                 UserSetup: Record "User Setup";
-                ApproversList: Record "Approvers";
+                ApproversList: Record "Approval Workflow User Step";
                 SequenceNo: Integer;
             begin
-                UserSetup.Get("Approver");
+                UserSetup.Get("User name");
 
                 if "Sequence No." = 0 then begin
                     SequenceNo := 1;
@@ -41,11 +41,11 @@ table 50112 Approvers
     }
     keys
     {
-        key(Key1; RequestId, Approver)
+        key(Key1; RequestId, "User name")
         {
             Clustered = true;
         }
-        key(Key2; RequestId, "Sequence No.", Approver)
+        key(Key2; RequestId, "Sequence No.", "User name")
         {
         }
     }
