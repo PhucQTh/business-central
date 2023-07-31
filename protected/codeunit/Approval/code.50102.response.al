@@ -538,7 +538,6 @@ codeunit 50103 MyWorkflowResponses
     local procedure CreateApprReqForApprTypeWorkflowUserGroup(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     var
         UserSetup: Record "User Setup";
-        WorkflowUserGroupMember: Record "Workflow User Group Member";
         ApproverId: Code[50];
         SequenceNo: Integer;
         IsHandled: Boolean;

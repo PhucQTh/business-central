@@ -14,7 +14,6 @@ page 50121 ApproversChoice
                 {
                     ApplicationArea = Suite;
                     LookupPageID = "Approvers List";
-                    // TableRelation = "Approvers List";
                     ToolTip = 'Specifies the name of the workflow user.';
                 }
                 field("Sequence No."; Rec."Sequence No.")
