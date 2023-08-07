@@ -25,6 +25,12 @@ page 50104 "No. Series Assignment"
                     ApplicationArea = All;
 
                 }
+                field("Cylinder Request No."; Rec."Cylinder Request No.")
+                {
+                    Caption = 'Cylinder Request No.';
+                    ApplicationArea = All;
+
+                }
             }
         }
     }

@@ -6,13 +6,14 @@ page 50124 "Cylinder Request"
     CardPageId = 50125;
     ApplicationArea = All;
     UsageCategory = Documents;
+    Editable = false;
     layout
     {
         area(content)
         {
             repeater(General)
             {
-                field("No."; Rec."No.")
+                field("No."; Rec."No_")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the No. field.';

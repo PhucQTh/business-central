@@ -5,14 +5,22 @@ table 50114 "cylinder info"
 
     fields
     {
-        field(1; "No."; Code[20])
+        field(1; "No_"; Code[20])
         {
             Caption = 'No.';
+            trigger OnValidate()
+            begin
+                if "No_" <> xRec."No_" then begin
+                    NoSeriesSetup.Get();
+                    NoSeriesMgt.TestManual(NoSeriesSetup."Price Approval No.");
+                    "No. Series" := '';
+                end;
+            end;
         }
-        // field(2; supplier; )
-        // {
-        //     Caption = 'supplier';
-        // }
+        field(2; supplier; Text[300])
+        {
+            Caption = 'supplier';
+        }
         field(3; QCSP; Text[200])
         {
             Caption = 'QCSP';
@@ -21,18 +29,18 @@ table 50114 "cylinder info"
         {
             Caption = 'product_name';
         }
-        // field(5; cylinder_status; )
-        // {
-        //     Caption = 'cylinder_status';
-        // }
+        field(5; cylinder_status; Text[300])
+        {
+            Caption = 'cylinder_status';
+        }
         field(6; quantity; text[10])
         {
             Caption = 'quantity';
         }
-        // field(7; cylinder_type; )
-        // {
-        //     Caption = 'cylinder_type';
-        // }
+        field(7; cylinder_type; Text[300])
+        {
+            Caption = 'cylinder_type';
+        }
         field(8; cylinder_type_other; Text[100])
         {
             Caption = 'cylinder_type_other';
@@ -57,10 +65,10 @@ table 50114 "cylinder info"
         {
             Caption = 'film_size';
         }
-        // field(14; print_area; )
-        // {
-        //     Caption = 'print_area';
-        // }
+        field(14; print_area; Text[250])
+        {
+            Caption = 'print_area';
+        }
         field(15; effective_proof; Boolean)
         {
             Caption = 'effective_proof';
@@ -131,12 +139,30 @@ table 50114 "cylinder info"
         {
             Caption = 'ink_type';
         }
+        field(52; "No. Series"; Code[10])
+        {
+            Caption = 'No. Series';
+            DataClassification = ToBeClassified;
+        }
     }
     keys
     {
-        key(PK; "No.")
+        key(PK; "No_")
         {
             Clustered = true;
         }
     }
+    trigger OnInsert()
+    begin
+        if "No_" = '' then begin
+            NoSeriesSetup.Get();
+            NoSeriesSetup.TestField("Cylinder Request No.");
+            NoSeriesMgt.InitSeries(NoSeriesSetup."Cylinder Request No.", xRec."No. Series", 0D, "No_", "No. Series");
+        end;
+
+    end;
+
+    var
+        NoSeriesSetup: Record "No. Series Setup";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
 }

@@ -24,6 +24,12 @@ table 50103 "No. Series Setup"
             DataClassification = ToBeClassified;
             TableRelation = "No. Series";
         }
+        field(4; "Cylinder Request No."; Code[20])
+        {
+            Caption = 'Cylinder Request No.';
+            DataClassification = ToBeClassified;
+            TableRelation = "No. Series";
+        }
     }
     keys
     {
