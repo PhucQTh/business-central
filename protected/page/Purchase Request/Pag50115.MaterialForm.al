@@ -144,6 +144,5 @@ page 50115 "Materials Form"
         TempExcelBuffer: Record "Excel Buffer" temporary;
         UploadExcelMsg: Label 'Please Choose the Excel file.';
         NoFileFoundMsg: Label 'No Excel file found!';
-        BatchISBlankMsg: Label 'Batch name is blank';
         ExcelImportSucess: Label 'Excel is successfully imported.';
 }

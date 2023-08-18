@@ -15,5 +15,4 @@ codeunit 50104 Helper
         DocumentAttachmentDetails.OpenForRecRef(RecRef);
         DocumentAttachmentDetails.RunModal();
     end;
-
 }

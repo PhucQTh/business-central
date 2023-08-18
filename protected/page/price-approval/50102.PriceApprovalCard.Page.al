@@ -424,12 +424,7 @@ page 50102 "Price Approval"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DynamicEditable: Boolean;
         StatusStyleTxt: Text;
-        EditorReady: Boolean;
         NewData: Text;
-        AddNewBtnLbl: Label 'ADD NEW MATERIAL';
-        Comment: Text;
-        IsHTMLFormatted: Boolean;
-
         isDeleted: Boolean;
 
 }

@@ -5,6 +5,7 @@ table 50114 "cylinder info"
 
     fields
     {
+
         field(1; "No_"; Code[20])
         {
             Caption = 'No.';
@@ -142,6 +143,14 @@ table 50114 "cylinder info"
         field(52; "No. Series"; Code[10])
         {
             Caption = 'No. Series';
+            DataClassification = ToBeClassified;
+        }
+        field(53; Status; Enum "Custom Approval Enum")
+        {
+            DataClassification = ToBeClassified;
+        }
+        field(54; LayoutFile; MediaSet)
+        {
             DataClassification = ToBeClassified;
         }
     }

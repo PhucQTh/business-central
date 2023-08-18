@@ -31,4 +31,26 @@ page 50124 "Cylinder Request"
             }
         }
     }
+    actions
+    {
+        area(Processing)
+        {
+            action(Configure)
+            {
+                ApplicationArea = All;
+                Caption = 'Configure';
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                Image = ResourceGroup;
+
+                trigger OnAction()
+                var
+                    CylinderConfig: Page "Cylinder Config";
+                begin
+                    CylinderConfig.RunModal();
+                end;
+            }
+        }
+    }
 }

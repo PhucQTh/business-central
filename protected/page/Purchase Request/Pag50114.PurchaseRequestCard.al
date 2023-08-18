@@ -188,7 +188,7 @@ page 50114 "Purchase Request Card"
                     var
                         Response: Codeunit MyWorkflowResponses;
                     begin
-                        Rec.Status := p::OnHold;
+                        Rec.Validate(Status, p::OnHold);
                         Rec.Modify();
                         Response.SentOnHoldEmail(UserId, Rec.RecordId);
                     end;
@@ -505,11 +505,8 @@ page 50114 "Purchase Request Card"
 
     var
         isReceiver: Boolean;
-        Requestdate: Date;
         Good: Boolean;
         Service: Boolean;
-        GoodStyle: Text;
-        ServiceStyle: Text;
         RequesterEmail: Text;
         isCurrentUser: Boolean;
         OpenApprovalEntriesExistCurrUser, OpenApprovalEntriesExist, CanCancelApprovalForRecord, CanRequestApprovalForRecord

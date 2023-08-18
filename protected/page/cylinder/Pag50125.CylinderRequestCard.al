@@ -113,9 +113,7 @@ page 50125 "Cylinder Request Card"
                             TableRelation = cylinder_ddl.name where(category_id = filter(= 4));
                         }
                     }
-
                 }
-
             }
             group("Effective by")
             {
@@ -192,6 +190,13 @@ page 50125 "Cylinder Request Card"
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = CONST(50114),
                               "No." = FIELD("No_");
+
+            }
+            field(LayoutFile; Rec.LayoutFile)
+            {
+                ShowCaption = false;
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the LayoutFile field.';
             }
             group("Other Request")
             {
@@ -225,6 +230,223 @@ page 50125 "Cylinder Request Card"
                 SubPageLink = ApprovalID = field("No_");
             }
         }
+        area(FactBoxes)
+        {
+            part("Layout"; LayoutMedia)
+            {
+                ApplicationArea = all;
+                SubPageLink = No_ = field(No_);
+            }
+        }
+    }
+    actions
+    {
+        area(Processing)
+        {
+            group(Approval)
+            {
+                Image = Approvals;
+                action(onHold)
+                {
+                    Caption = 'On Hold';
+                    ApplicationArea = All;
+                    Image = Answers;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
+                    Visible = OpenApprovalEntriesExistCurrUser AND (Rec.Status <> P::OnHold);
+                    trigger OnAction()
+                    var
+                        Response: Codeunit MyWorkflowResponses;
+                    begin
+                        // Rec.Status := p::OnHold;
+                        Rec.Modify();
+                        Response.SentOnHoldEmail(UserId, Rec.RecordId);
+                    end;
+                }
+                action(Approve)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Approve';
+                    Image = Approve;
+                    ToolTip = 'Approve the requested.';
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    trigger OnAction()
+                    var
+                        Question: Text;
+                        Answer: Boolean;
+                        Text000: Label 'Do you agree with this request?';
+                    begin
+                        Question := Text000;
+                        Answer := Dialog.Confirm(Question, true, false);
+                        if Answer = true then begin
+                            ApprovalsMgmt.ApproveRecordApprovalRequest(Rec.RecordId);
+                        end;
+                    end;
+
+                }
+                action(Reject)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Reject';
+                    Image = Reject;
+                    ToolTip = 'Reject the approval request.';
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
+                    trigger OnAction()
+                    var
+                        Question: Text;
+                        Answer: Boolean;
+                        Text000: Label 'Reject request?';
+                    begin
+                        Question := Text000;
+                        Answer := Dialog.Confirm(Question, true, false);
+                        if Answer = true then begin
+                            ApprovalsMgmt.RejectRecordApprovalRequest(Rec.RecordId);
+                        end;
+                    end;
+
+                }
+                action(Delegate)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Delegate';
+                    Image = Delegate;
+                    ToolTip = 'Delegate the approval to a substitute approver.';
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
+                    trigger OnAction()
+
+                    begin
+                        ApprovalsMgmt.DelegateRecordApprovalRequest(Rec.RecordId);
+                    end;
+                }
+                action(Comment)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Comments';
+                    Image = ViewComments;
+                    ToolTip = 'View or add comments for the record.';
+                    Visible = OpenApprovalEntriesExistCurrUser;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
+
+                    trigger OnAction()
+                    begin
+                        ApprovalsMgmt.GetApprovalComment(Rec);
+                    end;
+                }
+                action(Approvals)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Approvals History';
+                    Image = Approvals;
+                    ToolTip = 'View approval requests.';
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
+                    Visible = HasApprovalEntries;
+
+                    trigger OnAction()
+                    begin
+                        ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
+                    end;
+                }
+
+            }
+            group("Request Approval")
+            {
+                Caption = 'Request Approval';
+                Image = SendApprovalRequest;
+                action(SendApprovalRequest)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Send A&pproval Request';
+                    Visible = NOT OpenApprovalEntriesExist AND (p::Open = Rec."Status") AND isCurrentUser;//! Could be use Enabled
+                    Image = SendApprovalRequest;
+                    ToolTip = 'Request approval to change the record.';
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
+                    trigger OnAction()
+                    var
+                        CustomWorkflowMgmt: Codeunit "Approval Wfl Mgt";
+                        RecRef: RecordRef;
+                    begin
+                        // Rec.RequestDate := Today();
+                        // RecRef.GetTable(Rec);
+                        // if CustomWorkflowMgmt.CheckApprovalsWorkflowEnabled(RecRef) then begin
+                        //     IF CanRequestApprovalForRecord then begin
+                        //         CustomWorkflowMgmt.OnSendWorkflowForApproval(RecRef);
+                        //         SetEditStatus();
+                        //     end;
+                        // end;
+                    end;
+                }
+                action(CancelApprovalRequest)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Cancel Approval Re&quest';
+                    Visible = CanCancelApprovalForRecord; //! Could be use Enabled
+                    Image = CancelApprovalRequest;
+                    ToolTip = 'Cancel the approval request.';
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
+                    trigger OnAction()
+                    var
+                        CustomWorkflowMgmt: Codeunit "Approval Wfl Mgt";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        CustomWorkflowMgmt.OnCancelWorkflowForApproval(RecRef);
+                        // SetEditStatus();
+                    end;
+                }
+
+            }
+
+            Action(Attachments)
+            {
+                ApplicationArea = All;
+                Caption = 'Attach files';
+                Image = Attachments;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedCategory = Process;
+                Enabled = DynamicEditable;
+                trigger OnAction()
+                var
+                    Helper: Codeunit Helper;
+                    RecRef: RecordRef;
+                begin
+                    RecRef.GetTable(Rec);
+                    Helper.AttachFile(RecRef);
+                end;
+            }
+            action(UploadFile)
+            {
+                ApplicationArea = All;
+                Caption = 'Upload Layout File', comment = '="YourLanguageCaption"';
+                Image = Picture;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedCategory = Process;
+                Enabled = DynamicEditable;
+                trigger OnAction()
+                begin
+                    ImportFromDevice()
+                end;
+            }
+        }
     }
 
 
@@ -232,6 +454,7 @@ page 50125 "Cylinder Request Card"
     var
         ColorCylinderRec: Record "Cylinder-color";
         TypeEnum: Enum CylinderColorTypeEnum;
+        CustomWflMgmt: Codeunit "Approval Wfl Mgt";
     begin
         if (Rec.No_ = '') then begin
             Rec.company_logo := true;
@@ -243,10 +466,64 @@ page 50125 "Cylinder Request Card"
             ColorCylinderRec.Type := TypeEnum::Cylinder;
             ColorCylinderRec.Insert();
         end;
+        OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
+        CanRequestApprovalForRecord := CustomWflMgmt.CanRequestApprovalForRecord(Rec.RecordId);
+        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
+        CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
+        HasApprovalEntries := ApprovalsMgmt.HasApprovalEntries(Rec.RecordId);
+        DynamicEditable := true;
+    end;
 
+    trigger OnInit()
+    begin
+        CurrPage."Attached Documents List".Page.setCylinderDocument();
+        CurrPage.Update();
     end;
 
     var
-        NCC: Text;
-        OtherCheck: Boolean;
+        OpenApprovalEntriesExistCurrUser, OpenApprovalEntriesExist, CanCancelApprovalForRecord, CanRequestApprovalForRecord, HasApprovalEntries : Boolean;
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        DynamicEditable: Boolean;
+        p: enum "Custom Approval Enum";
+        isCurrentUser: Boolean;
+
+
+
+    procedure ImportFromDevice()
+    var
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+        ClientFileName: Text;
+        InStr: InStream;
+    begin
+        // Rec.Find();
+        // Rec.TestField(Code);
+        // if Rec.Description = '' then
+        //     Error(MustSpecifyDescriptionErr);
+
+        if Rec.LayoutFile.Count > 0 then
+            if not Confirm(OverrideImageQst) then
+                Error('');
+
+        ClientFileName := '';
+        UploadIntoStream(SelectPictureTxt, '', '', ClientFileName, InStr);
+        if ClientFileName <> '' then
+            FileName := FileManagement.GetFileName(ClientFileName);
+        // FileName := FileManagement.UploadFile(SelectPictureTxt, ClientFileName);
+        if FileName = '' then
+            Error('');
+
+        Clear(Rec.LayoutFile);
+        Rec.LayoutFile.ImportStream(InStr, FileName);
+        // Picture.ImportFile(FileName, ClientFileName);
+        Rec.Modify(true);
+    end;
+
+    var
+        OverrideImageQst: Label 'The existing picture will be replaced. Do you want to continue?';
+        DeleteImageQst: Label 'Are you sure you want to delete the picture?';
+        SelectPictureTxt: Label 'Select a picture to upload';
+        DeleteExportEnabled: Boolean;
+        HideActions: Boolean;
+        MustSpecifyDescriptionErr: Label 'You must add a description to the item before you can import a picture.';
 }

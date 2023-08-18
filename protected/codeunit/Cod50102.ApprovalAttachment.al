@@ -1,10 +1,11 @@
-codeunit 50102 PriceApprovalAttachment
+codeunit 50102 ApprovalAttachment
 {
     [EventSubscriber(ObjectType::Page, Page::"Document Attachment Factbox", 'OnBeforeDrillDown', '', false, false)]
     local procedure OnBeforeDrillDown(DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef);
     var
         PriceApproval: Record "Price Approval";
         PurchaseRequest: Record "Purchase Request Info";
+        CylinderRequest: Record "cylinder info";
     begin
         case DocumentAttachment."Table ID" of
             DATABASE::"Price Approval":
@@ -19,6 +20,12 @@ codeunit 50102 PriceApprovalAttachment
                     if PurchaseRequest.Get(DocumentAttachment."No.") then
                         RecRef.GetTable(PurchaseRequest);
                 end;
+            DATABASE::"cylinder info":
+                begin
+                    RecRef.Open(DATABASE::"cylinder info");
+                    if CylinderRequest.Get(DocumentAttachment."No.") then
+                        RecRef.GetTable(CylinderRequest);
+                end;
         end;
     end;
 
@@ -27,6 +34,7 @@ codeunit 50102 PriceApprovalAttachment
     var
         FieldRef: FieldRef;
         RecNo: Code[20];
+        Selected: Integer;
     begin
         case RecRef.Number of
             DATABASE::"Purchase Request Info":
@@ -36,6 +44,12 @@ codeunit 50102 PriceApprovalAttachment
                     DocumentAttachment.SetRange("No.", RecNo);
                 end;
             DATABASE::"Price Approval":
+                begin
+                    FieldRef := RecRef.Field(1);
+                    RecNo := FieldRef.Value;
+                    DocumentAttachment.SetRange("No.", RecNo);
+                end;
+            DATABASE::"Cylinder info":
                 begin
                     FieldRef := RecRef.Field(1);
                     RecNo := FieldRef.Value;
@@ -63,7 +77,12 @@ codeunit 50102 PriceApprovalAttachment
                     RecNo := FieldRef.Value;
                     DocumentAttachment.Validate("No.", RecNo);
                 end;
+            DATABASE::"cylinder info":
+                begin
+                    FieldRef := RecRef.Field(1);
+                    RecNo := FieldRef.Value;
+                    DocumentAttachment.Validate("No.", RecNo);
+                end;
         end;
     end;
-
 }

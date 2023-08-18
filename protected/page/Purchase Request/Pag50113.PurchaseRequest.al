@@ -46,7 +46,6 @@ page 50113 "Purchase Request"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the NguoiYeuCau field.';
                 }
-
             }
         }
     }
