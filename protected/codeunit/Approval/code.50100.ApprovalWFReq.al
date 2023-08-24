@@ -38,8 +38,10 @@ codeunit 50100 "Approval Wfl Mgt"
         RecRef: RecordRef;
         PriceApproval: Record "Price Approval";
         MaterialRec: Record "Material";
-        PruchReqInfo: Record "Purchase Request Info";
+        PurchaseReqInfo: Record "Purchase Request Info";
         PurchReqForm: Record "Purchase Request Form";
+        CylinderInfo: Record "Cylinder Info";
+        CyinderColor: Record "Cylinder-color";
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
@@ -51,16 +53,19 @@ codeunit 50100 "Approval Wfl Mgt"
                         exit(true);
                     exit(false);
                 end;
-        end;
-        case RecRef.Number of
             Database::"Purchase Request Info":
                 begin
-                    RecRef.SetTable(PruchReqInfo);
-                    PurchReqForm.SetRange("id", PruchReqInfo.No_);
+                    RecRef.SetTable(PurchaseReqInfo);
+                    PurchReqForm.SetRange("id", PurchaseReqInfo.No_);
                     if PurchReqForm.FindSet() then
                         exit(true);
                     exit(false);
                 end;
+        // Database::"cylinder info":
+        //     begin
+        //         RecRef.SetTable(CylinderInfo);
+        //         // CyinderColor.SetRange("Type", CylinderInfo.No_);
+        //     end;
         end;
     end;
 
@@ -97,6 +102,14 @@ codeunit 50100 "Approval Wfl Mgt"
           GetWorkflowEventDesc(WorkflowSendForApprovalEventDescTxt, RecRef), 0, false);
         WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONCANCELFORAPPROVALCODE, RecRef), DATABASE::"Purchase Request Info",
           GetWorkflowEventDesc(WorkflowCancelForApprovalEventDescTxt, RecRef), 0, false);
+        RecRef.Close();
+        //** CYLINDER REQUEST */
+        RecRef.Open(Database::"Cylinder Info");
+        WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONSENDFORAPPROVALCODE, RecRef), Database::"Cylinder Info",
+          GetWorkflowEventDesc(WorkflowSendForApprovalEventDescTxt, RecRef), 0, false);
+        WorkflowEventHandling.AddEventToLibrary(GetWorkflowCode(RUNWORKFLOWONCANCELFORAPPROVALCODE, RecRef), DATABASE::"Cylinder Info",
+          GetWorkflowEventDesc(WorkflowCancelForApprovalEventDescTxt, RecRef), 0, false);
+        RecRef.Close();
     end;
     //! -------------------------------------------------------------------------- */
     //! -------------------------------- Subscribe ------------------------------- */
@@ -123,6 +136,7 @@ codeunit 50100 "Approval Wfl Mgt"
     var
         PriceApprovalRec: Record "Price Approval";
         PurchaseRequestInfoRec: Record "Purchase Request Info";
+        CylinderInfoRec: Record "Cylinder Info";
         ApprovalStatus: Enum "Custom Approval Enum";
     begin
         case RecRef.Number of
@@ -134,13 +148,19 @@ codeunit 50100 "Approval Wfl Mgt"
                     Handled := true;
                 end;
 
-        end;
-        case RecRef.Number of
             Database::"Purchase Request Info":
                 begin
                     RecRef.SetTable(PurchaseRequestInfoRec);
                     PurchaseRequestInfoRec.Validate(Status, ApprovalStatus::Open);
                     PurchaseRequestInfoRec.Modify(true);
+                    Handled := true;
+                end;
+
+            Database::"Cylinder Info":
+                begin
+                    RecRef.SetTable(CylinderInfoRec);
+                    CylinderInfoRec.Validate(Status, ApprovalStatus::Open);
+                    CylinderInfoRec.Modify(true);
                     Handled := true;
                 end;
 
@@ -152,6 +172,7 @@ codeunit 50100 "Approval Wfl Mgt"
     var
         PriceApproval: Record "Price Approval";
         PurchaseRequestInfo: Record "Purchase Request Info";
+        CylinderInfo: Record "Cylinder Info";
     begin
         case RecRef.Number of
             Database::"Price Approval":
@@ -162,14 +183,20 @@ codeunit 50100 "Approval Wfl Mgt"
                     Variant := PriceApproval;
                     IsHandled := true;
                 end;
-        end;
-        case RecRef.Number of
             Database::"Purchase Request Info":
                 begin
                     RecRef.SetTable(PurchaseRequestInfo);
                     PurchaseRequestInfo.Validate(Status, PurchaseRequestInfo.Status::Pending);
                     PurchaseRequestInfo.Modify(true);
                     Variant := PurchaseRequestInfo;
+                    IsHandled := true;
+                end;
+            Database::"Cylinder Info":
+                begin
+                    RecRef.SetTable(CylinderInfo);
+                    CylinderInfo.Validate(Status, CylinderInfo.Status::Pending);
+                    CylinderInfo.Modify(true);
+                    Variant := CylinderInfo;
                     IsHandled := true;
                 end;
         end;
@@ -180,6 +207,7 @@ codeunit 50100 "Approval Wfl Mgt"
     var
         PriceApproval: Record "Price Approval";
         PurchaseRequestInfo: Record "Purchase Request Info";
+        CylinderInfo: Record "Cylinder Info";
     begin
         case RecRef.Number of
             DataBase::"Price Approval":
@@ -187,12 +215,15 @@ codeunit 50100 "Approval Wfl Mgt"
                     RecRef.SetTable(PriceApproval);
                     ApprovalEntryArgument."Document No." := PriceApproval."No_";
                 end;
-        end;
-        case RecRef.Number of
             Database::"Purchase Request Info":
                 begin
                     RecRef.SetTable(PurchaseRequestInfo);
                     ApprovalEntryArgument."Document No." := PurchaseRequestInfo."No_";
+                end;
+            Database::"Cylinder Info":
+                begin
+                    RecRef.SetTable(CylinderInfo);
+                    ApprovalEntryArgument."Document No." := CylinderInfo."No_";
                 end;
         end;
     end;
@@ -201,6 +232,7 @@ codeunit 50100 "Approval Wfl Mgt"
     local procedure OnRejectApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     var
         RecRef: RecordRef;
+        CylinderInfo: Record "Cylinder Info";
         PriceApproval: Record "Price Approval";
         PurchaseRequestInfo: Record "Purchase Request Info";
         v: Codeunit "Record Restriction Mgt.";
@@ -213,13 +245,18 @@ codeunit 50100 "Approval Wfl Mgt"
                         PriceApproval.Modify(true);
                     end;
                 end;
-        end;
-        case ApprovalEntry."Table ID" of
             DataBase::"Purchase Request Info":
                 begin
                     if PurchaseRequestInfo.Get(ApprovalEntry."Document No.") then begin
                         PurchaseRequestInfo.Validate(Status, PurchaseRequestInfo.Status::Rejected);
                         PurchaseRequestInfo.Modify(true);
+                    end;
+                end;
+            Database::"Cylinder Info":
+                begin
+                    if CylinderInfo.Get(ApprovalEntry."Document No.") then begin
+                        CylinderInfo.Validate(Status, CylinderInfo.Status::Rejected);
+                        CylinderInfo.Modify(true);
                     end;
                 end;
         end;
@@ -230,6 +267,8 @@ codeunit 50100 "Approval Wfl Mgt"
     var
         PriceApproval: Record "Price Approval";
         PurchaseRequestInfo: Record "Purchase Request Info";
+        CylinderInfo: Record "Cylinder Info";
+
     begin
         case RecRef.Number of
             DataBase::"Price Approval":
@@ -239,13 +278,18 @@ codeunit 50100 "Approval Wfl Mgt"
                     PriceApproval.Modify(true);
                     Handled := true;
                 end;
-        end;
-        case RecRef.Number of
             DataBase::"Purchase Request Info":
                 begin
                     RecRef.SetTable(PurchaseRequestInfo);
                     PurchaseRequestInfo.Validate(Status, PurchaseRequestInfo.Status::Approved);
                     PurchaseRequestInfo.Modify(true);
+                    Handled := true;
+                end;
+            DataBase::"Cylinder Info":
+                begin
+                    RecRef.SetTable(CylinderInfo);
+                    CylinderInfo.Validate(Status, CylinderInfo.Status::Approved);
+                    CylinderInfo.Modify(true);
                     Handled := true;
                 end;
         end;

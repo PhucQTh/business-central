@@ -125,7 +125,6 @@ codeunit 50103 MyWorkflowResponses
                     SentSubmitedEmail(user, ApprovalEntry2."Record ID to Approve");
                 IF ApprovalStatus = ApprovalStatus::Rejected THEN
                     SentRejectedEmail(user, ApprovalEntry2."Record ID to Approve");
-
             until ApprovalEntry2.Next() = 0;
         IF ApprovalStatus = ApprovalStatus::Approved THEN begin
             user.SetRange("User Name", ApprovalEntry."Approver ID");
@@ -142,13 +141,15 @@ codeunit 50103 MyWorkflowResponses
         Subject: Text;
         EmailTemplate: Record "Email Template";
         RecRef: RecordRef;
-        PriceApproval: Record "Price Approval";
-        PurchaseRequest: Record "Purchase Request Info";
         CCRecipients: list of [text];
         ToRecipients: list of [text];
         BCCRecipients: list of [text];
         ReqUser: Record User;
         URL: Text;
+        //*  Table define  */
+        PriceApproval: Record "Price Approval";
+        PurchaseRequest: Record "Purchase Request Info";
+        CyinderRequest: Record "Cylinder Info";
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
@@ -178,8 +179,6 @@ codeunit 50103 MyWorkflowResponses
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
                 end;
-        end;
-        case RecRef.Number of
             Database::"Purchase Request Info":
                 begin
                     RecRef.SetTable(PurchaseRequest);
@@ -209,6 +208,36 @@ codeunit 50103 MyWorkflowResponses
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
                 end;
+            Database::"cylinder info":
+                begin
+                    // TODO : Remember me!
+                    RecRef.SetTable(CyinderRequest);
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+                    URL := URL.Replace('#[CODE]', CyinderRequest.No_);
+                    EmailTemplate.SetRange("Key", 'SUBMIT_PURCHASE');
+                    EmailTemplate.FindFirst();
+                    /* ------------------------------- Get subject ------------------------------ */
+                    Subject := EmailTemplate.Subject;
+                    Subject := Subject.Replace('#[CODE]', CyinderRequest.No_);
+                    /* ---------------------------- Find User Request --------------------------- */
+                    // ReqUser.SetRange("User Name", CyinderRequest."Request By");
+                    ReqUser.FindFirst();
+                    /* -------------------------------- Get body -------------------------------- */
+                    Body := EmailTemplate.GetContent();
+                    // Body := Body.Replace('[CODE]', CyinderRequest.No_);
+                    // Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
+                    // Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
+                    // Body := Body.Replace('[REQUESTEDBY]', ReqUser."Full Name");
+                    Body := Body.Replace('[LINK]', URL);
+                    // if Format(CyinderRequest.RequestDate) <> '' then
+                    //     Body := Body.Replace('[REQUESTED_DATE]', Format(CyinderRequest.RequestDate))
+                    // else
+                    //     Body := Body.Replace('[REQUESTED_DATE]', Format(Today));
+                    CCRecipients := GetCollaborators(CyinderRequest.No_);
+                    ToRecipients.Add(User."Authentication Email");
+                    EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
+                    Mail.Send(EmailMessage, "Email Scenario"::Default);
+                end;
         end;
     end;
 
@@ -230,6 +259,11 @@ codeunit 50103 MyWorkflowResponses
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
+            Database::"Price Approval":
+                begin
+                    // TODO : Remember me!
+                    RecRef.SetTable(PriceApproval);
+                end;
             Database::"Purchase Request Info":
                 begin
                     RecRef.SetTable(PurchaseRequest);
@@ -257,6 +291,10 @@ codeunit 50103 MyWorkflowResponses
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
                 end;
+            Database::"cylinder info":
+                begin
+                    // TODO : Remember me!
+                end;
         end;
     end;
 
@@ -277,6 +315,11 @@ codeunit 50103 MyWorkflowResponses
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
+            Database::"Price Approval":
+                begin
+                    // TODO : Remember me!
+                    // RecRef.SetTable(PriceApproval);
+                end;
             Database::"Purchase Request Info":
                 begin
                     RecRef.SetTable(PurchaseRequest);
@@ -304,6 +347,10 @@ codeunit 50103 MyWorkflowResponses
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
                 end;
+            Database::"cylinder info":
+                begin
+                    // TODO : Remember me!
+                end;
         end;
     end;
 
@@ -323,30 +370,44 @@ codeunit 50103 MyWorkflowResponses
         URL: Text;
     begin
         RecRef.Get(RecId);
-        RecRef.SetTable(PurchaseRequest);
-        URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
-        URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
-        EmailTemplate.SetRange("Key", 'ONHOLD_PURCHASE');
-        EmailTemplate.FindFirst();
-        /* ---------------------------- Get user request ---------------------------- */
-        ReqUser.SetRange("User Name", PurchaseRequest."Request By");
-        ReqUser.FindFirst();
-        /* ------------------------------- Get subject ------------------------------ */
-        Subject := EmailTemplate.Subject;
-        Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
-        /* -------------------------------- Get body -------------------------------- */
-        Body := EmailTemplate.GetContent();
-        Body := Body.Replace('[CODE]', PurchaseRequest.No_);
-        Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
-        Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
-        Body := Body.Replace('[ONHOLD_USER]', OnHoldedUser);
-        Body := Body.Replace('[REQUESTEDBY]', PurchaseRequest."Request By");
-        Body := Body.Replace('[LINK]', URL);
-        Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
-        CCRecipients := GetCollaborators(PurchaseRequest.No_);
-        ToRecipients.Add(ReqUser."Authentication Email"); //! In this case - Recipient is requested user
-        EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
-        Mail.Send(EmailMessage, "Email Scenario"::Default);
+        case RecRef.Number of
+            Database::"Price Approval":
+                begin
+                    // TODO : Remember me!
+                    // RecRef.SetTable(PriceApproval);
+                end;
+            Database::"Purchase Request Info":
+                begin
+                    RecRef.SetTable(PurchaseRequest);
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
+                    EmailTemplate.SetRange("Key", 'ONHOLD_PURCHASE');
+                    EmailTemplate.FindFirst();
+                    /* ---------------------------- Get user request ---------------------------- */
+                    ReqUser.SetRange("User Name", PurchaseRequest."Request By");
+                    ReqUser.FindFirst();
+                    /* ------------------------------- Get subject ------------------------------ */
+                    Subject := EmailTemplate.Subject;
+                    Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
+                    /* -------------------------------- Get body -------------------------------- */
+                    Body := EmailTemplate.GetContent();
+                    Body := Body.Replace('[CODE]', PurchaseRequest.No_);
+                    Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
+                    Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
+                    Body := Body.Replace('[ONHOLD_USER]', OnHoldedUser);
+                    Body := Body.Replace('[REQUESTEDBY]', PurchaseRequest."Request By");
+                    Body := Body.Replace('[LINK]', URL);
+                    Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
+                    CCRecipients := GetCollaborators(PurchaseRequest.No_);
+                    ToRecipients.Add(ReqUser."Authentication Email"); //! In this case - Recipient is requested user
+                    EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
+                    Mail.Send(EmailMessage, "Email Scenario"::Default);
+                end;
+            Database::"cylinder info":
+                begin
+                    // TODO : Remember me!
+                end;
+        end;
     end;
 
     procedure SentConfirmedEmail(ConfirmedUser: Text; RecId: RecordId)
@@ -364,37 +425,70 @@ codeunit 50103 MyWorkflowResponses
         ReqUser: Record User;
         URL: Text;
     begin
-        RecRef.Get(RecId);
-        RecRef.SetTable(PurchaseRequest);
 
-        URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
-        URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
-        EmailTemplate.SetRange("Key", 'CONFIRM_PURCHASE');
-        EmailTemplate.FindFirst();
-        /* ---------------------------- Get user request ---------------------------- */
-        ReqUser.SetRange("User Name", PurchaseRequest."Request By");
-        ReqUser.FindFirst();
-        /* ------------------------------- Get subject ------------------------------ */
-        Subject := EmailTemplate.Subject;
-        Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
-        /* -------------------------------- Get body -------------------------------- */
-        Body := EmailTemplate.GetContent();
-        Body := Body.Replace('[CODE]', PurchaseRequest.No_);
-        Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
-        Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
-        Body := Body.Replace('[ONHOLD_USER]', ConfirmedUser);
-        Body := Body.Replace('[REQUESTEDBY]', PurchaseRequest."Request By");
-        Body := Body.Replace('[LINK]', URL);
-        Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
-        CCRecipients := GetCollaborators(PurchaseRequest.No_);
-        ToRecipients.Add(ReqUser."Authentication Email"); //! In this case - Recipient is requested user
-        EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
-        Mail.Send(EmailMessage, "Email Scenario"::Default);
+        RecRef.Get(RecId);
+        case RecRef.Number of
+            Database::"Price Approval":
+                begin
+                    // TODO : Remember me!
+                    // RecRef.SetTable(PriceApproval);
+                end;
+            Database::"Purchase Request Info":
+                begin
+                    RecRef.SetTable(PurchaseRequest);
+
+                    URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
+                    URL := URL.Replace('#[CODE]', PurchaseRequest.No_);
+                    EmailTemplate.SetRange("Key", 'CONFIRM_PURCHASE');
+                    EmailTemplate.FindFirst();
+                    /* ---------------------------- Get user request ---------------------------- */
+                    ReqUser.SetRange("User Name", PurchaseRequest."Request By");
+                    ReqUser.FindFirst();
+                    /* ------------------------------- Get subject ------------------------------ */
+                    Subject := EmailTemplate.Subject;
+                    Subject := Subject.Replace('#[CODE]', PurchaseRequest.No_);
+                    /* -------------------------------- Get body -------------------------------- */
+                    Body := EmailTemplate.GetContent();
+                    Body := Body.Replace('[CODE]', PurchaseRequest.No_);
+                    Body := Body.Replace('[PURPOSE]', PurchaseRequest.pr_notes);
+                    Body := Body.Replace('[PS_NO]', PurchaseRequest.ps_no);
+                    Body := Body.Replace('[ONHOLD_USER]', ConfirmedUser);
+                    Body := Body.Replace('[REQUESTEDBY]', PurchaseRequest."Request By");
+                    Body := Body.Replace('[LINK]', URL);
+                    Body := Body.Replace('[REQUESTED_DATE]', Format(PurchaseRequest.RequestDate));
+                    CCRecipients := GetCollaborators(PurchaseRequest.No_);
+                    ToRecipients.Add(ReqUser."Authentication Email"); //! In this case - Recipient is requested user
+                    EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
+                    Mail.Send(EmailMessage, "Email Scenario"::Default);
+                end;
+            Database::"cylinder info":
+                begin
+                    // TODO : Remember me!
+                end;
+        end;
+
     end;
 
     procedure SentDelegatedEmail(user: Record User; RecId: RecordId)
+    var
+        RecRef: RecordRef;
     begin
-
+        RecRef.Get(RecId);
+        case RecRef.Number of
+            Database::"Price Approval":
+                begin
+                    // TODO : Remember me!
+                    // RecRef.SetTable(PriceApproval);
+                end;
+            Database::"Purchase Request Info":
+                begin
+                    // TODO : Remember me!
+                end;
+            Database::"cylinder info":
+                begin
+                    // TODO : Remember me!
+                end;
+        end;
     end;
 
     procedure GetCollaborators(var RequestId: code[10]): List of [Text] //! Get CC recipients from Collaborators
@@ -491,10 +585,12 @@ codeunit 50103 MyWorkflowResponses
 
     procedure SetRequestStatusToApproved(ApprovalEntry: Record "Approval Entry")
     var
-        PriceApproval: Record "Price Approval";
-        PurchaseRequestInfo: Record "Purchase Request Info";
         RecRef: RecordRef;
         Status: Enum "Custom Approval Enum";
+        //* Table define 
+        PriceApproval: Record "Price Approval";
+        PurchaseRequestInfo: Record "Purchase Request Info";
+        CylinderRequest: Record "Cylinder Info";
     begin
         case ApprovalEntry."Table ID" of
             DataBase::"Purchase Request Info":
@@ -505,8 +601,6 @@ codeunit 50103 MyWorkflowResponses
                     PurchaseRequestInfo.Validate(Status, Status::Approved);
                     PurchaseRequestInfo.Modify(true);
                 end;
-        end;
-        case ApprovalEntry."Table ID" of
             DataBase::"Price Approval":
                 begin
                     RecRef.Get(ApprovalEntry."Record ID to Approve");
@@ -514,6 +608,14 @@ codeunit 50103 MyWorkflowResponses
                     PriceApproval.find();
                     PriceApproval.Validate(Status, Status::Approved);
                     PriceApproval.Modify(true);
+                end;
+            DataBase::"Cylinder Info":
+                begin
+                    RecRef.Get(ApprovalEntry."Record ID to Approve");
+                    RecRef.SetTable(CylinderRequest);
+                    CylinderRequest.find();
+                    CylinderRequest.Validate(Status, Status::Approved);
+                    CylinderRequest.Modify(true);
                 end;
         end;
     end;
@@ -545,8 +647,10 @@ codeunit 50103 MyWorkflowResponses
         ApproversMember: Record "Approval Workflow User Step";
         RecRef: RecordRef;
         RequestId: Code[20];
+        //* Table define
         PurchaseRequestInfo: Record "Purchase Request Info";
         PriceApproval: Record "Price Approval";
+        CylinderRequest: Record "Cylinder Info";
     begin
         /* ------------------------------------ * ----------------------------------- */
         RecRef.Get(ApprovalEntryArgument."Record ID to Approve");
@@ -562,26 +666,32 @@ codeunit 50103 MyWorkflowResponses
                     RecRef.SetTable(PriceApproval);
                     RequestId := PriceApproval.No_;
                 end;
+            Database::"Cylinder Info":
+                begin
+                    RecRef.SetTable(CylinderRequest);
+                    RequestId := CylinderRequest.No_;
+                end;
         end;
         /* ------------------------------------ * ----------------------------------- */
         IsHandled := false;
         // OnBeforeCreateApprReqForApprTypeWorkflowUserGroup(WorkflowUserGroupMember, WorkflowStepArgument, ApprovalEntryArgument, SequenceNo, IsHandled);
-        // if not IsHandled then begin
-        //     if not UserSetup.Get(UserId) then
-        //         Error(UserIdNotInSetupErr, UserId);
-        SequenceNo := ApprovalsMgmt.GetLastSequenceNo(ApprovalEntryArgument);
-        ApproversMember.SetCurrentKey(RequestId, "Sequence No.");
-        ApproversMember.SetRange(RequestId, RequestId);
-        if not ApproversMember.FindSet() then
-            Error(NoWFUserGroupMembersErr) else
-            repeat
-                ApproverId := ApproversMember."User name";
-                if not UserSetup.Get(ApproverId) then
-                    Error(WFUserGroupNotInSetupErr, ApproverId);
-                IsHandled := false;
-                if not IsHandled then
-                    ApprovalsMgmt.MakeApprovalEntry(ApprovalEntryArgument, SequenceNo + ApproversMember."Sequence No.", ApproverId, WorkflowStepArgument);
-            until ApproversMember.Next() = 0;
+        if not IsHandled then begin
+            if not UserSetup.Get(UserId) then
+                Error(UserIdNotInSetupErr, UserId);
+            SequenceNo := ApprovalsMgmt.GetLastSequenceNo(ApprovalEntryArgument);
+            ApproversMember.SetCurrentKey(RequestId, "Sequence No.");
+            ApproversMember.SetRange(RequestId, RequestId);
+            if not ApproversMember.FindSet() then
+                Error(NoWFUserGroupMembersErr) else
+                repeat
+                    ApproverId := ApproversMember."User name";
+                    if not UserSetup.Get(ApproverId) then
+                        Error(WFUserGroupNotInSetupErr, ApproverId);
+                    IsHandled := false;
+                    if not IsHandled then
+                        ApprovalsMgmt.MakeApprovalEntry(ApprovalEntryArgument, SequenceNo + ApproversMember."Sequence No.", ApproverId, WorkflowStepArgument);
+                until ApproversMember.Next() = 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -598,6 +708,7 @@ codeunit 50103 MyWorkflowResponses
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         WFUserGroupNotInSetupErr: Label 'The workflow user group member with user ID %1 does not exist in the Approval User Setup window.', Comment = 'The workflow user group member with user ID NAVUser does not exist in the Approval User Setup window.';
         NoWFUserGroupMembersErr: Label 'A workflow user group with at least one member must be set up.';
+        UserIdNotInSetupErr: Label 'User ID %1 does not exist in the Approval User Setup window.', Comment = 'User ID NAVUser does not exist in the Approval User Setup window.';
 
 
 }
