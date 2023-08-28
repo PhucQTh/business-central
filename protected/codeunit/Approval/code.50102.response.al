@@ -137,9 +137,9 @@ codeunit 50103 MyWorkflowResponses
     var
         Mail: Codeunit "Email";
         EmailMessage: Codeunit "Email Message";
+        EmailTemplate: Record "Email Template";
         Body: Text;
         Subject: Text;
-        EmailTemplate: Record "Email Template";
         RecRef: RecordRef;
         CCRecipients: list of [text];
         ToRecipients: list of [text];
@@ -149,7 +149,7 @@ codeunit 50103 MyWorkflowResponses
         //*  Table define  */
         PriceApproval: Record "Price Approval";
         PurchaseRequest: Record "Purchase Request Info";
-        CyinderRequest: Record "Cylinder Info";
+        CylinderRequest: Record "Cylinder Info";
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
@@ -211,14 +211,14 @@ codeunit 50103 MyWorkflowResponses
             Database::"cylinder info":
                 begin
                     // TODO : Remember me!
-                    RecRef.SetTable(CyinderRequest);
+                    RecRef.SetTable(CylinderRequest);
                     URL := 'https://businesscentral.dynamics.com/Sandbox/?company=CRONUS%20USA%2c%20Inc.&page=50113&filter=%27Purchase%20Request%20Info%27.No_%20IS%20%27#[CODE]%27';
-                    URL := URL.Replace('#[CODE]', CyinderRequest.No_);
+                    URL := URL.Replace('#[CODE]', CylinderRequest.No_);
                     EmailTemplate.SetRange("Key", 'SUBMIT_PURCHASE');
                     EmailTemplate.FindFirst();
                     /* ------------------------------- Get subject ------------------------------ */
                     Subject := EmailTemplate.Subject;
-                    Subject := Subject.Replace('#[CODE]', CyinderRequest.No_);
+                    Subject := Subject.Replace('#[CODE]', CylinderRequest.No_);
                     /* ---------------------------- Find User Request --------------------------- */
                     // ReqUser.SetRange("User Name", CyinderRequest."Request By");
                     ReqUser.FindFirst();
@@ -233,7 +233,7 @@ codeunit 50103 MyWorkflowResponses
                     //     Body := Body.Replace('[REQUESTED_DATE]', Format(CyinderRequest.RequestDate))
                     // else
                     //     Body := Body.Replace('[REQUESTED_DATE]', Format(Today));
-                    CCRecipients := GetCollaborators(CyinderRequest.No_);
+                    CCRecipients := GetCollaborators(CylinderRequest.No_);
                     ToRecipients.Add(User."Authentication Email");
                     EmailMessage.Create(ToRecipients, Subject, Body, true, CCRecipients, BCCRecipients);
                     Mail.Send(EmailMessage, "Email Scenario"::Default);
@@ -249,20 +249,22 @@ codeunit 50103 MyWorkflowResponses
         Subject: Text;
         EmailTemplate: Record "Email Template";
         RecRef: RecordRef;
-        PriceApproval: Record "Price Approval";
-        PurchaseRequest: Record "Purchase Request Info";
         CCRecipients: list of [text];
         ToRecipients: list of [text];
         BCCRecipients: list of [text];
         ReqUser: Record User;
         URL: Text;
+        //* TABLE DEFINE */
+        PurchaseRequest: Record "Purchase Request Info";
+        PriceRequest: Record "Price Approval";
+        CylinderRequest: Record "cylinder info";
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
             Database::"Price Approval":
                 begin
                     // TODO : Remember me!
-                    RecRef.SetTable(PriceApproval);
+                    RecRef.SetTable(PriceRequest);
                 end;
             Database::"Purchase Request Info":
                 begin
@@ -306,12 +308,15 @@ codeunit 50103 MyWorkflowResponses
         Subject: Text;
         EmailTemplate: Record "Email Template";
         RecRef: RecordRef;
-        PurchaseRequest: Record "Purchase Request Info";
         CCRecipients: list of [text];
         ToRecipients: list of [text];
         BCCRecipients: list of [text];
         ReqUser: Record User;
         URL: Text;
+        //* TABLE DEFINE */
+        PurchaseRequest: Record "Purchase Request Info";
+        PriceRequest: Record "Price Approval";
+        CylinderRequest: Record "cylinder info";
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
@@ -362,12 +367,15 @@ codeunit 50103 MyWorkflowResponses
         Subject: Text;
         EmailTemplate: Record "Email Template";
         RecRef: RecordRef;
-        PurchaseRequest: Record "Purchase Request Info";
         CCRecipients: list of [text];
         ToRecipients: list of [text];
         BCCRecipients: list of [text];
         ReqUser: Record User;
         URL: Text;
+        //* TABLE DEFINE */
+        PurchaseRequest: Record "Purchase Request Info";
+        PriceRequest: Record "Price Approval";
+        CylinderRequest: Record "cylinder info";
     begin
         RecRef.Get(RecId);
         case RecRef.Number of
@@ -418,12 +426,15 @@ codeunit 50103 MyWorkflowResponses
         Subject: Text;
         EmailTemplate: Record "Email Template";
         RecRef: RecordRef;
-        PurchaseRequest: Record "Purchase Request Info";
         CCRecipients: list of [text];
         ToRecipients: list of [text];
         BCCRecipients: list of [text];
         ReqUser: Record User;
         URL: Text;
+        //* TABLE DEFINE */
+        PurchaseRequest: Record "Purchase Request Info";
+        PriceRequest: Record "Price Approval";
+        CylinderRequest: Record "cylinder info";
     begin
 
         RecRef.Get(RecId);
@@ -544,42 +555,32 @@ codeunit 50103 MyWorkflowResponses
                         SentEmailWhenSubmitRequest(Variant, ResponseWorkflowStepInstance);
                         ResponseExecuted := TRUE;
                     end;
+                SentEmailNotificationToSenderCode:
+                    begin
+                        SentEmailNotificationToSender(Variant, ResponseWorkflowStepInstance);
+                        ResponseExecuted := TRUE;
+                    end;
+                SentEmailWhenRejectedCode:
+                    begin
+                        SentEmailWhenRejected(Variant, ResponseWorkflowStepInstance);
+                        ResponseExecuted := TRUE;
+                    end;
+                SentEmailWhenApprovedCompleteCode:
+                    begin
+                        SentEmailWhenApprovedComplete(Variant, ResponseWorkflowStepInstance);
+                        ResponseExecuted := TRUE;
+                    end;
+                SetApprovedStatusCode:
+                    begin
+                        SetRequestStatusToApproved(Variant);
+                        ResponseExecuted := TRUE;
+                    end;
+                GetApproversListCode:
+                    begin
+                        CreateApprovalRequests(Variant, ResponseWorkflowStepInstance);
+                        ResponseExecuted := TRUE;
+                    end;
             END;
-        case WorkflowResponse."Function Name" of
-            SentEmailNotificationToSenderCode:
-                begin
-                    SentEmailNotificationToSender(Variant, ResponseWorkflowStepInstance);
-                    ResponseExecuted := TRUE;
-                end;
-        END;
-        case WorkflowResponse."Function Name" of
-            SentEmailWhenRejectedCode:
-                begin
-                    SentEmailWhenRejected(Variant, ResponseWorkflowStepInstance);
-                    ResponseExecuted := TRUE;
-                end;
-        END;
-        case WorkflowResponse."Function Name" of
-            SentEmailWhenApprovedCompleteCode:
-                begin
-                    SentEmailWhenApprovedComplete(Variant, ResponseWorkflowStepInstance);
-                    ResponseExecuted := TRUE;
-                end;
-        END;
-        case WorkflowResponse."Function Name" of
-            SetApprovedStatusCode:
-                begin
-                    SetRequestStatusToApproved(Variant);
-                    ResponseExecuted := TRUE;
-                end;
-        END;
-        case WorkflowResponse."Function Name" of
-            GetApproversListCode:
-                begin
-                    CreateApprovalRequests(Variant, ResponseWorkflowStepInstance);
-                    ResponseExecuted := TRUE;
-                end;
-        END;
     end;
 
 

@@ -192,11 +192,24 @@ page 50125 "Cylinder Request Card"
                               "No." = FIELD("No_");
 
             }
-            field(LayoutFile; Rec.LayoutFile)
+            usercontrol(LayoutImageViewer; HTML)
             {
-                ShowCaption = false;
                 ApplicationArea = All;
-                ToolTip = 'Specifies the value of the LayoutFile field.';
+                trigger ControlReady()
+                var
+                    InStr: InStream;
+                    Base64Convert: Codeunit "Base64 Convert";
+                    ItemTenantMedia: Record "Tenant Media";
+                    ImgBase64: Text;
+                begin
+                    if Rec.LayoutFile.Count > 0 then begin
+                        ItemTenantMedia.Get(Rec.LayoutFile.Item(1));
+                        ItemTenantMedia.CalcFields(Content);
+                        ItemTenantMedia.Content.CreateInStream(InStr, TextEncoding::UTF8);
+                        ImgBase64 := Base64Convert.ToBase64(InStr, false);
+                    end;
+                    CurrPage.LayoutImageViewer.Render('<div style="display: flex;align-items: center;;flex-direction: column"><h6>LAYOUT</h6><img src="data:image/png;base64,' + ImgBase64 + '" alt="printlayout" style="width: 500px;height: 376px; object-fit: contain;"/></div>', false);
+                end;
             }
             group("Other Request")
             {
@@ -230,14 +243,7 @@ page 50125 "Cylinder Request Card"
                 SubPageLink = ApprovalID = field("No_");
             }
         }
-        area(FactBoxes)
-        {
-            part("Layout"; LayoutMedia)
-            {
-                ApplicationArea = all;
-                SubPageLink = No_ = field(No_);
-            }
-        }
+
     }
     actions
     {
@@ -496,11 +502,6 @@ page 50125 "Cylinder Request Card"
         ClientFileName: Text;
         InStr: InStream;
     begin
-        // Rec.Find();
-        // Rec.TestField(Code);
-        // if Rec.Description = '' then
-        //     Error(MustSpecifyDescriptionErr);
-
         if Rec.LayoutFile.Count > 0 then
             if not Confirm(OverrideImageQst) then
                 Error('');
@@ -509,13 +510,11 @@ page 50125 "Cylinder Request Card"
         UploadIntoStream(SelectPictureTxt, '', '', ClientFileName, InStr);
         if ClientFileName <> '' then
             FileName := FileManagement.GetFileName(ClientFileName);
-        // FileName := FileManagement.UploadFile(SelectPictureTxt, ClientFileName);
         if FileName = '' then
             Error('');
 
         Clear(Rec.LayoutFile);
         Rec.LayoutFile.ImportStream(InStr, FileName);
-        // Picture.ImportFile(FileName, ClientFileName);
         Rec.Modify(true);
     end;
 
