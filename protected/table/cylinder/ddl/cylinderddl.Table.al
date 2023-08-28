@@ -1,4 +1,4 @@
-table 50117 cylinder_ddl
+table 50117 "cylinder_ddl"
 {
     Caption = 'cylinder_ddl';
     DataClassification = ToBeClassified;
