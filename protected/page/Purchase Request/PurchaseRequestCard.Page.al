@@ -23,6 +23,7 @@ page 50114 "Purchase Request Card"
                             exit;
                         end;
                         Rec.pr_type := 1;
+                        // Rec.Validate(pr_type, 1);
                         Service := false;
                         CurrPage.Update();
                     end;
@@ -39,6 +40,7 @@ page 50114 "Purchase Request Card"
                             exit;
                         end;
                         Rec.pr_type := 2;
+                        // Rec.Validate(pr_type, 2);
                         Good := false;
                         CurrPage.Update();
                     end;

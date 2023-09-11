@@ -192,22 +192,18 @@ page 50125 "Cylinder Request Card"
                               "No." = FIELD("No_");
 
             }
+
             usercontrol(LayoutImageViewer; HTML)
             {
                 ApplicationArea = All;
                 trigger ControlReady()
                 var
                     InStr: InStream;
-                    Base64Convert: Codeunit "Base64 Convert";
-                    ItemTenantMedia: Record "Tenant Media";
                     ImgBase64: Text;
+                    Helper: Codeunit Helper;
                 begin
-                    if Rec.LayoutFile.Count > 0 then begin
-                        ItemTenantMedia.Get(Rec.LayoutFile.Item(1));
-                        ItemTenantMedia.CalcFields(Content);
-                        ItemTenantMedia.Content.CreateInStream(InStr, TextEncoding::UTF8);
-                        ImgBase64 := Base64Convert.ToBase64(InStr, false);
-                    end;
+                    if Rec.LayoutFile.Count > 0 then
+                        ImgBase64 := Helper.ItemTenantMediaToBase64(Rec.LayoutFile.Item(1));
                     CurrPage.LayoutImageViewer.Render('<div style="display: flex;align-items: center;;flex-direction: column"><h6>LAYOUT</h6><img src="data:image/png;base64,' + ImgBase64 + '" alt="printlayout" style="width: 500px;height: 376px; object-fit: contain;"/></div>', false);
                 end;
             }
