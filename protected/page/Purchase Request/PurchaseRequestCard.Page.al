@@ -143,8 +143,6 @@ page 50114 "Purchase Request Card"
                 ApplicationArea = All;
                 SubPageLink = RequestCode = field("NO_");
             }
-
-
             part("Attached Documents List"; "Document Attachment ListPart")
             {
                 ApplicationArea = All;
@@ -168,7 +166,6 @@ page 50114 "Purchase Request Card"
                 SubPageLink = RequestId = field("NO_");
             }
         }
-
     }
     actions
     {
